@@ -1,0 +1,80 @@
+[
+  {
+    "id": "tbl-vibdbe",
+    "type": "table",
+    "layer": "physical",
+    "name": "VIBDBE",
+    "description": "Building Master Data Table",
+    "status": "active",
+    "schema": "sch-refx",
+    "system": "sys-sap",
+    "rowCount": 45000,
+    "logicalEntity": "ent-building",
+    "created": "2024-01-10",
+    "columns": [
+      { "name": "VIESSION", "type": "CHAR(20)", "nullable": false, "key": "PK", "mappedTo": "egid" },
+      { "name": "VITYPART", "type": "CHAR(4)", "nullable": false, "key": "", "mappedTo": "building_type" },
+      { "name": "VISTREET", "type": "VARCHAR(100)", "nullable": true, "key": "", "mappedTo": "address_street" },
+      { "name": "VICITY", "type": "VARCHAR(50)", "nullable": true, "key": "", "mappedTo": "address_city" },
+      { "name": "VICONSTYR", "type": "INT", "nullable": true, "key": "", "mappedTo": "construction_year" },
+      { "name": "VIAREA", "type": "DECIMAL(10,2)", "nullable": true, "key": "", "mappedTo": "total_area_sqm" }
+    ]
+  },
+  {
+    "id": "tbl-vibdgr",
+    "type": "table",
+    "layer": "physical",
+    "name": "VIBDGR",
+    "description": "Plot Master Data Table",
+    "status": "active",
+    "schema": "sch-refx",
+    "system": "sys-sap",
+    "rowCount": 12000,
+    "logicalEntity": "ent-plot",
+    "created": "2024-01-10",
+    "columns": [
+      { "name": "VIPLOTID", "type": "CHAR(20)", "nullable": false, "key": "PK", "mappedTo": "plot_id" },
+      { "name": "VIAREA", "type": "DECIMAL(12,2)", "nullable": false, "key": "", "mappedTo": "area_sqm" },
+      { "name": "VIZONE", "type": "CHAR(10)", "nullable": true, "key": "", "mappedTo": "zone_type" },
+      { "name": "VIMUNI", "type": "VARCHAR(50)", "nullable": false, "key": "", "mappedTo": "municipality" }
+    ]
+  },
+  {
+    "id": "tbl-viobj",
+    "type": "table",
+    "layer": "physical",
+    "name": "VIOBJ",
+    "description": "Rental Object Table",
+    "status": "active",
+    "schema": "sch-refx",
+    "system": "sys-sap",
+    "rowCount": 120000,
+    "logicalEntity": "ent-rental-unit",
+    "created": "2024-01-10",
+    "columns": [
+      { "name": "VIOBJID", "type": "CHAR(20)", "nullable": false, "key": "PK", "mappedTo": "unit_id" },
+      { "name": "VIESSION", "type": "CHAR(20)", "nullable": false, "key": "FK", "mappedTo": "building_egid" },
+      { "name": "VIFLOOR", "type": "INT", "nullable": true, "key": "", "mappedTo": "floor" },
+      { "name": "VIAREA", "type": "DECIMAL(8,2)", "nullable": false, "key": "", "mappedTo": "area_sqm" }
+    ]
+  },
+  {
+    "id": "tbl-geo-buildings",
+    "type": "table",
+    "layer": "physical",
+    "name": "buildings",
+    "description": "Building Geometry Table",
+    "status": "active",
+    "schema": "sch-geo",
+    "system": "sys-postgis",
+    "rowCount": 45000,
+    "logicalEntity": "ent-building",
+    "created": "2024-01-15",
+    "columns": [
+      { "name": "id", "type": "SERIAL", "nullable": false, "key": "PK", "mappedTo": "" },
+      { "name": "egid", "type": "INTEGER", "nullable": false, "key": "UK", "mappedTo": "egid" },
+      { "name": "geom", "type": "GEOMETRY", "nullable": false, "key": "", "mappedTo": "" },
+      { "name": "footprint_area", "type": "NUMERIC", "nullable": true, "key": "", "mappedTo": "" }
+    ]
+  }
+]

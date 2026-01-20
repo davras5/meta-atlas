@@ -1,0 +1,26 @@
+[
+  {
+    "id": "sys-sap",
+    "type": "system",
+    "layer": "physical",
+    "name": "SAP RE-FX",
+    "description": "SAP Real Estate Flexible Management System",
+    "status": "active",
+    "technology": "SAP HANA",
+    "owner": "BBL IT",
+    "created": "2024-01-10",
+    "schemas": ["sch-refx"]
+  },
+  {
+    "id": "sys-postgis",
+    "type": "system",
+    "layer": "physical",
+    "name": "PostGIS Geodatenbank",
+    "description": "Geographic Information System Database",
+    "status": "active",
+    "technology": "PostgreSQL/PostGIS",
+    "owner": "BBL GIS Team",
+    "created": "2024-01-15",
+    "schemas": ["sch-geo"]
+  }
+]

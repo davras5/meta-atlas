@@ -1,0 +1,22 @@
+[
+  {
+    "id": "sch-refx",
+    "type": "schema",
+    "layer": "physical",
+    "name": "REFX",
+    "description": "Real Estate Management Schema",
+    "status": "active",
+    "system": "sys-sap",
+    "tables": ["tbl-vibdbe", "tbl-vibdgr", "tbl-viobj"]
+  },
+  {
+    "id": "sch-geo",
+    "type": "schema",
+    "layer": "physical",
+    "name": "public",
+    "description": "Public GIS Schema",
+    "status": "active",
+    "system": "sys-postgis",
+    "tables": ["tbl-geo-buildings"]
+  }
+]

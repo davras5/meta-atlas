@@ -1,0 +1,26 @@
+[
+  {
+    "id": "dom-immo",
+    "type": "domain",
+    "layer": "conceptual",
+    "name": "Immobilienverwaltung",
+    "nameEn": "Real Estate Management",
+    "description": "Verwaltung von Bundesimmobilien, Mietobjekten und Grundstücken",
+    "status": "active",
+    "owner": "BBL - Abteilung Immobilien",
+    "created": "2024-01-15",
+    "concepts": ["con-gebaeude", "con-grundstueck", "con-mietobjekt"]
+  },
+  {
+    "id": "dom-project",
+    "type": "domain",
+    "layer": "conceptual",
+    "name": "Projektmanagement",
+    "nameEn": "Project Management",
+    "description": "Verwaltung von Bauprojekten und Renovierungen",
+    "status": "active",
+    "owner": "BBL - Projektabteilung",
+    "created": "2024-02-01",
+    "concepts": ["con-projekt"]
+  }
+]

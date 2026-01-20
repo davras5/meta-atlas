@@ -1,0 +1,65 @@
+[
+  {
+    "id": "ent-building",
+    "type": "entity",
+    "layer": "logical",
+    "name": "Building",
+    "nameDE": "Gebäude",
+    "description": "Logische Entität für Gebäudedaten des Bundes",
+    "status": "active",
+    "concept": "con-gebaeude",
+    "domain": "dom-immo",
+    "physicalTables": ["tbl-vibdbe", "tbl-geo-buildings"],
+    "created": "2024-01-20",
+    "attributes": [
+      { "name": "egid", "type": "Integer", "nullable": false, "key": "PK", "description": "Eidgenössischer Gebäudeidentifikator" },
+      { "name": "building_type", "type": "Reference", "nullable": false, "key": "", "valueDomain": "vd-building-type", "description": "Gebäudetyp" },
+      { "name": "address_street", "type": "String", "nullable": true, "key": "", "description": "Strassenadresse" },
+      { "name": "address_city", "type": "String", "nullable": true, "key": "", "description": "Stadt/Ort" },
+      { "name": "construction_year", "type": "Integer", "nullable": true, "key": "", "description": "Baujahr" },
+      { "name": "total_area_sqm", "type": "Decimal", "nullable": true, "key": "", "description": "Gesamtfläche in m²" },
+      { "name": "plot_id", "type": "Reference", "nullable": false, "key": "FK", "description": "Referenz zum Grundstück" },
+      { "name": "status", "type": "Reference", "nullable": false, "key": "", "valueDomain": "vd-status", "description": "Status des Gebäudes" }
+    ]
+  },
+  {
+    "id": "ent-plot",
+    "type": "entity",
+    "layer": "logical",
+    "name": "Plot",
+    "nameDE": "Grundstück",
+    "description": "Logische Entität für Grundstücksdaten",
+    "status": "active",
+    "concept": "con-grundstueck",
+    "domain": "dom-immo",
+    "physicalTables": ["tbl-vibdgr"],
+    "created": "2024-01-20",
+    "attributes": [
+      { "name": "plot_id", "type": "String", "nullable": false, "key": "PK", "description": "Grundstücksidentifikator" },
+      { "name": "area_sqm", "type": "Decimal", "nullable": false, "key": "", "description": "Fläche in m²" },
+      { "name": "zone_type", "type": "Reference", "nullable": true, "key": "", "valueDomain": "vd-zone", "description": "Nutzungszone" },
+      { "name": "municipality", "type": "String", "nullable": false, "key": "", "description": "Gemeinde" }
+    ]
+  },
+  {
+    "id": "ent-rental-unit",
+    "type": "entity",
+    "layer": "logical",
+    "name": "RentalUnit",
+    "nameDE": "Mietobjekt",
+    "description": "Logische Entität für Mietobjekte",
+    "status": "active",
+    "concept": "con-mietobjekt",
+    "domain": "dom-immo",
+    "physicalTables": ["tbl-viobj"],
+    "created": "2024-02-05",
+    "attributes": [
+      { "name": "unit_id", "type": "String", "nullable": false, "key": "PK", "description": "Mietobjekt-ID" },
+      { "name": "building_egid", "type": "Integer", "nullable": false, "key": "FK", "description": "Referenz zum Gebäude" },
+      { "name": "floor", "type": "Integer", "nullable": true, "key": "", "description": "Stockwerk" },
+      { "name": "area_sqm", "type": "Decimal", "nullable": false, "key": "", "description": "Fläche in m²" },
+      { "name": "unit_type", "type": "Reference", "nullable": false, "key": "", "valueDomain": "vd-unit-type", "description": "Objekttyp" },
+      { "name": "rent_monthly", "type": "Decimal", "nullable": true, "key": "", "description": "Monatsmiete CHF" }
+    ]
+  }
+]
