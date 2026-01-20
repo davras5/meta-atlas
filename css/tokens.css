@@ -3,71 +3,73 @@
    Refined for modern, professional UX
    ======================================== */
 :root {
-    /* ===== Color System - Refined Slate Scale ===== */
+    /* ===== Color System - Refined Neutral Scale ===== */
 
-    /* Dark Mode (Primary) - Deep, rich backgrounds */
-    --color-bg-base: #0C1220;
-    --color-bg-surface: #151D2E;
-    --color-bg-elevated: #1E293B;
-    --color-bg-hover: rgba(255, 255, 255, 0.06);
+    /* Dark Mode (Primary) - Refined neutral backgrounds with subtle warmth */
+    --color-bg-base: #0F1419;
+    --color-bg-surface: #171C24;
+    --color-bg-elevated: #1F252E;
+    --color-bg-hover: rgba(255, 255, 255, 0.05);
     --color-bg-active: rgba(255, 255, 255, 0.08);
 
-    --color-text-primary: #F8FAFC;
-    --color-text-secondary: #94A3B8;
-    --color-text-muted: #64748B;
-    --color-text-disabled: #475569;
+    /* Text - Refined for optimal readability */
+    --color-text-primary: #F0F3F6;
+    --color-text-secondary: #8B99A8;
+    --color-text-muted: #5C6A7A;
+    --color-text-disabled: #3D4854;
 
-    --color-border-default: rgba(255, 255, 255, 0.08);
-    --color-border-subtle: rgba(255, 255, 255, 0.04);
-    --color-border-strong: rgba(255, 255, 255, 0.12);
+    /* Borders - Refined opacity for cleaner lines */
+    --color-border-default: rgba(255, 255, 255, 0.07);
+    --color-border-subtle: rgba(255, 255, 255, 0.035);
+    --color-border-strong: rgba(255, 255, 255, 0.14);
 
-    /* Layer Colors - Dark Mode (Refined for better harmony) */
-    --color-conceptual: #3B82F6;
-    --color-conceptual-light: #60A5FA;
-    --color-conceptual-bg: rgba(59, 130, 246, 0.12);
-    --color-conceptual-border: rgba(59, 130, 246, 0.3);
+    /* Layer Colors - Dark Mode (Refined for better harmony and distinction) */
+    --color-conceptual: #4F8EF7;
+    --color-conceptual-light: #6BA3FF;
+    --color-conceptual-bg: rgba(79, 142, 247, 0.10);
+    --color-conceptual-border: rgba(79, 142, 247, 0.25);
 
-    --color-logical: #10B981;
-    --color-logical-light: #34D399;
-    --color-logical-bg: rgba(16, 185, 129, 0.12);
-    --color-logical-border: rgba(16, 185, 129, 0.3);
+    --color-logical: #22C997;
+    --color-logical-light: #3DDBA8;
+    --color-logical-bg: rgba(34, 201, 151, 0.10);
+    --color-logical-border: rgba(34, 201, 151, 0.25);
 
-    --color-physical: #F59E0B;
-    --color-physical-light: #FBBF24;
-    --color-physical-bg: rgba(245, 158, 11, 0.12);
-    --color-physical-border: rgba(245, 158, 11, 0.3);
+    --color-physical: #F5A524;
+    --color-physical-light: #FFBA42;
+    --color-physical-bg: rgba(245, 165, 36, 0.10);
+    --color-physical-border: rgba(245, 165, 36, 0.25);
 
-    /* Status Colors - Refined */
-    --color-status-active: #10B981;
-    --color-status-active-bg: rgba(16, 185, 129, 0.12);
-    --color-status-draft: #F59E0B;
-    --color-status-draft-bg: rgba(245, 158, 11, 0.12);
-    --color-status-deprecated: #64748B;
-    --color-status-deprecated-bg: rgba(100, 116, 139, 0.12);
-    --color-status-planned: #8B5CF6;
-    --color-status-planned-bg: rgba(139, 92, 246, 0.12);
+    /* Status Colors - Refined with consistent saturation */
+    --color-status-active: #22C997;
+    --color-status-active-bg: rgba(34, 201, 151, 0.10);
+    --color-status-draft: #F5A524;
+    --color-status-draft-bg: rgba(245, 165, 36, 0.10);
+    --color-status-deprecated: #6B7A8A;
+    --color-status-deprecated-bg: rgba(107, 122, 138, 0.10);
+    --color-status-planned: #9B6EF3;
+    --color-status-planned-bg: rgba(155, 110, 243, 0.10);
 
-    /* Semantic Colors */
-    --color-error: #EF4444;
-    --color-error-bg: rgba(239, 68, 68, 0.12);
-    --color-warning: #F59E0B;
-    --color-warning-bg: rgba(245, 158, 11, 0.12);
-    --color-success: #10B981;
-    --color-success-bg: rgba(16, 185, 129, 0.12);
-    --color-info: #3B82F6;
-    --color-info-bg: rgba(59, 130, 246, 0.12);
+    /* Semantic Colors - Refined for clarity */
+    --color-error: #F25C5C;
+    --color-error-bg: rgba(242, 92, 92, 0.10);
+    --color-warning: #F5A524;
+    --color-warning-bg: rgba(245, 165, 36, 0.10);
+    --color-success: #22C997;
+    --color-success-bg: rgba(34, 201, 151, 0.10);
+    --color-info: #4F8EF7;
+    --color-info-bg: rgba(79, 142, 247, 0.10);
 
-    /* Compliance Badge Colors */
-    --color-public: #10B981;
-    --color-internal: #3B82F6;
-    --color-confidential: #F59E0B;
-    --color-secret: #EF4444;
-    --color-personal-data: #8B5CF6;
+    /* Compliance Badge Colors - Refined for consistency */
+    --color-public: #22C997;
+    --color-internal: #4F8EF7;
+    --color-confidential: #F5A524;
+    --color-secret: #F25C5C;
+    --color-personal-data: #9B6EF3;
 
     /* Swiss Accent (critical actions only) */
-    --color-swiss-red: #DC2626;
-    --color-swiss-red-hover: #B91C1C;
-    --color-swiss-red-bg: rgba(220, 38, 38, 0.12);
+    --color-swiss-red: #E53E3E;
+    --color-swiss-red-hover: #C53030;
+    --color-swiss-red-bg: rgba(229, 62, 62, 0.10);
 
     /* ===== Typography - Refined Scale ===== */
     --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -157,9 +159,9 @@
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
 
     /* Glow effects for interactive elements */
-    --glow-conceptual: 0 0 20px rgba(59, 130, 246, 0.15);
-    --glow-logical: 0 0 20px rgba(16, 185, 129, 0.15);
-    --glow-physical: 0 0 20px rgba(245, 158, 11, 0.15);
+    --glow-conceptual: 0 0 24px rgba(79, 142, 247, 0.18);
+    --glow-logical: 0 0 24px rgba(34, 201, 151, 0.18);
+    --glow-physical: 0 0 24px rgba(245, 165, 36, 0.18);
 
     /* ===== Animation - Refined ===== */
     --duration-instant: 50ms;
@@ -186,66 +188,75 @@
 
 /* ===== Light Theme - Refined ===== */
 [data-theme="light"] {
-    /* Background hierarchy - Clean whites with subtle warmth */
-    --color-bg-base: #FAFBFC;
-    --color-bg-surface: #FFFFFF;
-    --color-bg-elevated: #FFFFFF;
-    --color-bg-hover: rgba(0, 0, 0, 0.03);
-    --color-bg-active: rgba(0, 0, 0, 0.05);
+    /* Background hierarchy - Clean, professional with subtle warmth */
+    --color-bg-base: #F4F6F8;           /* Neutral gray canvas */
+    --color-bg-surface: #FFFFFF;         /* Pure white cards/panels */
+    --color-bg-elevated: #FFFFFF;        /* Elevated surfaces */
+    --color-bg-hover: rgba(0, 0, 0, 0.035);
+    --color-bg-active: rgba(0, 0, 0, 0.055);
 
-    /* Text hierarchy - Rich, readable grays */
-    --color-text-primary: #1A202C;
-    --color-text-secondary: #4A5568;
-    --color-text-muted: #718096;
-    --color-text-disabled: #A0AEC0;
+    /* Header - Professional dark header for contrast */
+    --color-header-bg: #1F252E;          /* Matches dark mode surface */
+    --color-header-text: #F0F3F6;        /* Light text on header */
+    --color-header-text-secondary: #A8B4C2;
+    --color-header-border: rgba(255, 255, 255, 0.08);
 
-    /* Borders - Subtle, refined */
-    --color-border-default: rgba(0, 0, 0, 0.08);
+    /* Sidebar - Clean white for consistency */
+    --color-sidebar-bg: #FFFFFF;         /* White sidebar */
+
+    /* Text hierarchy - Refined for optimal readability */
+    --color-text-primary: #1A1F26;
+    --color-text-secondary: #4D5866;
+    --color-text-muted: #6E7A89;
+    --color-text-disabled: #9CA7B4;
+
+    /* Borders - Clean, refined */
+    --color-border-default: rgba(0, 0, 0, 0.07);
     --color-border-subtle: rgba(0, 0, 0, 0.04);
-    --color-border-strong: rgba(0, 0, 0, 0.12);
+    --color-border-strong: rgba(0, 0, 0, 0.11);
 
-    /* Layer Colors - Light Mode (Adjusted for readability) */
-    --color-conceptual: #2563EB;
-    --color-conceptual-light: #3B82F6;
-    --color-conceptual-bg: rgba(37, 99, 235, 0.08);
-    --color-conceptual-border: rgba(37, 99, 235, 0.2);
+    /* Layer Colors - Light Mode (Deeper for better contrast on white) */
+    --color-conceptual: #3574E8;
+    --color-conceptual-light: #4F8EF7;
+    --color-conceptual-bg: rgba(53, 116, 232, 0.07);
+    --color-conceptual-border: rgba(53, 116, 232, 0.18);
 
-    --color-logical: #059669;
-    --color-logical-light: #10B981;
-    --color-logical-bg: rgba(5, 150, 105, 0.08);
-    --color-logical-border: rgba(5, 150, 105, 0.2);
+    --color-logical: #0FA87C;
+    --color-logical-light: #22C997;
+    --color-logical-bg: rgba(15, 168, 124, 0.07);
+    --color-logical-border: rgba(15, 168, 124, 0.18);
 
-    --color-physical: #D97706;
-    --color-physical-light: #F59E0B;
-    --color-physical-bg: rgba(217, 119, 6, 0.08);
-    --color-physical-border: rgba(217, 119, 6, 0.2);
+    --color-physical: #E09412;
+    --color-physical-light: #F5A524;
+    --color-physical-bg: rgba(224, 148, 18, 0.07);
+    --color-physical-border: rgba(224, 148, 18, 0.18);
 
     /* Status Colors - Light Mode */
-    --color-status-active-bg: rgba(5, 150, 105, 0.1);
-    --color-status-draft-bg: rgba(217, 119, 6, 0.1);
-    --color-status-deprecated-bg: rgba(113, 128, 150, 0.1);
-    --color-status-planned-bg: rgba(139, 92, 246, 0.1);
+    --color-status-active-bg: rgba(15, 168, 124, 0.08);
+    --color-status-draft-bg: rgba(224, 148, 18, 0.08);
+    --color-status-deprecated-bg: rgba(110, 122, 137, 0.08);
+    --color-status-planned-bg: rgba(155, 110, 243, 0.08);
 
     /* Semantic Colors - Light Mode */
-    --color-error-bg: rgba(239, 68, 68, 0.08);
-    --color-warning-bg: rgba(245, 158, 11, 0.08);
-    --color-success-bg: rgba(16, 185, 129, 0.08);
-    --color-info-bg: rgba(59, 130, 246, 0.08);
+    --color-error-bg: rgba(242, 92, 92, 0.07);
+    --color-warning-bg: rgba(245, 165, 36, 0.07);
+    --color-success-bg: rgba(34, 201, 151, 0.07);
+    --color-info-bg: rgba(79, 142, 247, 0.07);
 
     /* Swiss Red - Light Mode */
-    --color-swiss-red-bg: rgba(220, 38, 38, 0.08);
+    --color-swiss-red-bg: rgba(229, 62, 62, 0.07);
 
-    /* Shadows - Light Mode (Softer, more natural) */
+    /* Shadows - Light Mode (Natural, layered depth) */
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 12px 20px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 24px 32px -8px rgba(0, 0, 0, 0.10), 0 12px 16px -4px rgba(0, 0, 0, 0.05);
 
     /* Glow effects - Subtle for light mode */
-    --glow-conceptual: 0 0 20px rgba(37, 99, 235, 0.1);
-    --glow-logical: 0 0 20px rgba(5, 150, 105, 0.1);
-    --glow-physical: 0 0 20px rgba(217, 119, 6, 0.1);
+    --glow-conceptual: 0 0 24px rgba(53, 116, 232, 0.12);
+    --glow-logical: 0 0 24px rgba(15, 168, 124, 0.12);
+    --glow-physical: 0 0 24px rgba(224, 148, 18, 0.12);
 }
 
 /* ===== Reduced Motion ===== */

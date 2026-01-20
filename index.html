@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meta-Atlas | Metadata Catalog</title>
+    <title>Meta-Atlas | Metadatenkatalog</title>
 
     <!-- Modern Font Stack -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,2498 +11,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        /* ========================================
-           Legacy inline tokens - kept for compatibility
-           Primary tokens are now in css/tokens.css
-           ======================================== */
-        :root {
-            /* These are overridden by tokens.css but kept as fallback */
-            --color-bg-base: #0C1220;
-            --color-bg-surface: #151D2E;
-            --color-bg-elevated: #1E293B;
-            --color-bg-hover: rgba(255, 255, 255, 0.06);
-
-            --color-text-primary: #F8FAFC;
-            --color-text-secondary: #94A3B8;
-            --color-text-muted: #64748B;
-
-            --color-border-default: rgba(255, 255, 255, 0.08);
-            --color-border-subtle: rgba(255, 255, 255, 0.04);
-
-            /* Layer Colors */
-            --color-conceptual: #3B82F6;
-            --color-conceptual-bg: rgba(59, 130, 246, 0.12);
-            --color-conceptual-border: rgba(59, 130, 246, 0.3);
-
-            --color-logical: #10B981;
-            --color-logical-bg: rgba(16, 185, 129, 0.12);
-            --color-logical-border: rgba(16, 185, 129, 0.3);
-
-            --color-physical: #F59E0B;
-            --color-physical-bg: rgba(245, 158, 11, 0.12);
-            --color-physical-border: rgba(245, 158, 11, 0.3);
-
-            /* Status Colors */
-            --color-status-active: #10B981;
-            --color-status-draft: #F59E0B;
-            --color-status-deprecated: #64748B;
-            --color-status-planned: #8B5CF6;
-
-            /* Semantic Colors */
-            --color-error: #EF4444;
-            --color-warning: #F59E0B;
-            --color-success: #10B981;
-            --color-info: #3B82F6;
-
-            /* Compliance Badge Colors */
-            --color-public: #10B981;
-            --color-internal: #3B82F6;
-            --color-confidential: #F59E0B;
-            --color-secret: #EF4444;
-            --color-personal-data: #8B5CF6;
-
-            /* Swiss Accent */
-            --color-swiss-red: #DC2626;
-            --color-swiss-red-hover: #B91C1C;
-            --color-swiss-red-bg: rgba(220, 38, 38, 0.12);
-
-            /* Typography */
-            --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            --font-mono: "JetBrains Mono", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-
-            /* Type Scale */
-            --text-display: 2.25rem;
-            --text-h1: 1.625rem;
-            --text-h2: 1.25rem;
-            --text-h3: 1.0625rem;
-            --text-body: 0.9375rem;
-            --text-small: 0.8125rem;
-            --text-caption: 0.75rem;
-            --text-xs: 0.6875rem;
-            --text-2xs: 0.625rem;
-            --text-icon-xl: 3rem;      /* 48px - for empty state icons */
-
-            /* Line Heights */
-            --leading-display: 1.2;
-            --leading-h1: 1.3;
-            --leading-h2: 1.35;
-            --leading-h3: 1.4;
-            --leading-body: 1.6;
-            --leading-small: 1.5;
-            --leading-caption: 1.4;
-
-            /* Font Weights */
-            --font-normal: 400;
-            --font-medium: 500;
-            --font-semibold: 600;
-
-            /* ===== Spacing Scale (4px base) ===== */
-            --space-1: 4px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 16px;
-            --space-5: 20px;
-            --space-6: 24px;
-            --space-8: 32px;
-            --space-10: 40px;
-            --space-12: 48px;
-
-            /* ===== Layout Dimensions ===== */
-            --sidebar-width: 280px;
-            --sidebar-min-width: 200px;
-            --sidebar-max-width: 400px;
-            --sidebar-collapsed-width: 56px;
-            --header-height: 56px;
-            --sub-header-height: 48px;
-            --content-max-width: 1200px;
-            --prose-max-width: 720px;
-            --layout-max-width: 1600px;
-
-            /* ===== Border Radius ===== */
-            --radius-sm: 4px;
-            --radius-md: 6px;
-            --radius-lg: 8px;
-            --radius-xl: 12px;
-            --radius-full: 9999px;
-
-            /* ===== Shadows - Dark Mode ===== */
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-
-            /* ===== Animation ===== */
-            --duration-fast: 100ms;
-            --duration-normal: 200ms;
-            --duration-slow: 300ms;
-            --ease-out: cubic-bezier(0, 0, 0.2, 1);
-            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-
-            /* ===== Breakpoints ===== */
-            --breakpoint-sm: 640px;
-            --breakpoint-md: 768px;
-            --breakpoint-lg: 1024px;
-            --breakpoint-xl: 1440px;
-        }
-
-        /* ===== Light Theme ===== */
-        [data-theme="light"] {
-            --color-bg-base: #FFFFFF;
-            --color-bg-surface: #F8FAFC;
-            --color-bg-elevated: #FFFFFF;
-            --color-bg-hover: #F1F5F9;
-
-            --color-text-primary: #0F172A;
-            --color-text-secondary: #475569;
-            --color-text-muted: #64748B;
-
-            --color-border-default: #CBD5E1;
-            --color-border-subtle: #E2E8F0;
-
-            /* Layer Colors - Light Mode */
-            --color-conceptual: #2563EB;
-            --color-conceptual-bg: #DBEAFE;
-            --color-conceptual-border: #2563EB;
-
-            --color-logical: #059669;
-            --color-logical-bg: #D1FAE5;
-            --color-logical-border: #059669;
-
-            --color-physical: #D97706;
-            --color-physical-bg: #FEF3C7;
-            --color-physical-border: #D97706;
-
-            /* Shadows - Light Mode */
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* ===== Reduced Motion ===== */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* ========================================
-           Base Styles
-           ======================================== */
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            font-size: var(--text-body);
-            line-height: var(--leading-body);
-            background-color: var(--color-bg-base);
-            color: var(--color-text-primary);
-        }
-
-        /* ===== Focus States ===== */
-        :focus {
-            outline: none;
-        }
-
-        :focus-visible {
-            outline: 2px solid var(--color-conceptual);
-            outline-offset: 2px;
-        }
-
-        /* ===== Skip Link ===== */
-        .skip-link {
-            position: absolute;
-            top: -100%;
-            left: var(--space-4);
-            padding: var(--space-2) var(--space-4);
-            background: var(--color-bg-elevated);
-            color: var(--color-text-primary);
-            border-radius: var(--radius-md);
-            z-index: 1000;
-            transition: top var(--duration-fast) var(--ease-out);
-        }
-
-        .skip-link:focus {
-            top: var(--space-4);
-        }
-
-        /* ========================================
-           Layout
-           ======================================== */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .main-layout {
-            display: flex;
-            flex: 1;
-            max-width: var(--layout-max-width);
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        /* ===== Sub Header ===== */
-        .sub-header {
-            height: var(--sub-header-height);
-            background: var(--color-bg-surface);
-            border-bottom: 1px solid var(--color-border-default);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sub-header-inner {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            max-width: var(--layout-max-width);
-            padding: 0 var(--space-5);
-            position: relative;
-        }
-
-        .sub-header-left {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-        }
-
-        .sub-header-right {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-        }
-
-        .version-selector {
-            height: 32px;
-            padding: 0 var(--space-4);
-            padding-right: var(--space-8);
-            background: var(--color-bg-base);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            color: var(--color-text-primary);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-            font-weight: var(--font-medium);
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-        }
-
-        .version-selector:hover {
-            border-color: var(--color-text-muted);
-        }
-
-        .version-selector:focus {
-            outline: none;
-            border-color: var(--color-conceptual);
-            box-shadow: 0 0 0 2px var(--color-conceptual-bg);
-        }
-
-        .sub-header .view-tabs {
-            display: flex;
-            align-items: center;
-            gap: var(--space-6);
-            margin-bottom: 0;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .sub-header .view-tab {
-            padding: var(--space-2) 0;
-            border: none;
-            background: transparent;
-            color: var(--color-text-secondary);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-            font-weight: var(--font-medium);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-        }
-
-        .sub-header .view-tab:hover {
-            color: var(--color-text-primary);
-        }
-
-        .sub-header .view-tab.active {
-            color: var(--color-text-primary);
-            font-weight: var(--font-semibold);
-            border-bottom-color: var(--color-conceptual);
-        }
-
-        .group-by-dropdown {
-            position: relative;
-        }
-
-        .group-by-trigger {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            height: 28px;
-            padding: 0 var(--space-2);
-            padding-right: var(--space-1);
-            background: transparent;
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-sm);
-            color: var(--color-text-secondary);
-            font-family: var(--font-sans);
-            font-size: var(--text-xs);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .group-by-trigger:hover {
-            background: var(--color-bg-hover);
-            color: var(--color-text-primary);
-        }
-
-        .group-by-trigger-icon {
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .group-by-trigger-icon svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .group-by-trigger-text {
-            flex: 1;
-        }
-
-        .group-by-trigger-arrow {
-            width: 12px;
-            height: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform var(--duration-fast) var(--ease-out);
-        }
-
-        .group-by-trigger-arrow svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        .group-by-dropdown.open .group-by-trigger-arrow {
-            transform: rotate(180deg);
-        }
-
-        .group-by-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            min-width: 160px;
-            margin-top: var(--space-1);
-            background: var(--color-bg-elevated);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            z-index: 100;
-            display: none;
-            padding: var(--space-1);
-        }
-
-        .group-by-dropdown.open .group-by-menu {
-            display: block;
-        }
-
-        .group-by-option {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            width: 100%;
-            padding: var(--space-2) var(--space-3);
-            background: transparent;
-            border: none;
-            border-radius: var(--radius-sm);
-            color: var(--color-text-secondary);
-            font-family: var(--font-sans);
-            font-size: var(--text-xs);
-            cursor: pointer;
-            text-align: left;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .group-by-option:hover {
-            background: var(--color-bg-hover);
-            color: var(--color-text-primary);
-        }
-
-        .group-by-option.selected {
-            background: var(--color-conceptual-bg);
-            color: var(--color-conceptual);
-        }
-
-        .group-by-option-icon {
-            width: 14px;
-            height: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .group-by-option-icon svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        /* ===== Loading State ===== */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--color-border-default);
-            border-top-color: var(--color-logical);
-            border-radius: var(--radius-full);
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ========================================
-           Header
-           ======================================== */
-        .header {
-            height: var(--header-height);
-            background-color: var(--color-bg-surface);
-            border-bottom: 1px solid var(--color-border-default);
-            display: flex;
-            align-items: center;
-            padding: 0 var(--space-5);
-            gap: var(--space-6);
-            position: relative;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            font-size: var(--text-h3);
-            font-weight: var(--font-semibold);
-            color: var(--color-text-primary);
-            letter-spacing: -0.02em;
-            text-decoration: none;
-            padding: var(--space-2);
-            margin: calc(var(--space-2) * -1);
-            border-radius: var(--radius-md);
-            transition: background-color var(--duration-fast) var(--ease-out);
-        }
-
-        .logo:hover {
-            background-color: var(--color-bg-hover);
-        }
-
-        .logo-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: var(--radius-sm);
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-conceptual);
-        }
-
-        .logo-icon svg {
-            width: 22px;
-            height: 22px;
-        }
-
-        /* ===== Layer Tabs ===== */
-        .layer-tabs {
-            display: flex;
-            gap: 2px;
-            background: var(--color-bg-base);
-            padding: 3px;
-            border-radius: var(--radius-md);
-        }
-
-        .layer-tab {
-            padding: var(--space-2) var(--space-4);
-            border: none;
-            background: transparent;
-            color: var(--color-text-secondary);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-            font-weight: var(--font-medium);
-            cursor: pointer;
-            border-radius: var(--radius-sm);
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .layer-tab:hover {
-            color: var(--color-text-primary);
-            background: var(--color-bg-hover);
-        }
-
-        .layer-tab.active {
-            color: white;
-            font-weight: var(--font-semibold);
-        }
-
-        .layer-tab[data-layer="conceptual"].active {
-            background: var(--color-conceptual);
-        }
-
-        .layer-tab[data-layer="logical"].active {
-            background: var(--color-logical);
-            color: var(--color-bg-base);
-        }
-
-        .layer-tab[data-layer="physical"].active {
-            background: var(--color-physical);
-            color: var(--color-bg-base);
-        }
-
-        /* ===== Expanding Search ===== */
-        .search-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-toggle {
-            width: 36px;
-            height: 36px;
-            border: none;
-            background: transparent;
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--radius-md);
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .search-toggle:hover {
-            color: var(--color-text-primary);
-            background: var(--color-bg-hover);
-        }
-
-        .search-toggle svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .search-container.expanded .search-toggle {
-            display: none;
-        }
-
-        .search-wrapper {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            overflow: hidden;
-            transition: width var(--duration-normal) var(--ease-out);
-        }
-
-        .search-container.expanded .search-wrapper {
-            width: 280px;
-        }
-
-        .search-input {
-            width: 100%;
-            height: 36px;
-            padding: 0 var(--space-4);
-            background: var(--color-bg-base);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            color: var(--color-text-primary);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .search-input:hover {
-            border-color: var(--color-text-muted);
-        }
-
-        .search-input:focus {
-            border-color: var(--color-conceptual);
-            box-shadow: 0 0 0 2px var(--color-conceptual-bg);
-            outline: none;
-        }
-
-        .search-input::placeholder {
-            color: var(--color-text-muted);
-        }
-
-        /* ===== Header Right ===== */
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            margin-left: auto;
-        }
-
-        .lang-selector {
-            height: 32px;
-            padding: 0 var(--space-3);
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: var(--radius-md);
-            color: var(--color-text-secondary);
-            font-family: var(--font-sans);
-            font-size: var(--text-caption);
-            font-weight: var(--font-medium);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .lang-selector:hover {
-            background: var(--color-bg-hover);
-            color: var(--color-text-primary);
-        }
-
-        .lang-selector:focus {
-            border-color: var(--color-conceptual);
-            outline: none;
-        }
-
-        .icon-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: var(--radius-md);
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .icon-btn:hover {
-            background: var(--color-bg-hover);
-            color: var(--color-text-primary);
-        }
-
-        .icon-btn:active {
-            transform: scale(0.95);
-        }
-
-        .icon-btn svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* ========================================
-           Sidebar
-           ======================================== */
-        .sidebar {
-            position: relative;
-            width: var(--sidebar-width);
-            min-width: var(--sidebar-min-width);
-            max-width: var(--sidebar-max-width);
-            background: var(--color-bg-surface);
-            border-left: 1px solid var(--color-border-default);
-            border-right: 1px solid var(--color-border-default);
-            display: flex;
-            flex-direction: column;
-            overflow: visible;
-            transition: width var(--duration-slow) var(--ease-in-out);
-        }
-
-        .sidebar.collapsed {
-            width: var(--sidebar-collapsed-width);
-            min-width: var(--sidebar-collapsed-width);
-        }
-
-        .sidebar-header {
-            padding: var(--space-3) var(--space-4);
-            border-bottom: 1px solid var(--color-border-default);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 44px;
-            box-sizing: border-box;
-            background: var(--color-bg-surface);
-        }
-
-        .sidebar-title {
-            font-size: var(--text-xs);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--color-text-secondary);
-        }
-
-        .sidebar.collapsed .sidebar-title {
-            display: none;
-        }
-
-        .sidebar-toggle {
-            position: absolute;
-            right: -13px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 26px;
-            height: 26px;
-            background: var(--color-bg-surface);
-            border: 1px solid var(--color-border-default);
-            color: var(--color-text-muted);
-            cursor: pointer;
-            border-radius: var(--radius-sm);
-            transition: all var(--duration-fast) var(--ease-out);
-            z-index: 50;
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--color-bg-hover);
-            color: var(--color-text-primary);
-        }
-
-        .sidebar-toggle svg {
-            width: 16px;
-            height: 16px;
-            transition: transform var(--duration-fast) var(--ease-out);
-        }
-
-        .sidebar.collapsed .sidebar-toggle svg {
-            transform: rotate(180deg);
-        }
-
-        .tree-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--space-3);
-        }
-
-        /* ===== Tree Navigation ===== */
-        .layer-section {
-            margin-bottom: var(--space-4);
-        }
-
-        .layer-section-header {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            padding: var(--space-2) var(--space-3);
-            font-size: var(--text-small);
-            font-weight: var(--font-semibold);
-            cursor: pointer;
-            border-radius: var(--radius-md);
-            transition: all var(--duration-fast) var(--ease-out);
-            user-select: none;
-            background: var(--color-bg-hover);
-        }
-
-        .layer-section-header.conceptual {
-            color: var(--color-conceptual);
-        }
-
-        .layer-section-header.logical {
-            color: var(--color-logical);
-        }
-
-        .layer-section-header.physical {
-            color: var(--color-physical);
-        }
-
-        .layer-section-header:hover {
-            background: var(--color-bg-active);
-        }
-
-        .layer-section-header .layer-toggle {
-            width: 16px;
-            height: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-text-muted);
-            transition: transform var(--duration-fast) var(--ease-out);
-            flex-shrink: 0;
-        }
-
-        .layer-section-header .layer-toggle svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        .layer-section-header.collapsed .layer-toggle {
-            transform: rotate(-90deg);
-        }
-
-        .layer-section-content {
-            padding-left: var(--space-1);
-            padding-top: var(--space-1);
-        }
-
-        .layer-section-content.collapsed {
-            display: none;
-        }
-
-        .tree-section {
-            margin-bottom: var(--space-4);
-        }
-
-        .tree-section-header {
-            padding: var(--space-2) var(--space-3);
-            font-size: var(--text-caption);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--color-text-muted);
-        }
-
-        .tree-item {
-            user-select: none;
-        }
-
-        .tree-node {
-            display: flex;
-            align-items: center;
-            padding: 6px var(--space-3);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            gap: var(--space-2);
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .tree-node:hover {
-            background: var(--color-bg-hover);
-        }
-
-        .tree-node.selected {
-            background: var(--color-bg-elevated);
-        }
-
-        .tree-node.selected.conceptual {
-            background: var(--color-conceptual-bg);
-        }
-
-        .tree-node.selected.logical {
-            background: var(--color-logical-bg);
-        }
-
-        .tree-node.selected.physical {
-            background: var(--color-physical-bg);
-        }
-
-        .tree-toggle {
-            width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-text-muted);
-            flex-shrink: 0;
-            transition: transform var(--duration-fast) var(--ease-out);
-            border-radius: var(--radius-sm);
-        }
-
-        .tree-toggle:hover {
-            background: var(--color-bg-base);
-        }
-
-        .tree-toggle.expanded {
-            transform: rotate(90deg);
-        }
-
-        .tree-toggle svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        /* ===== Attribute Tree Items ===== */
-        .tree-attribute .tree-node {
-            padding-left: var(--space-3);
-            opacity: 0.8;
-        }
-
-        .tree-attribute .tree-node:hover {
-            opacity: 1;
-        }
-
-        .attribute-node {
-            opacity: 0.85;
-        }
-
-        .attribute-node:hover {
-            opacity: 1;
-        }
-
-        .tree-column .tree-node {
-            padding-left: var(--space-3);
-            opacity: 0.8;
-        }
-
-        .tree-column .tree-node:hover {
-            opacity: 1;
-        }
-
-        .column-node {
-            opacity: 0.85;
-            cursor: default;
-        }
-
-        .column-node:hover {
-            opacity: 1;
-            background: transparent;
-        }
-
-        .tree-icon {
-            width: 16px;
-            height: 16px;
-            flex-shrink: 0;
-            color: var(--color-text-muted);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tree-icon svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        .tree-node.conceptual .tree-icon { color: var(--color-conceptual); }
-        .tree-node.logical .tree-icon { color: var(--color-logical); }
-        .tree-node.physical .tree-icon { color: var(--color-physical); }
-
-        .tree-label {
-            font-size: var(--text-small);
-            color: var(--color-text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-        }
-
-        .tree-count {
-            font-size: var(--text-xs);
-            color: var(--color-text-muted);
-            padding: 1px 6px;
-            background: var(--color-bg-base);
-            border-radius: var(--radius-full);
-            font-weight: var(--font-medium);
-        }
-
-        .tree-children {
-            margin-left: var(--space-5);
-            display: none;
-        }
-
-        .tree-children.expanded {
-            display: block;
-        }
-
-        /* ========================================
-           Main Content
-           ======================================== */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--color-bg-surface);
-        }
-
-        /* ===== Breadcrumb ===== */
-        .breadcrumb {
-            padding: 0;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            gap: var(--space-1);
-            font-size: var(--text-small);
-            box-sizing: border-box;
-        }
-
-        .breadcrumb-item {
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            padding: 4px var(--space-2);
-            border-radius: var(--radius-sm);
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .breadcrumb-item:hover {
-            color: var(--color-text-primary);
-            background: var(--color-bg-hover);
-        }
-
-        .breadcrumb-separator {
-            color: var(--color-text-muted);
-            font-size: var(--text-caption);
-            padding: 0 2px;
-        }
-
-        .breadcrumb-current {
-            color: var(--color-text-primary);
-            font-weight: var(--font-medium);
-            padding: 4px var(--space-2);
-        }
-
-        /* ===== Content Area ===== */
-        .content-area {
-            flex: 1;
-            padding: var(--space-8);
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        #contentBody {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        /* ===== Entity Header ===== */
-        .entity-header {
-            margin-bottom: 0;
-        }
-
-        .entity-badges {
-            display: flex;
-            gap: var(--space-2);
-            margin-bottom: var(--space-3);
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-1);
-            padding: 3px var(--space-3);
-            border-radius: var(--radius-full);
-            font-size: var(--text-xs);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .badge-layer {
-            color: white;
-        }
-
-        .badge-layer.conceptual {
-            background: var(--color-conceptual);
-        }
-
-        .badge-layer.logical {
-            background: var(--color-logical);
-            color: var(--color-bg-base);
-        }
-
-        .badge-layer.physical {
-            background: var(--color-physical);
-            color: var(--color-bg-base);
-        }
-
-        .badge-outline {
-            background: transparent;
-            border: 1px solid currentColor;
-            color: var(--color-text-secondary);
-        }
-
-        .badge-compliance {
-            font-weight: var(--font-semibold);
-        }
-
-        .badge-compliance.public { color: var(--color-public); border-color: var(--color-public); }
-        .badge-compliance.internal { color: var(--color-internal); border-color: var(--color-internal); }
-        .badge-compliance.confidential { color: var(--color-confidential); border-color: var(--color-confidential); }
-        .badge-compliance.secret { color: var(--color-secret); border-color: var(--color-secret); }
-        .badge-compliance.personal-data { color: var(--color-personal-data); border-color: var(--color-personal-data); }
-
-        .entity-title {
-            font-size: var(--text-h1);
-            font-weight: var(--font-semibold);
-            line-height: var(--leading-h1);
-            letter-spacing: -0.02em;
-            margin-bottom: var(--space-2);
-            color: var(--color-text-primary);
-        }
-
-        .entity-subtitle {
-            font-size: var(--text-body);
-            color: var(--color-text-secondary);
-            line-height: var(--leading-body);
-            max-width: var(--prose-max-width);
-        }
-
-        .entity-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-4);
-            margin-top: var(--space-4);
-            padding-top: var(--space-4);
-            border-top: 1px solid var(--color-border-subtle);
-            font-size: var(--text-small);
-            color: var(--color-text-secondary);
-        }
-
-        .entity-meta-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        /* ===== Status Indicators ===== */
-        .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: var(--radius-full);
-        }
-
-        .status-dot.active { background: var(--color-status-active); }
-        .status-dot.draft {
-            background: transparent;
-            border: 2px solid var(--color-status-draft);
-        }
-        .status-dot.deprecated { background: var(--color-status-deprecated); opacity: 0.6; }
-        .status-dot.planned {
-            width: 8px;
-            height: 8px;
-            background: var(--color-status-planned);
-            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            border-radius: 0;
-        }
-
-        /* ===== View Tabs ===== */
-        .view-tabs {
-            display: flex;
-            gap: var(--space-1);
-            margin-bottom: 0;
-            border-bottom: 1px solid var(--color-border-default);
-            padding-bottom: 0;
-        }
-
-        .view-tab {
-            padding: var(--space-3) var(--space-4);
-            background: none;
-            border: none;
-            color: var(--color-text-muted);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-            font-weight: var(--font-medium);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all var(--duration-fast) var(--ease-out);
-            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-        }
-
-        .view-tab:hover {
-            color: var(--color-text-primary);
-            background: var(--color-bg-hover);
-        }
-
-        .view-tab.active {
-            color: var(--color-text-primary);
-            border-bottom-color: var(--color-text-primary);
-            font-weight: var(--font-semibold);
-        }
-
-        .view-content {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        /* ===== Cards/Panels ===== */
-        .card {
-            background: var(--color-bg-elevated);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            transition: box-shadow var(--duration-normal) var(--ease-out);
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-sm);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-4) var(--space-5);
-            background: transparent;
-            cursor: pointer;
-            transition: background-color var(--duration-fast) var(--ease-out);
-        }
-
-        .card-header:hover {
-            background: var(--color-bg-hover);
-        }
-
-        .card-title {
-            font-size: var(--text-small);
-            font-weight: var(--font-semibold);
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            color: var(--color-text-primary);
-        }
-
-        .card-toggle {
-            color: var(--color-text-muted);
-            transition: transform var(--duration-fast) var(--ease-out);
-        }
-
-        .card-toggle svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .card.collapsed .card-toggle {
-            transform: rotate(-90deg);
-        }
-
-        .card-content {
-            padding: var(--space-5);
-            border-top: 1px solid var(--color-border-subtle);
-        }
-
-        .card.collapsed .card-content {
-            display: none;
-        }
-
-        /* ===== Metadata Grid ===== */
-        .meta-grid {
-            display: grid;
-            grid-template-columns: 160px 1fr;
-            gap: var(--space-3) var(--space-5);
-            font-size: var(--text-small);
-        }
-
-        .meta-label {
-            color: var(--color-text-muted);
-            font-weight: var(--font-medium);
-        }
-
-        .meta-value {
-            color: var(--color-text-primary);
-        }
-
-        .meta-value a {
-            color: var(--color-conceptual);
-            text-decoration: none;
-            transition: color var(--duration-fast) var(--ease-out);
-        }
-
-        .meta-value a:hover {
-            text-decoration: underline;
-        }
-
-        /* ===== Tags ===== */
-        .tag {
-            display: inline-block;
-            padding: var(--space-1) var(--space-2);
-            background: var(--color-bg-base);
-            border-radius: var(--radius-sm);
-            font-size: var(--text-caption);
-            color: var(--color-text-secondary);
-            margin-right: var(--space-1);
-            margin-bottom: var(--space-1);
-        }
-
-        .tag-mono {
-            font-family: var(--font-mono);
-            background: var(--color-bg-elevated);
-        }
-
-        /* ===== Mapping Cards ===== */
-        .mapping-section {
-            margin-bottom: var(--space-5);
-        }
-
-        .mapping-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .mapping-section-header {
-            font-size: var(--text-caption);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--color-text-muted);
-            margin-bottom: var(--space-3);
-        }
-
-        .mapping-card {
-            display: flex;
-            align-items: center;
-            gap: var(--space-4);
-            padding: var(--space-4);
-            background: var(--color-bg-base);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--space-2);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .mapping-card:hover {
-            background: var(--color-bg-hover);
-            border-color: var(--color-border-default);
-        }
-
-        .mapping-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: var(--font-semibold);
-            font-size: var(--text-small);
-            flex-shrink: 0;
-        }
-
-        .mapping-icon.conceptual {
-            background: var(--color-conceptual-bg);
-            color: var(--color-conceptual);
-        }
-
-        .mapping-icon.logical {
-            background: var(--color-logical-bg);
-            color: var(--color-logical);
-        }
-
-        .mapping-icon.physical {
-            background: var(--color-physical-bg);
-            color: var(--color-physical);
-        }
-
-        .mapping-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .mapping-title {
-            font-weight: var(--font-medium);
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .mapping-subtitle {
-            font-size: var(--text-caption);
-            color: var(--color-text-secondary);
-        }
-
-        .mapping-arrow {
-            color: var(--color-text-muted);
-            flex-shrink: 0;
-        }
-
-        /* ===== Attributes Table ===== */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: var(--text-small);
-        }
-
-        .data-table th {
-            text-align: left;
-            padding: var(--space-3) var(--space-4);
-            background: var(--color-bg-base);
-            color: var(--color-text-muted);
-            font-weight: var(--font-medium);
-            font-size: var(--text-caption);
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
-            border-bottom: 1px solid var(--color-border-default);
-        }
-
-        .data-table td {
-            padding: var(--space-3) var(--space-4);
-            border-bottom: 1px solid var(--color-border-subtle);
-            vertical-align: middle;
-        }
-
-        .data-table tbody tr {
-            transition: background-color var(--duration-fast) var(--ease-out);
-        }
-
-        .data-table tbody tr:hover {
-            background: var(--color-bg-hover);
-        }
-
-        .data-table tbody tr.clickable-row {
-            cursor: pointer;
-        }
-
-        .data-table tbody tr.clickable-row:hover {
-            background: var(--color-conceptual-bg);
-        }
-
-        .data-table code {
-            font-family: var(--font-mono);
-            font-size: var(--text-caption);
-            padding: var(--space-1) var(--space-2);
-            background: var(--color-bg-base);
-            border-radius: var(--radius-sm);
-        }
-
-        .key-badge {
-            display: inline-block;
-            padding: 2px var(--space-2);
-            border-radius: var(--radius-sm);
-            font-size: var(--text-2xs);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-        }
-
-        .key-badge.pk {
-            background: var(--color-logical-bg);
-            color: var(--color-logical);
-        }
-
-        .key-badge.fk {
-            background: var(--color-physical-bg);
-            color: var(--color-physical);
-        }
-
-        .key-badge.uk {
-            background: var(--color-conceptual-bg);
-            color: var(--color-conceptual);
-        }
-
-        .type-label {
-            font-family: var(--font-mono);
-            font-size: var(--text-caption);
-            color: var(--color-text-secondary);
-        }
-
-        /* ===== Project Tab Content ===== */
-        .project-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: var(--space-4);
-        }
-
-        .project-stat-item {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-4);
-            background: var(--color-bg-base);
-            border-radius: var(--radius-md);
-        }
-
-        .project-stat-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            color: var(--color-text-muted);
-            flex-shrink: 0;
-        }
-
-        .project-stat-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .project-stat-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .project-stat-value {
-            font-size: var(--text-h2);
-            font-weight: var(--font-bold);
-            color: var(--color-text-primary);
-            line-height: 1;
-        }
-
-        .project-stat-label {
-            font-size: var(--text-small);
-            color: var(--color-text-secondary);
-            margin-top: var(--space-1);
-        }
-
-        .project-domains-list {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .project-domain-item {
-            display: flex;
-            flex-direction: column;
-            padding: var(--space-3) var(--space-4);
-            border-bottom: 1px solid var(--color-border-subtle);
-            cursor: pointer;
-            transition: background var(--duration-fast) var(--ease-out);
-        }
-
-        .project-domain-item:last-child {
-            border-bottom: none;
-        }
-
-        .project-domain-item:hover {
-            background: var(--color-bg-hover);
-        }
-
-        .domain-name {
-            font-weight: var(--font-medium);
-            color: var(--color-text-primary);
-        }
-
-        .domain-desc {
-            font-size: var(--text-small);
-            margin-top: var(--space-1);
-        }
-
-        .empty-list-message {
-            padding: var(--space-6);
-            text-align: center;
-            color: var(--color-text-muted);
-        }
-
-        /* Users Tab */
-        .users-list {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-4);
-            border-bottom: 1px solid var(--color-border-subtle);
-        }
-
-        .user-item:last-child {
-            border-bottom: none;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--color-conceptual-bg);
-            color: var(--color-conceptual);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: var(--text-small);
-            font-weight: var(--font-semibold);
-            flex-shrink: 0;
-        }
-
-        .user-info {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .user-name {
-            font-weight: var(--font-medium);
-            color: var(--color-text-primary);
-        }
-
-        .user-email {
-            font-size: var(--text-small);
-        }
-
-        .user-role {
-            flex-shrink: 0;
-        }
-
-        .roles-list {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-3);
-        }
-
-        .role-item {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-1);
-        }
-
-        .role-name {
-            font-weight: var(--font-medium);
-            color: var(--color-text-primary);
-        }
-
-        .role-desc {
-            font-size: var(--text-small);
-        }
-
-        /* Settings Tab */
-        .settings-form {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        .setting-row {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-2);
-        }
-
-        .setting-toggle-row {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-2) 0;
-        }
-
-        .setting-toggle-info {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-1);
-        }
-
-        .setting-label {
-            font-weight: var(--font-medium);
-            color: var(--color-text-primary);
-            font-size: var(--text-small);
-        }
-
-        .setting-desc {
-            font-size: var(--text-small);
-        }
-
-        .setting-input,
-        .setting-select {
-            padding: var(--space-2) var(--space-3);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            background: var(--color-bg-base);
-            color: var(--color-text-primary);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-        }
-
-        .setting-input:disabled,
-        .setting-select:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .toggle {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-
-        .toggle input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--color-border-default);
-            transition: var(--duration-fast);
-            border-radius: 24px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: var(--duration-fast);
-            border-radius: 50%;
-        }
-
-        .toggle input:checked + .toggle-slider {
-            background-color: var(--color-logical);
-        }
-
-        .toggle input:checked + .toggle-slider:before {
-            transform: translateX(20px);
-        }
-
-        .toggle input:disabled + .toggle-slider {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Danger Zone */
-        .danger-zone {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        .danger-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-3);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            gap: var(--space-4);
-        }
-
-        .danger-info {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-1);
-        }
-
-        .danger-title {
-            font-weight: var(--font-medium);
-            color: var(--color-text-primary);
-        }
-
-        .danger-desc {
-            font-size: var(--text-small);
-        }
-
-        .btn {
-            padding: var(--space-2) var(--space-4);
-            border: none;
-            border-radius: var(--radius-md);
-            font-family: var(--font-sans);
-            font-size: var(--text-small);
-            font-weight: var(--font-medium);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-            white-space: nowrap;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-outline-danger {
-            background: transparent;
-            border: 1px solid var(--color-swiss-red);
-            color: var(--color-swiss-red);
-        }
-
-        .btn-outline-danger:hover:not(:disabled) {
-            background: var(--color-swiss-red-bg);
-        }
-
-        .btn-danger {
-            background: var(--color-swiss-red);
-            color: white;
-        }
-
-        .btn-danger:hover:not(:disabled) {
-            background: var(--color-swiss-red-hover);
-        }
-
-        /* ===== Empty State ===== */
-        .empty-state {
-            text-align: center;
-            padding: var(--space-12);
-            color: var(--color-text-secondary);
-        }
-
-        .empty-state-icon {
-            font-size: var(--text-icon-xl);
-            margin-bottom: var(--space-4);
-            opacity: 0.5;
-        }
-
-        .empty-state-title {
-            font-size: var(--text-h3);
-            font-weight: var(--font-semibold);
-            margin-bottom: var(--space-2);
-        }
-
-        /* ===== Placeholder Views ===== */
-        .placeholder-view {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 300px;
-            background: var(--color-bg-surface);
-            border: 2px dashed var(--color-border-default);
-            border-radius: var(--radius-lg);
-            color: var(--color-text-secondary);
-        }
-
-        .placeholder-icon {
-            font-size: var(--text-icon-xl);
-            margin-bottom: var(--space-4);
-            opacity: 0.5;
-        }
-
-        .placeholder-title {
-            font-size: var(--text-h3);
-            font-weight: var(--font-semibold);
-            margin-bottom: var(--space-2);
-        }
-
-        .placeholder-desc {
-            color: var(--color-text-muted);
-        }
-
-        /* ===== Search Results ===== */
-        .search-results {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 320px;
-            background: var(--color-bg-elevated);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            margin-top: var(--space-1);
-            max-height: 400px;
-            overflow-y: auto;
-            z-index: 200;
-            display: none;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .search-results.active {
-            display: block;
-        }
-
-        .search-results-header {
-            padding: var(--space-2) var(--space-3);
-            font-size: var(--text-caption);
-            color: var(--color-text-muted);
-            border-bottom: 1px solid var(--color-border-default);
-        }
-
-        .search-result-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-4);
-            cursor: pointer;
-            transition: background-color var(--duration-fast) var(--ease-out);
-        }
-
-        .search-result-item:hover {
-            background: var(--color-bg-hover);
-        }
-
-        .search-result-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .search-result-name {
-            font-weight: var(--font-medium);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .search-result-meta {
-            font-size: var(--text-caption);
-            color: var(--color-text-muted);
-        }
-
-        /* ===== Scrollbar ===== */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--color-bg-base);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-border-default);
-            border-radius: var(--radius-full);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-bg-hover);
-        }
-
-        /* ========================================
-           Responsive Design
-           ======================================== */
-        @media (max-width: 1024px) {
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: var(--header-height);
-                bottom: 0;
-                z-index: 50;
-                transform: translateX(0);
-                transition: transform var(--duration-slow) var(--ease-in-out);
-            }
-
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-            }
-
-            .sidebar-overlay {
-                position: fixed;
-                inset: 0;
-                top: var(--header-height);
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 40;
-                display: none;
-            }
-
-            .sidebar-overlay.active {
-                display: block;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .layer-tabs {
-                display: none;
-            }
-
-            .header {
-                gap: var(--space-3);
-            }
-
-            .logo span {
-                display: none;
-            }
-
-            .content-area {
-                padding: var(--space-4);
-            }
-
-            .meta-grid {
-                grid-template-columns: 1fr;
-                gap: var(--space-2);
-            }
-
-            .meta-label {
-                margin-top: var(--space-2);
-            }
-
-            .breadcrumb {
-                padding: 0;
-            }
-
-            .data-table {
-                display: block;
-                overflow-x: auto;
-            }
-        }
-
-        /* ========================================
-           SVG Icons (inline)
-           ======================================== */
-        .icon {
-            display: inline-block;
-            width: 1em;
-            height: 1em;
-            vertical-align: middle;
-        }
-
-        /* ========================================
-           Project Overview Page
-           ======================================== */
-        .projects-overview {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .projects-header {
-            margin-bottom: var(--space-6);
-            text-align: center;
-        }
-
-        .projects-title {
-            font-size: var(--text-h1);
-            font-weight: var(--font-semibold);
-            line-height: var(--leading-h1);
-            letter-spacing: -0.02em;
-            margin-bottom: var(--space-2);
-            color: var(--color-text-primary);
-        }
-
-        .projects-subtitle {
-            font-size: var(--text-body);
-            color: var(--color-text-secondary);
-            max-width: 480px;
-            margin: 0 auto;
-            line-height: var(--leading-body);
-        }
-
-        .projects-stats {
-            display: flex;
-            gap: var(--space-6);
-            margin-top: var(--space-6);
-            padding: var(--space-4) var(--space-5);
-            background: var(--color-bg-surface);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-lg);
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: var(--text-h1);
-            font-weight: var(--font-semibold);
-            color: var(--color-text-primary);
-        }
-
-        .stat-label {
-            font-size: var(--text-caption);
-            color: var(--color-text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--space-4);
-        }
-
-        .project-card {
-            background: var(--color-bg-surface);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-lg);
-            padding: var(--space-5);
-            cursor: pointer;
-            transition: all var(--duration-normal) var(--ease-out);
-        }
-
-        .project-card:hover {
-            border-color: var(--color-text-muted);
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
-
-        .project-card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: var(--space-3);
-            margin-bottom: var(--space-3);
-        }
-
-        .project-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: var(--text-h2);
-            flex-shrink: 0;
-            background: var(--project-color, var(--color-conceptual));
-            color: white;
-        }
-
-        .project-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .project-name {
-            font-size: var(--text-body);
-            font-weight: var(--font-semibold);
-            color: var(--color-text-primary);
-            margin-bottom: 2px;
-            line-height: 1.3;
-        }
-
-        .project-owner {
-            font-size: var(--text-xs);
-            color: var(--color-text-secondary);
-        }
-
-        .project-status {
-            padding: 3px 8px;
-            border-radius: var(--radius-full);
-            font-size: var(--text-2xs);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            flex-shrink: 0;
-        }
-
-        .project-status.active {
-            background: var(--color-logical-bg);
-            color: var(--color-logical);
-        }
-
-        .project-status.draft {
-            background: var(--color-physical-bg);
-            color: var(--color-physical);
-        }
-
-        .project-status.archived {
-            background: var(--color-bg-hover);
-            color: var(--color-text-muted);
-        }
-
-        .project-description {
-            font-size: var(--text-small);
-            color: var(--color-text-secondary);
-            line-height: 1.5;
-            margin-bottom: var(--space-4);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .project-meta {
-            display: flex;
-            align-items: center;
-            gap: var(--space-4);
-            padding-top: var(--space-3);
-            border-top: 1px solid var(--color-border-subtle);
-        }
-
-        .project-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: var(--text-xs);
-            color: var(--color-text-secondary);
-        }
-
-        .project-meta-item svg {
-            width: 14px;
-            height: 14px;
-            opacity: 0.8;
-        }
-
-        .project-meta-value {
-            font-weight: var(--font-semibold);
-            color: var(--color-text-primary);
-        }
-
-        .project-activity {
-            margin-left: auto;
-            font-size: var(--text-xs);
-            color: var(--color-text-secondary);
-        }
-
-        /* Project page specific breadcrumb */
-        .breadcrumb-home {
-            display: flex;
-            align-items: center;
-            gap: var(--space-2);
-            color: var(--color-text-secondary);
-            cursor: pointer;
-            padding: var(--space-1) var(--space-2);
-            border-radius: var(--radius-sm);
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .breadcrumb-home:hover {
-            color: var(--color-text-primary);
-            background: var(--color-bg-hover);
-        }
-
-        .breadcrumb-home svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .projects-stats {
-                flex-wrap: wrap;
-                gap: var(--space-4);
-            }
-
-            .stat-item {
-                flex: 1;
-                min-width: 80px;
-            }
-        }
-
-        /* ========================================
-           Projects Overview Mode
-           Hide sidebar and search when viewing all projects
-           ======================================== */
-        .projects-overview-mode .sidebar {
-            display: none;
-        }
-
-        .projects-overview-mode .sub-header {
-            display: none;
-        }
-
-        .projects-overview-mode .header-right {
-            margin-left: auto;
-        }
-
-        .projects-overview-mode .breadcrumb {
-            display: none;
-        }
-
-        .projects-overview-mode .main-content {
-            padding: var(--space-8);
-        }
-
-        /* ========================================
-           Layer Overview Page
-           ======================================== */
-        .layer-overview {
-            max-width: 960px;
-            margin: 0 auto;
-        }
-
-        .layer-overview-header {
-            margin-bottom: var(--space-6);
-        }
-
-        .layer-overview-title {
-            font-size: var(--text-h1);
-            font-weight: var(--font-semibold);
-            line-height: var(--leading-h1);
-            letter-spacing: -0.02em;
-            margin-bottom: var(--space-2);
-        }
-
-        .layer-overview-subtitle {
-            font-size: var(--text-body);
-            color: var(--color-text-secondary);
-            max-width: 560px;
-            line-height: var(--leading-body);
-        }
-
-        /* ===== KPI Cards ===== */
-        .kpi-cards {
-            display: flex;
-            gap: var(--space-4);
-            margin-bottom: var(--space-6);
-        }
-
-        .kpi-card {
-            background: var(--color-bg-surface);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-lg);
-            padding: var(--space-4) var(--space-5);
-            min-width: 120px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .kpi-card:hover {
-            border-color: var(--color-text-muted);
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--kpi-color, var(--color-conceptual));
-        }
-
-        .kpi-value {
-            font-size: var(--text-h1);
-            font-weight: var(--font-semibold);
-            color: var(--color-text-primary);
-            line-height: 1;
-            margin-bottom: var(--space-1);
-        }
-
-        .kpi-label {
-            font-size: var(--text-xs);
-            color: var(--color-text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            font-weight: var(--font-medium);
-        }
-
-        /* ===== Layer Entities List ===== */
-        .layer-entities-section {
-            margin-top: var(--space-6);
-        }
-
-        .layer-entities-title {
-            font-size: var(--text-small);
-            font-weight: var(--font-semibold);
-            margin-bottom: var(--space-3);
-            color: var(--color-text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .layer-entities-list {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-2);
-        }
-
-        .layer-entity-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-4);
-            background: var(--color-bg-surface);
-            border: 1px solid var(--color-border-default);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out);
-        }
-
-        .layer-entity-item:hover {
-            background: var(--color-bg-hover);
-            transform: translateX(2px);
-        }
-
-        .layer-entity-badge {
-            padding: 2px var(--space-2);
-            border-radius: var(--radius-sm);
-            font-size: var(--text-2xs);
-            font-weight: var(--font-semibold);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .layer-entity-badge.conceptual {
-            background: var(--color-conceptual-bg);
-            color: var(--color-conceptual);
-        }
-
-        .layer-entity-badge.logical {
-            background: var(--color-logical-bg);
-            color: var(--color-logical);
-        }
-
-        .layer-entity-badge.physical {
-            background: var(--color-physical-bg);
-            color: var(--color-physical);
-        }
-
-        .layer-entity-name {
-            flex: 1;
-            font-weight: var(--font-medium);
-            color: var(--color-text-primary);
-        }
-
-        .layer-entity-status {
-            font-size: var(--text-caption);
-            padding: 2px var(--space-2);
-            border-radius: var(--radius-full);
-            text-transform: capitalize;
-        }
-
-        .layer-entity-status.active {
-            background: var(--color-logical-bg);
-            color: var(--color-logical);
-        }
-
-        .layer-entity-status.draft {
-            background: var(--color-physical-bg);
-            color: var(--color-physical);
-        }
-
-        .layer-entity-status.deprecated {
-            background: var(--color-bg-hover);
-            color: var(--color-text-muted);
-        }
-
-        @media (max-width: 768px) {
-            .kpi-cards {
-                flex-wrap: wrap;
-            }
-
-            .kpi-card {
-                flex: 1;
-                min-width: 100px;
-            }
-        }
-
-        /* ===== Global Animations ===== */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .layer-entity-item,
-        .project-card,
-        .card {
-            animation: fadeIn var(--duration-normal) var(--ease-out);
-        }
-
-        /* ===== Selection styles ===== */
-        ::selection {
-            background: var(--color-conceptual-bg);
-            color: var(--color-text-primary);
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-content" class="skip-link">Zum Hauptinhalt springen</a>
 
     <div id="app" class="loading">
         <div class="loading-spinner"></div>
-        <span>Loading Meta-Atlas...</span>
+        <span>Meta-Atlas wird geladen...</span>
     </div>
 
     <script>
@@ -2712,14 +229,33 @@
 
         function getTypeLabel(type) {
             const labels = {
-                project: 'Project',
-                domain: 'Domain',
-                concept: 'Concept',
-                entity: 'Logical Entity',
+                project: 'Projekt',
+                domain: 'Domäne',
+                concept: 'Konzept',
+                entity: 'Logische Entität',
                 system: 'System',
-                table: 'Table'
+                table: 'Tabelle'
             };
             return labels[type] || type;
+        }
+
+        function getLayerLabel(layer) {
+            const labels = {
+                conceptual: 'Konzeptuell',
+                logical: 'Logisch',
+                physical: 'Physisch'
+            };
+            return labels[layer] || layer;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                active: 'Aktiv',
+                draft: 'Entwurf',
+                deprecated: 'Veraltet',
+                planned: 'Geplant'
+            };
+            return labels[status] || status;
         }
 
         function getTypeIcon(type) {
@@ -3363,20 +899,20 @@
                             <div class="project-name">${project.name}</div>
                             <div class="project-owner">${project.owner}</div>
                         </div>
-                        <span class="project-status ${project.status}">${project.status}</span>
+                        <span class="project-status ${project.status}">${getStatusLabel(project.status)}</span>
                     </div>
                     <p class="project-description">${project.description}</p>
                     <div class="project-meta">
                         <div class="project-meta-item">
                             ${icons.box}
-                            <span class="project-meta-value">${project.entities || 0}</span> Entities
+                            <span class="project-meta-value">${project.entities || 0}</span> Entitäten
                         </div>
                         <div class="project-meta-item">
                             ${icons.table}
-                            <span class="project-meta-value">${project.tables || 0}</span> Tables
+                            <span class="project-meta-value">${project.tables || 0}</span> Tabellen
                         </div>
                         <div class="project-activity">
-                            Last active: ${project.lastActivity || project.updated || project.created}
+                            Letzte Aktivität : ${project.lastActivity || project.updated || project.created}
                         </div>
                     </div>
                 </div>
@@ -3453,13 +989,13 @@
                         `).join('')}
                     </div>
                     <div class="layer-entities-section">
-                        <h2 class="layer-entities-title">All Items</h2>
+                        <h2 class="layer-entities-title">Alle Elemente</h2>
                         <div class="layer-entities-list">
                             ${config.items.map(item => `
                                 <div class="layer-entity-item" data-id="${item.id}" data-type="${item.type}" data-layer="${item.layer}">
                                     <span class="layer-entity-badge ${item.layer}">${getTypeLabel(item.type)}</span>
                                     <span class="layer-entity-name">${item.name}</span>
-                                    <span class="layer-entity-status ${item.status}">${item.status}</span>
+                                    <span class="layer-entity-status ${item.status}">${getStatusLabel(item.status)}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -3490,8 +1026,11 @@
                         <div class="project-stats-grid">
                             ${kpis.map(kpi => `
                                 <div class="project-stat-item">
-                                    <span class="project-stat-value">${kpi.value}</span>
-                                    <span class="project-stat-label">${kpi.label}</span>
+                                    <span class="project-stat-icon">${kpi.icon}</span>
+                                    <div class="project-stat-content">
+                                        <span class="project-stat-value">${kpi.value}</span>
+                                        <span class="project-stat-label">${kpi.label}</span>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
@@ -3510,21 +1049,21 @@
                     const attributes = item.attributes || [];
                     const physicalTables = item.physicalTables || [];
                     return [
-                        { label: 'Attributes', value: attributes.length },
-                        { label: 'Physical Tables', value: physicalTables.length }
+                        { label: 'Attribute', value: attributes.length, icon: icons.hash },
+                        { label: 'Phys. Tabellen', value: physicalTables.length, icon: icons.table }
                     ];
                 case 'system':
                     const tablesInSystem = data.tables.filter(t => t.system === item.id);
                     const columnsInSystem = tablesInSystem.reduce((sum, t) => sum + (t.columns?.length || 0), 0);
                     return [
-                        { label: 'Tabellen', value: tablesInSystem.length },
-                        { label: 'Spalten', value: columnsInSystem }
+                        { label: 'Tabellen', value: tablesInSystem.length, icon: icons.table },
+                        { label: 'Spalten', value: columnsInSystem, icon: icons.hash }
                     ];
                 case 'table':
                     const columns = item.columns || [];
                     return [
-                        { label: 'Columns', value: columns.length },
-                        { label: 'Rows', value: item.rowCount?.toLocaleString() || '—' }
+                        { label: 'Spalten', value: columns.length, icon: icons.hash },
+                        { label: 'Zeilen', value: item.rowCount?.toLocaleString() || '—', icon: icons.database }
                     ];
                 default:
                     return [];
@@ -3582,11 +1121,11 @@
                             <span class="entity-meta-item">
                                 <span class="status-indicator">
                                     <span class="status-dot ${item.status}" aria-hidden="true"></span>
-                                    ${item.status?.charAt(0).toUpperCase() + item.status?.slice(1) || 'Unknown'}
+                                    ${getStatusLabel(item.status) || 'Unbekannt'}
                                 </span>
                             </span>
-                            ${item.created ? `<span class="entity-meta-item">Created: ${item.created}</span>` : ''}
-                            ${item.owner ? `<span class="entity-meta-item">Owner: ${item.owner}</span>` : ''}
+                            ${item.created ? `<span class="entity-meta-item">Erstellt : ${item.created}</span>` : ''}
+                            ${item.owner ? `<span class="entity-meta-item">Verantwortlich : ${item.owner}</span>` : ''}
                         </div>
                     </div>
 
@@ -3636,45 +1175,45 @@
                     </div>
                     <div class="card-content">
                         <div class="meta-grid">
-                            <span class="meta-label">Name (DE)</span>
+                            <span class="meta-label">Name (DE) :</span>
                             <span class="meta-value">${item.nameDE || item.name}</span>
                             ${item.nameEn ? `
-                                <span class="meta-label">Name (EN)</span>
+                                <span class="meta-label">Name (EN) :</span>
                                 <span class="meta-value">${item.nameEn}</span>
                             ` : ''}
                             ${item.nameFr ? `
-                                <span class="meta-label">Name (FR)</span>
+                                <span class="meta-label">Name (FR) :</span>
                                 <span class="meta-value">${item.nameFr}</span>
                             ` : ''}
-                            <span class="meta-label">Beschreibung</span>
+                            <span class="meta-label">Beschreibung :</span>
                             <span class="meta-value">${item.description || '—'}</span>
                             ${item.synonyms ? `
-                                <span class="meta-label">Synonyme</span>
+                                <span class="meta-label">Synonyme :</span>
                                 <span class="meta-value">${item.synonyms.map(s => `<span class="tag">${s}</span>`).join('')}</span>
                             ` : ''}
                             ${item.owner ? `
-                                <span class="meta-label">Verantwortlich</span>
+                                <span class="meta-label">Verantwortlich :</span>
                                 <span class="meta-value">${item.owner}</span>
                             ` : ''}
                             ${item.technology ? `
-                                <span class="meta-label">Technologie</span>
+                                <span class="meta-label">Technologie :</span>
                                 <span class="meta-value"><span class="tag tag-mono">${item.technology}</span></span>
                             ` : ''}
                             ${item.rowCount ? `
-                                <span class="meta-label">Zeilenanzahl</span>
+                                <span class="meta-label">Zeilenanzahl :</span>
                                 <span class="meta-value">${item.rowCount.toLocaleString()}</span>
                             ` : ''}
                             ${item.status ? `
-                                <span class="meta-label">Status</span>
+                                <span class="meta-label">Status :</span>
                                 <span class="meta-value">
                                     <span class="status-indicator">
                                         <span class="status-dot ${item.status}" aria-hidden="true"></span>
-                                        ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                                        ${getStatusLabel(item.status)}
                                     </span>
                                 </span>
                             ` : ''}
                             ${item.created ? `
-                                <span class="meta-label">Erstellt</span>
+                                <span class="meta-label">Erstellt :</span>
                                 <span class="meta-value">${item.created}</span>
                             ` : ''}
                         </div>
@@ -3706,7 +1245,7 @@
                                             <tr class="clickable-row" data-id="${concept.id}">
                                                 <td><strong>${concept.name}</strong></td>
                                                 <td>${concept.description || '—'}</td>
-                                                <td><span class="badge badge-outline">${concept.status || 'active'}</span></td>
+                                                <td><span class="badge badge-outline">${getStatusLabel(concept.status || 'active')}</span></td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -3728,19 +1267,19 @@
                         <div class="card-content">
                             <div class="meta-grid">
                                 ${item.legalRefs && item.legalRefs.length ? `
-                                    <span class="meta-label">Rechtliche Grundlagen</span>
+                                    <span class="meta-label">Rechtliche Grundlagen :</span>
                                     <span class="meta-value">${item.legalRefs.map(r => `<span class="tag">${r}</span>`).join('')}</span>
                                 ` : ''}
                                 ${item.standards && item.standards.length ? `
-                                    <span class="meta-label">Standards</span>
+                                    <span class="meta-label">Standards :</span>
                                     <span class="meta-value">${item.standards.map(s => `<span class="tag tag-mono">${s}</span>`).join('')}</span>
                                 ` : ''}
-                                <span class="meta-label">Klassifikation</span>
+                                <span class="meta-label">Klassifikation :</span>
                                 <span class="meta-value">
-                                    <span class="badge badge-outline badge-compliance internal">Internal</span>
+                                    <span class="badge badge-outline badge-compliance internal">Intern</span>
                                 </span>
-                                <span class="meta-label">Personendaten</span>
-                                <span class="meta-value">No</span>
+                                <span class="meta-label">Personendaten :</span>
+                                <span class="meta-value">Nein</span>
                             </div>
                         </div>
                     </div>
@@ -3753,7 +1292,7 @@
                 html += `
                     <div class="card">
                         <div class="card-header" data-card="attributes" aria-expanded="true">
-                            <span class="card-title">${item.attributes ? 'Attributes' : 'Columns'} (${attrs.length})</span>
+                            <span class="card-title">${item.attributes ? 'Attribute' : 'Spalten'} (${attrs.length})</span>
                             <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                         </div>
                         <div class="card-content" style="padding: 0;">
@@ -3761,10 +1300,10 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Type</th>
+                                        <th>Typ</th>
                                         <th>Nullable</th>
-                                        <th>Key</th>
-                                        ${item.columns ? '<th>Maps To</th>' : ''}
+                                        <th>Schlüssel</th>
+                                        ${item.columns ? '<th>Zuordnung</th>' : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3946,15 +1485,15 @@
                     </div>
                     <div class="card-content">
                         <div class="meta-grid">
-                            <span class="meta-label">Name (DE)</span>
+                            <span class="meta-label">Name (DE) :</span>
                             <span class="meta-value">${project.nameDE || project.name}</span>
-                            <span class="meta-label">Beschreibung</span>
+                            <span class="meta-label">Beschreibung :</span>
                             <span class="meta-value">${project.description || '—'}</span>
-                            <span class="meta-label">Verantwortlich</span>
+                            <span class="meta-label">Verantwortlich :</span>
                             <span class="meta-value">${project.owner || '—'}</span>
-                            <span class="meta-label">Erstellt</span>
+                            <span class="meta-label">Erstellt :</span>
                             <span class="meta-value">${project.created || '—'}</span>
-                            <span class="meta-label">Status</span>
+                            <span class="meta-label">Status :</span>
                             <span class="meta-value">
                                 <span class="badge badge-outline">${project.status || 'Aktiv'}</span>
                             </span>
@@ -3964,7 +1503,7 @@
 
                 <div class="card">
                     <div class="card-header" data-card="domains" aria-expanded="true">
-                        <span class="card-title">Domains (${projectDomains.length})</span>
+                        <span class="card-title">Domänen (${projectDomains.length})</span>
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content" style="padding: 0;">
@@ -3977,7 +1516,7 @@
                                     </div>
                                 `).join('')}
                             </div>
-                        ` : '<div class="empty-list-message">No domains assigned to this project</div>'}
+                        ` : '<div class="empty-list-message">Keine Domänen diesem Projekt zugewiesen</div>'}
                     </div>
                 </div>
             `;
@@ -3986,17 +1525,17 @@
         function renderProjectUsersTab(project) {
             // Mock user data for the project
             const users = [
-                { name: 'Anna Müller', role: 'Project Owner', email: 'anna.mueller@admin.ch', avatar: 'AM' },
+                { name: 'Anna Müller', role: 'Projektverantwortliche', email: 'anna.mueller@admin.ch', avatar: 'AM' },
                 { name: 'Peter Schmidt', role: 'Data Steward', email: 'peter.schmidt@admin.ch', avatar: 'PS' },
                 { name: 'Lisa Weber', role: 'Data Engineer', email: 'lisa.weber@admin.ch', avatar: 'LW' },
                 { name: 'Thomas Brunner', role: 'Business Analyst', email: 'thomas.brunner@admin.ch', avatar: 'TB' },
-                { name: 'Sarah Keller', role: 'Viewer', email: 'sarah.keller@admin.ch', avatar: 'SK' }
+                { name: 'Sarah Keller', role: 'Betrachter', email: 'sarah.keller@admin.ch', avatar: 'SK' }
             ];
 
             return `
                 <div class="card">
                     <div class="card-header" data-card="team" aria-expanded="true">
-                        <span class="card-title">Team Members (${users.length})</span>
+                        <span class="card-title">Teammitglieder (${users.length})</span>
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content" style="padding: 0;">
@@ -4017,30 +1556,30 @@
 
                 <div class="card">
                     <div class="card-header" data-card="roles" aria-expanded="true">
-                        <span class="card-title">Role Definitions</span>
+                        <span class="card-title">Rollendefinitionen</span>
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content">
                         <div class="roles-list">
                             <div class="role-item">
-                                <span class="role-name">Project Owner</span>
-                                <span class="role-desc text-secondary">Full administrative access, can manage users and settings</span>
+                                <span class="role-name">Projektverantwortlicher</span>
+                                <span class="role-desc text-secondary">Vollständiger Administratorzugriff, kann Benutzer und Einstellungen verwalten</span>
                             </div>
                             <div class="role-item">
                                 <span class="role-name">Data Steward</span>
-                                <span class="role-desc text-secondary">Can create, edit and approve metadata entries</span>
+                                <span class="role-desc text-secondary">Kann Metadateneinträge erstellen, bearbeiten und genehmigen</span>
                             </div>
                             <div class="role-item">
                                 <span class="role-name">Data Engineer</span>
-                                <span class="role-desc text-secondary">Can manage physical layer entities and mappings</span>
+                                <span class="role-desc text-secondary">Kann physische Schicht-Entitäten und Zuordnungen verwalten</span>
                             </div>
                             <div class="role-item">
                                 <span class="role-name">Business Analyst</span>
-                                <span class="role-desc text-secondary">Can create and edit conceptual layer entries</span>
+                                <span class="role-desc text-secondary">Kann konzeptuelle Schicht-Einträge erstellen und bearbeiten</span>
                             </div>
                             <div class="role-item">
-                                <span class="role-name">Viewer</span>
-                                <span class="role-desc text-secondary">Read-only access to all project data</span>
+                                <span class="role-name">Betrachter</span>
+                                <span class="role-desc text-secondary">Lesezugriff auf alle Projektdaten</span>
                             </div>
                         </div>
                     </div>
@@ -4052,34 +1591,34 @@
             return `
                 <div class="card">
                     <div class="card-header" data-card="general" aria-expanded="true">
-                        <span class="card-title">General Settings</span>
+                        <span class="card-title">Allgemeine Einstellungen</span>
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content">
                         <div class="settings-form">
                             <div class="setting-row">
-                                <label class="setting-label">Project Name</label>
+                                <label class="setting-label">Projektname :</label>
                                 <input type="text" class="setting-input" value="${project.name}" readonly />
                             </div>
                             <div class="setting-row">
-                                <label class="setting-label">Project ID</label>
+                                <label class="setting-label">Projekt-ID :</label>
                                 <input type="text" class="setting-input" value="${project.id}" readonly />
                             </div>
                             <div class="setting-row">
-                                <label class="setting-label">Default Language</label>
+                                <label class="setting-label">Standardsprache :</label>
                                 <select class="setting-select" disabled>
-                                    <option value="de" selected>German (DE)</option>
-                                    <option value="en">English (EN)</option>
-                                    <option value="fr">French (FR)</option>
-                                    <option value="it">Italian (IT)</option>
+                                    <option value="de" selected>Deutsch (DE)</option>
+                                    <option value="en">Englisch (EN)</option>
+                                    <option value="fr">Französisch (FR)</option>
+                                    <option value="it">Italienisch (IT)</option>
                                 </select>
                             </div>
                             <div class="setting-row">
-                                <label class="setting-label">Visibility</label>
+                                <label class="setting-label">Sichtbarkeit :</label>
                                 <select class="setting-select" disabled>
-                                    <option value="internal" selected>Internal (Federal)</option>
-                                    <option value="public">Public</option>
-                                    <option value="restricted">Restricted</option>
+                                    <option value="internal" selected>Intern (Bundesebene)</option>
+                                    <option value="public">Öffentlich</option>
+                                    <option value="restricted">Eingeschränkt</option>
                                 </select>
                             </div>
                         </div>
@@ -4088,15 +1627,15 @@
 
                 <div class="card">
                     <div class="card-header" data-card="notifications" aria-expanded="true">
-                        <span class="card-title">Notifications</span>
+                        <span class="card-title">Benachrichtigungen</span>
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content">
                         <div class="settings-form">
                             <div class="setting-row setting-toggle-row">
                                 <div class="setting-toggle-info">
-                                    <span class="setting-label">Email Notifications</span>
-                                    <span class="setting-desc text-secondary">Receive email updates on changes</span>
+                                    <span class="setting-label">E-Mail-Benachrichtigungen</span>
+                                    <span class="setting-desc text-secondary">E-Mail-Updates bei Änderungen erhalten</span>
                                 </div>
                                 <label class="toggle">
                                     <input type="checkbox" checked disabled />
@@ -4105,8 +1644,8 @@
                             </div>
                             <div class="setting-row setting-toggle-row">
                                 <div class="setting-toggle-info">
-                                    <span class="setting-label">Weekly Digest</span>
-                                    <span class="setting-desc text-secondary">Summary of all changes in the past week</span>
+                                    <span class="setting-label">Wöchentliche Zusammenfassung</span>
+                                    <span class="setting-desc text-secondary">Zusammenfassung aller Änderungen der letzten Woche</span>
                                 </div>
                                 <label class="toggle">
                                     <input type="checkbox" disabled />
@@ -4115,8 +1654,8 @@
                             </div>
                             <div class="setting-row setting-toggle-row">
                                 <div class="setting-toggle-info">
-                                    <span class="setting-label">Approval Requests</span>
-                                    <span class="setting-desc text-secondary">Notify when items need approval</span>
+                                    <span class="setting-label">Genehmigungsanfragen</span>
+                                    <span class="setting-desc text-secondary">Benachrichtigung bei ausstehenden Genehmigungen</span>
                                 </div>
                                 <label class="toggle">
                                     <input type="checkbox" checked disabled />
@@ -4129,24 +1668,24 @@
 
                 <div class="card">
                     <div class="card-header" data-card="danger" aria-expanded="true">
-                        <span class="card-title">Danger Zone</span>
+                        <span class="card-title">Gefahrenzone</span>
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content">
                         <div class="danger-zone">
                             <div class="danger-item">
                                 <div class="danger-info">
-                                    <span class="danger-title">Archive Project</span>
-                                    <span class="danger-desc text-secondary">Move this project to archive. Can be restored later.</span>
+                                    <span class="danger-title">Projekt archivieren</span>
+                                    <span class="danger-desc text-secondary">Dieses Projekt archivieren. Kann später wiederhergestellt werden.</span>
                                 </div>
-                                <button class="btn btn-outline-danger" disabled>Archive</button>
+                                <button class="btn btn-outline-danger" disabled>Archivieren</button>
                             </div>
                             <div class="danger-item">
                                 <div class="danger-info">
-                                    <span class="danger-title">Delete Project</span>
-                                    <span class="danger-desc text-secondary">Permanently delete this project and all its data.</span>
+                                    <span class="danger-title">Projekt löschen</span>
+                                    <span class="danger-desc text-secondary">Dieses Projekt und alle Daten dauerhaft löschen.</span>
                                 </div>
-                                <button class="btn btn-danger" disabled>Delete</button>
+                                <button class="btn btn-danger" disabled>Löschen</button>
                             </div>
                         </div>
                     </div>
@@ -4186,9 +1725,9 @@
 
         function renderPlaceholderView(view) {
             const viewInfo = {
-                diagram: { icon: icons.box, title: 'Entity Diagram', desc: 'Visual entity-relationship diagram' },
-                lineage: { icon: icons.arrowRight, title: 'Data Lineage', desc: 'Source to target data flow' },
-                history: { icon: icons.hash, title: 'Version History', desc: 'Changelog and versioning' }
+                diagram: { icon: icons.box, title: 'Entitätsdiagramm', desc: 'Visuelles Entity-Relationship-Diagramm' },
+                lineage: { icon: icons.arrowRight, title: 'Datenherkunft', desc: 'Datenfluss von Quelle zu Ziel' },
+                history: { icon: icons.hash, title: 'Versionsverlauf', desc: 'Änderungsprotokoll und Versionierung' }
             };
             const info = viewInfo[view] || { icon: '?', title: view, desc: '' };
             return `
@@ -4196,7 +1735,7 @@
                     <div class="placeholder-icon" aria-hidden="true">${info.icon}</div>
                     <h3 class="placeholder-title">${info.title}</h3>
                     <p class="placeholder-desc">${info.desc}</p>
-                    <p style="margin-top: var(--space-4); opacity: 0.5; font-size: var(--text-caption);">Coming soon in future release</p>
+                    <p style="margin-top: var(--space-4); opacity: 0.5; font-size: var(--text-caption);">Demnächst verfügbar</p>
                 </div>
             `;
         }
@@ -4211,13 +1750,13 @@
             }
 
             container.innerHTML = `
-                <div class="search-results-header">${state.searchResults.length} results</div>
+                <div class="search-results-header">${state.searchResults.length} Ergebnisse</div>
                 ${state.searchResults.map(item => `
                     <div class="search-result-item ${item.layer}" data-id="${item.id}" role="option" tabindex="0">
                         <span class="tree-icon ${item.layer}">${getTypeIcon(item.type)}</span>
                         <div class="search-result-info">
                             <div class="search-result-name">${item.name}</div>
-                            <div class="search-result-meta">${getTypeLabel(item.type)} · ${item.layer}</div>
+                            <div class="search-result-meta">${getTypeLabel(item.type)} · ${getLayerLabel(item.layer)}</div>
                         </div>
                     </div>
                 `).join('')}
@@ -4407,8 +1946,8 @@
                 document.getElementById('app').innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">${icons.database}</div>
-                        <h2 class="empty-state-title">Failed to load data</h2>
-                        <p>Please check if data files exist in /data folder.</p>
+                        <h2 class="empty-state-title">Daten konnten nicht geladen werden</h2>
+                        <p>Bitte prüfen Sie, ob die Datendateien im Ordner /data vorhanden sind.</p>
                     </div>
                 `;
                 return;
