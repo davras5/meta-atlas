@@ -9,7 +9,7 @@
     "technology": "SAP HANA",
     "owner": "BBL IT",
     "created": "2024-01-10",
-    "schemas": ["sch-refx"]
+    "tables": ["tbl-vibdbe", "tbl-vibdgr", "tbl-viobj"]
   },
   {
     "id": "sys-postgis",
@@ -21,6 +21,6 @@
     "technology": "PostgreSQL/PostGIS",
     "owner": "BBL GIS Team",
     "created": "2024-01-15",
-    "schemas": ["sch-geo"]
+    "tables": ["tbl-geo-buildings"]
   }
 ]
