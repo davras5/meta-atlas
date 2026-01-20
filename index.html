@@ -376,11 +376,6 @@
                                 <!-- Version options will be rendered here -->
                             </select>
                         </div>
-                        <div class="sub-header-right">
-                            <nav class="view-tabs" id="viewTabs" role="tablist">
-                                <!-- View tabs will be rendered here -->
-                            </nav>
-                        </div>
                     </div>
                 </div>
 
@@ -438,7 +433,6 @@
 
         function renderSubHeader() {
             const versionSelector = document.getElementById('versionSelector');
-            const viewTabs = document.getElementById('viewTabs');
 
             if (versionSelector) {
                 // Placeholder versions - to be implemented with actual version data
@@ -451,54 +445,16 @@
                     `<option value="${v.id}" ${v.id === 'main' ? 'selected' : ''}>${v.label}</option>`
                 ).join('');
             }
-
-            if (viewTabs) {
-                // Only show view tabs when viewing non-project items (entities, concepts, tables, etc.)
-                const isViewingProject = state.selectedItem?.type === 'project';
-
-                if (isViewingProject || !state.selectedItem) {
-                    viewTabs.innerHTML = '';
-                    viewTabs.style.display = 'none';
-                } else {
-                    viewTabs.style.display = 'flex';
-                    const tabs = [
-                        { id: 'wiki', label: 'Details' },
-                        { id: 'diagram', label: 'Diagramm' },
-                        { id: 'history', label: 'Verlauf' }
-                    ];
-
-                    viewTabs.innerHTML = tabs.map(tab => `
-                        <button class="view-tab ${state.currentView === tab.id ? 'active' : ''}"
-                                data-view="${tab.id}"
-                                role="tab"
-                                aria-selected="${state.currentView === tab.id}">
-                            ${tab.label}
-                        </button>
-                    `).join('');
-                }
-            }
         }
 
         function attachSubHeaderListeners() {
             const versionSelector = document.getElementById('versionSelector');
-            const viewTabs = document.getElementById('viewTabs');
 
             if (versionSelector) {
                 versionSelector.addEventListener('change', (e) => {
                     const versionId = e.target.value;
                     // TODO: Implement version switching logic
                     console.log('Version changed to:', versionId);
-                });
-            }
-
-            if (viewTabs) {
-                viewTabs.addEventListener('click', (e) => {
-                    const tab = e.target.closest('.view-tab');
-                    if (tab) {
-                        state.currentView = tab.dataset.view;
-                        renderSubHeader();
-                        renderContent();
-                    }
                 });
             }
         }
@@ -1117,16 +1073,6 @@
                     <div class="entity-header">
                         <h1 class="entity-title">${item.name}</h1>
                         <p class="entity-subtitle">${item.description || ''}</p>
-                        <div class="entity-meta">
-                            <span class="entity-meta-item">
-                                <span class="status-indicator">
-                                    <span class="status-dot ${item.status}" aria-hidden="true"></span>
-                                    ${getStatusLabel(item.status) || 'Unbekannt'}
-                                </span>
-                            </span>
-                            ${item.created ? `<span class="entity-meta-item">Erstellt : ${item.created}</span>` : ''}
-                            ${item.owner ? `<span class="entity-meta-item">Verantwortlich : ${item.owner}</span>` : ''}
-                        </div>
                     </div>
 
                     <div class="view-tabs" role="tablist">
@@ -1143,6 +1089,12 @@
                 return;
             }
 
+            const tabs = [
+                { id: 'wiki', label: 'Details' },
+                { id: 'diagram', label: 'Diagramm' },
+                { id: 'history', label: 'Verlauf' }
+            ];
+
             container.innerHTML = `
                 <div class="entity-header">
                     <div class="entity-badges">
@@ -1152,12 +1104,24 @@
                     <p class="entity-subtitle">${item.description || ''}</p>
                 </div>
 
+                <div class="view-tabs" role="tablist">
+                    ${tabs.map(tab => `
+                        <button class="view-tab ${state.currentView === tab.id ? 'active' : ''}"
+                                data-view="${tab.id}"
+                                role="tab"
+                                aria-selected="${state.currentView === tab.id}">
+                            ${tab.label}
+                        </button>
+                    `).join('')}
+                </div>
+
                 <div class="view-content" role="tabpanel">
                     ${state.currentView === 'wiki' ? renderWikiView(item) : renderPlaceholderView(state.currentView)}
                 </div>
             `;
 
             attachContentListeners();
+            attachViewTabListeners();
         }
 
         function renderWikiView(item) {
@@ -1889,6 +1853,15 @@
                         const item = findItemById(itemId);
                         if (item) selectItem(item);
                     }
+                });
+            });
+        }
+
+        function attachViewTabListeners() {
+            document.querySelectorAll('.view-tabs .view-tab[data-view]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    state.currentView = tab.dataset.view;
+                    renderContent();
                 });
             });
         }
