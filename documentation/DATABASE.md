@@ -435,6 +435,7 @@ flowchart LR
 
 | Layer | Entity | Description | I14Y Mapping | DCAT Mapping |
 |-------|--------|-------------|--------------|--------------|
+| **Organization** | Project | Workspace container for metadata | - | dcat:Catalog |
 | **Conceptual** | Domain | Business domain grouping | - | dcat:Catalog (partial) |
 | **Conceptual** | Concept | Business term definition | Konzept | skos:Concept |
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
@@ -448,9 +449,47 @@ flowchart LR
 | **Physical** | DataService | API endpoint | Elektronische Schnittstelle | dcat:DataService |
 | **Physical** | Distribution | Data access point | Distribution | dcat:Distribution |
 
-### 4.2 Conceptual Layer Entities
+### 4.2 Organization Layer Entities
 
-#### 4.2.1 Domain
+#### 4.2.0 Project
+
+A project represents a self-contained workspace or catalog that groups related metadata. Projects provide organizational boundaries for managing metadata across teams, departments, or initiatives. Each project creates isolated copies of all content (domains, concepts, entities, tables) enabling parallel development and versioning.
+
+**Entity: Project**
+
+| Attribute | Type | Required | Description | Standard Mapping |
+|-----------|------|----------|-------------|------------------|
+| id | UUID | Yes | Unique identifier | dct:identifier |
+| name | MultiLang | Yes | Project name in multiple languages | dct:title |
+| description | MultiLang | Yes | Detailed project description | dct:description |
+| owner | AgentRef | Yes | Responsible organization or team | dct:publisher |
+| status | Enum | Yes | active, draft, archived | adms:status |
+| color | String | No | Display color for UI (hex code) | - |
+| icon | String | No | Icon identifier for UI | - |
+| domains | UUID[] | No | Associated domain references | - |
+| entities | Integer | No | Count of logical entities | - |
+| tables | Integer | No | Count of physical tables | - |
+| created | Date | Yes | Creation date | dct:created |
+| updated | Date | No | Last update date | dct:modified |
+| lastActivity | Date | No | Date of last activity | - |
+| metadata | Metadata | Yes | Audit trail (created, updated, version) | - |
+
+**Status Values:**
+- `active` - Project is actively maintained
+- `draft` - Project is being set up or configured
+- `archived` - Project is no longer active but preserved for reference
+
+**Use Cases:**
+- Separate metadata by department (HR, Finance, Real Estate)
+- Isolate development and production catalogs
+- Enable parallel metadata governance initiatives
+- Support multi-tenant scenarios
+
+---
+
+### 4.3 Conceptual Layer Entities
+
+#### 4.3.1 Domain
 
 A business domain represents a coherent area of business activity or knowledge.
 

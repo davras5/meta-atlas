@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1386,6 +1386,241 @@
             height: 1em;
             vertical-align: middle;
         }
+
+        /* ========================================
+           Project Overview Page
+           ======================================== */
+        .projects-overview {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .projects-header {
+            margin-bottom: var(--space-8);
+        }
+
+        .projects-title {
+            font-size: var(--text-display);
+            font-weight: var(--font-semibold);
+            line-height: var(--leading-display);
+            letter-spacing: -0.02em;
+            margin-bottom: var(--space-2);
+            color: var(--color-text-primary);
+        }
+
+        .projects-subtitle {
+            font-size: var(--text-body);
+            color: var(--color-text-secondary);
+            max-width: 600px;
+        }
+
+        .projects-stats {
+            display: flex;
+            gap: var(--space-6);
+            margin-top: var(--space-6);
+            padding: var(--space-4) var(--space-5);
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border-default);
+            border-radius: var(--radius-lg);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: var(--text-h1);
+            font-weight: var(--font-semibold);
+            color: var(--color-text-primary);
+        }
+
+        .stat-label {
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: var(--space-5);
+        }
+
+        .project-card {
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border-default);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--project-color, var(--color-conceptual));
+        }
+
+        .project-card:hover {
+            border-color: var(--color-border-default);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .project-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .project-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            background: var(--project-color, var(--color-conceptual));
+            color: white;
+        }
+
+        .project-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-name {
+            font-size: var(--text-h3);
+            font-weight: var(--font-semibold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-1);
+        }
+
+        .project-owner {
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+        }
+
+        .project-status {
+            padding: 2px var(--space-2);
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .project-status.active {
+            background: var(--color-logical-bg);
+            color: var(--color-logical);
+        }
+
+        .project-status.draft {
+            background: var(--color-physical-bg);
+            color: var(--color-physical);
+        }
+
+        .project-status.archived {
+            background: var(--color-bg-hover);
+            color: var(--color-text-muted);
+        }
+
+        .project-description {
+            font-size: var(--text-small);
+            color: var(--color-text-secondary);
+            line-height: var(--leading-body);
+            margin-bottom: var(--space-4);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-meta {
+            display: flex;
+            gap: var(--space-4);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--color-border-subtle);
+        }
+
+        .project-meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+        }
+
+        .project-meta-value {
+            font-weight: var(--font-medium);
+            color: var(--color-text-secondary);
+        }
+
+        .project-activity {
+            margin-left: auto;
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+        }
+
+        /* Project page specific breadcrumb */
+        .breadcrumb-home {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            transition: all var(--duration-fast) var(--ease-out);
+        }
+
+        .breadcrumb-home:hover {
+            color: var(--color-text-primary);
+            background: var(--color-bg-hover);
+        }
+
+        .breadcrumb-home svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .breadcrumb-item.layer-conceptual {
+            color: var(--color-conceptual);
+        }
+
+        .breadcrumb-item.layer-logical {
+            color: var(--color-logical);
+        }
+
+        .breadcrumb-item.layer-physical {
+            color: var(--color-physical);
+        }
+
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-stats {
+                flex-wrap: wrap;
+                gap: var(--space-4);
+            }
+
+            .stat-item {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1415,13 +1650,21 @@
             database: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>',
             server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>',
             table: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>',
-            hash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>'
+            hash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>',
+            building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>',
+            map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15"/><path d="M15 6v15"/></svg>',
+            chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
+            users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            hammer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>',
+            home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+            layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>'
         };
 
         // ========================================
         // Data Loading
         // ========================================
         const data = {
+            projects: [],
             domains: [],
             concepts: [],
             entities: [],
@@ -1432,7 +1675,8 @@
 
         async function loadData() {
             try {
-                const [domains, concepts, entities, systems, schemas, tables] = await Promise.all([
+                const [projects, domains, concepts, entities, systems, schemas, tables] = await Promise.all([
+                    fetch('data/projects.json').then(r => r.json()),
                     fetch('data/domains.json').then(r => r.json()),
                     fetch('data/concepts.json').then(r => r.json()),
                     fetch('data/entities.json').then(r => r.json()),
@@ -1441,6 +1685,7 @@
                     fetch('data/tables.json').then(r => r.json())
                 ]);
 
+                data.projects = projects;
                 data.domains = domains;
                 data.concepts = concepts;
                 data.entities = entities;
@@ -1459,12 +1704,13 @@
         // State Management
         // ========================================
         let state = {
+            currentProject: null,
             currentLayer: 'conceptual',
             currentView: 'wiki',
             selectedItem: null,
             expandedNodes: new Set(['dom-immo', 'sys-sap', 'sch-refx']),
             expandedLayers: new Set(['conceptual', 'logical', 'physical']),
-            theme: 'dark',
+            theme: 'light',
             sidebarCollapsed: false,
             searchQuery: '',
             searchResults: []
@@ -1535,6 +1781,9 @@
         // Utility Functions
         // ========================================
         function findItemById(id) {
+            for (const project of data.projects) {
+                if (project.id === id) return project;
+            }
             for (const domain of data.domains) {
                 if (domain.id === id) return domain;
             }
@@ -1593,6 +1842,7 @@
 
         function getTypeLabel(type) {
             const labels = {
+                project: 'Project',
                 domain: 'Domain',
                 concept: 'Concept',
                 entity: 'Logical Entity',
@@ -1605,6 +1855,7 @@
 
         function getTypeIcon(type) {
             const iconMap = {
+                project: 'P',
                 domain: 'D',
                 concept: 'C',
                 entity: 'E',
@@ -1646,6 +1897,7 @@
 
         function getAllItems() {
             return [
+                ...data.projects,
                 ...data.domains,
                 ...data.concepts,
                 ...data.entities,
@@ -1669,7 +1921,7 @@
             app.innerHTML = `
                 <!-- Header -->
                 <header class="header" role="banner">
-                    <a href="#/" class="logo">
+                    <a href="#/" class="logo" onclick="goToProjectsOverview(); return false;">
                         <div class="logo-icon" aria-hidden="true"></div>
                         <span>Meta-Atlas</span>
                     </a>
@@ -1696,7 +1948,7 @@
                             <option value="en">EN</option>
                         </select>
                         <button class="icon-btn" id="themeToggle" aria-label="Toggle dark/light theme">
-                            ${icons.moon}
+                            ${icons.sun}
                         </button>
                     </div>
                 </header>
@@ -1740,24 +1992,73 @@
 
             let html = '';
 
-            if (state.currentLayer === 'conceptual') {
-                for (const domain of data.domains) {
-                    const concepts = getConceptsForDomain(domain.id);
-                    html += renderTreeItem(domain, concepts);
-                }
-            } else if (state.currentLayer === 'logical') {
-                for (const entity of data.entities) {
-                    html += renderTreeLeaf(entity);
-                }
-            } else if (state.currentLayer === 'physical') {
-                for (const system of data.systems) {
-                    const schemas = getSchemasForSystem(system.id);
-                    html += renderTreeItemNested(system, schemas);
-                }
+            // Conceptual Layer Section
+            const isConceptualExpanded = state.expandedLayers.has('conceptual');
+            html += `
+                <div class="layer-section">
+                    <div class="layer-section-header conceptual ${!isConceptualExpanded ? 'collapsed' : ''}" data-layer="conceptual">
+                        <span class="layer-indicator"></span>
+                        <span>Conceptual</span>
+                        <span class="layer-toggle">${icons.chevronDown}</span>
+                    </div>
+                    <div class="layer-section-content ${!isConceptualExpanded ? 'collapsed' : ''}">
+            `;
+            for (const domain of data.domains) {
+                const concepts = getConceptsForDomain(domain.id);
+                html += renderTreeItem(domain, concepts);
             }
+            html += `</div></div>`;
+
+            // Logical Layer Section
+            const isLogicalExpanded = state.expandedLayers.has('logical');
+            html += `
+                <div class="layer-section">
+                    <div class="layer-section-header logical ${!isLogicalExpanded ? 'collapsed' : ''}" data-layer="logical">
+                        <span class="layer-indicator"></span>
+                        <span>Logical</span>
+                        <span class="layer-toggle">${icons.chevronDown}</span>
+                    </div>
+                    <div class="layer-section-content ${!isLogicalExpanded ? 'collapsed' : ''}">
+            `;
+            for (const entity of data.entities) {
+                html += renderTreeLeaf(entity);
+            }
+            html += `</div></div>`;
+
+            // Physical Layer Section
+            const isPhysicalExpanded = state.expandedLayers.has('physical');
+            html += `
+                <div class="layer-section">
+                    <div class="layer-section-header physical ${!isPhysicalExpanded ? 'collapsed' : ''}" data-layer="physical">
+                        <span class="layer-indicator"></span>
+                        <span>Physical</span>
+                        <span class="layer-toggle">${icons.chevronDown}</span>
+                    </div>
+                    <div class="layer-section-content ${!isPhysicalExpanded ? 'collapsed' : ''}">
+            `;
+            for (const system of data.systems) {
+                const schemas = getSchemasForSystem(system.id);
+                html += renderTreeItemNested(system, schemas);
+            }
+            html += `</div></div>`;
 
             container.innerHTML = html;
             attachTreeListeners();
+            attachLayerToggleListeners();
+        }
+
+        function attachLayerToggleListeners() {
+            document.querySelectorAll('.layer-section-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const layer = header.dataset.layer;
+                    if (state.expandedLayers.has(layer)) {
+                        state.expandedLayers.delete(layer);
+                    } else {
+                        state.expandedLayers.add(layer);
+                    }
+                    renderTree();
+                });
+            });
         }
 
         function renderTreeItem(item, children) {
@@ -1845,29 +2146,181 @@
             const breadcrumb = document.getElementById('breadcrumb');
             if (!breadcrumb) return;
 
+            let html = '';
+
+            // Always show "All projects" as the first breadcrumb item
+            html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} All projects</span>`;
+
             if (!item) {
-                breadcrumb.innerHTML = `<span class="breadcrumb-current">${state.currentLayer.charAt(0).toUpperCase() + state.currentLayer.slice(1)} Layer</span>`;
+                breadcrumb.innerHTML = html;
+                attachBreadcrumbListeners(breadcrumb);
                 return;
             }
 
+            // Add separator after "All projects"
+            html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+
+            // If we have a current project and the item is not the project itself, show the project
+            if (state.currentProject && item.type !== 'project') {
+                html += `<span class="breadcrumb-item" data-id="${state.currentProject.id}" tabindex="0">${state.currentProject.name}</span>`;
+                html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+            }
+
+            // If item is a project, just show it as current
+            if (item.type === 'project') {
+                html += `<span class="breadcrumb-current" aria-current="page">${item.name}</span>`;
+                breadcrumb.innerHTML = html;
+                attachBreadcrumbListeners(breadcrumb);
+                return;
+            }
+
+            // Add layer indicator
+            if (item.layer) {
+                html += `<span class="breadcrumb-item layer-${item.layer}" data-layer="${item.layer}" tabindex="0">${item.layer.charAt(0).toUpperCase() + item.layer.slice(1)}</span>`;
+                html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+            }
+
+            // Add parent chain
             const chain = getParentChain(item);
-            let html = chain.map(parent =>
+            html += chain.map(parent =>
                 `<span class="breadcrumb-item" data-id="${parent.id}" tabindex="0">${parent.name}</span>
                  <span class="breadcrumb-separator" aria-hidden="true">/</span>`
             ).join('');
 
             html += `<span class="breadcrumb-current" aria-current="page">${item.name}</span>`;
             breadcrumb.innerHTML = html;
+            attachBreadcrumbListeners(breadcrumb);
+        }
 
-            breadcrumb.querySelectorAll('.breadcrumb-item').forEach(el => {
-                el.addEventListener('click', () => selectItem(el.dataset.id));
+        function attachBreadcrumbListeners(breadcrumb) {
+            // Home button listener
+            breadcrumb.querySelectorAll('.breadcrumb-home').forEach(el => {
+                el.addEventListener('click', () => goToProjectsOverview());
                 el.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        selectItem(el.dataset.id);
+                        goToProjectsOverview();
                     }
                 });
             });
+
+            // Item listeners
+            breadcrumb.querySelectorAll('.breadcrumb-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (el.dataset.id) {
+                        selectItem(el.dataset.id);
+                    } else if (el.dataset.layer) {
+                        state.currentLayer = el.dataset.layer;
+                        renderAll();
+                    }
+                });
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (el.dataset.id) {
+                            selectItem(el.dataset.id);
+                        }
+                    }
+                });
+            });
+        }
+
+        function goToProjectsOverview() {
+            state.currentProject = null;
+            state.selectedItem = null;
+            navigateTo('/');
+        }
+
+        function renderProjectsOverview() {
+            const contentArea = document.getElementById('contentArea');
+            if (!contentArea) return;
+
+            const totalEntities = data.entities.length;
+            const totalTables = data.tables.length;
+            const totalConcepts = data.concepts.length;
+            const totalProjects = data.projects.length;
+
+            const container = contentArea.querySelector('.content-container');
+            container.innerHTML = `
+                <div class="projects-overview">
+                    <div class="projects-header">
+                        <h1 class="projects-title">All Projects</h1>
+                        <p class="projects-subtitle">Explore metadata catalogs across your organization. Each project contains domains, entities, and physical implementations.</p>
+                        <div class="projects-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${totalProjects}</div>
+                                <div class="stat-label">Projects</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${totalConcepts}</div>
+                                <div class="stat-label">Concepts</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${totalEntities}</div>
+                                <div class="stat-label">Entities</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${totalTables}</div>
+                                <div class="stat-label">Tables</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="projects-grid">
+                        ${data.projects.map(project => renderProjectCard(project)).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Attach project card listeners
+            container.querySelectorAll('.project-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const projectId = card.dataset.id;
+                    selectProject(projectId);
+                });
+            });
+        }
+
+        function renderProjectCard(project) {
+            const iconName = project.icon || 'folder';
+            const icon = icons[iconName] || icons.folder;
+
+            return `
+                <div class="project-card" data-id="${project.id}" style="--project-color: ${project.color || '#3B82F6'}">
+                    <div class="project-card-header">
+                        <div class="project-icon" style="background: ${project.color || '#3B82F6'}">
+                            ${icon}
+                        </div>
+                        <div class="project-info">
+                            <div class="project-name">${project.name}</div>
+                            <div class="project-owner">${project.owner}</div>
+                        </div>
+                        <span class="project-status ${project.status}">${project.status}</span>
+                    </div>
+                    <p class="project-description">${project.description}</p>
+                    <div class="project-meta">
+                        <div class="project-meta-item">
+                            ${icons.box}
+                            <span class="project-meta-value">${project.entities || 0}</span> Entities
+                        </div>
+                        <div class="project-meta-item">
+                            ${icons.table}
+                            <span class="project-meta-value">${project.tables || 0}</span> Tables
+                        </div>
+                        <div class="project-activity">
+                            Last active: ${project.lastActivity || project.updated || project.created}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectProject(projectId) {
+            const project = data.projects.find(p => p.id === projectId);
+            if (project) {
+                state.currentProject = project;
+                state.selectedItem = project;
+                navigateTo(`/project/${project.id}`);
+            }
         }
 
         function renderContent() {
@@ -1876,7 +2329,19 @@
 
             const item = state.selectedItem;
 
-            if (!item) {
+            // Show projects overview when no item selected
+            if (!item && !state.currentProject) {
+                renderBreadcrumb(null);
+                renderProjectsOverview();
+                return;
+            }
+
+            // If we have a project selected but no specific item, show the project detail
+            if (!item && state.currentProject) {
+                state.selectedItem = state.currentProject;
+            }
+
+            if (!state.selectedItem) {
                 renderBreadcrumb(null);
                 contentArea.querySelector('.content-container').innerHTML = `
                     <div class="empty-state">
@@ -2339,9 +2804,9 @@
 
             // Theme toggle
             document.getElementById('themeToggle').addEventListener('click', () => {
-                state.theme = state.theme === 'dark' ? 'light' : 'dark';
+                state.theme = state.theme === 'light' ? 'dark' : 'light';
                 document.documentElement.dataset.theme = state.theme;
-                document.getElementById('themeToggle').innerHTML = state.theme === 'dark' ? icons.moon : icons.sun;
+                document.getElementById('themeToggle').innerHTML = state.theme === 'light' ? icons.sun : icons.moon;
             });
 
             // Sidebar toggle
@@ -2369,9 +2834,9 @@
             window.addEventListener('hashchange', handleRoute);
             handleRoute();
 
-            // If no specific route, select first domain
-            if (!state.selectedItem && data.domains.length) {
-                selectItem(data.domains[0].id);
+            // If no specific route, show projects overview (landing page)
+            if (!state.selectedItem && !state.currentProject) {
+                renderProjectsOverview();
             }
         }
 
