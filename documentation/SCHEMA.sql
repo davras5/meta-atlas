@@ -216,7 +216,7 @@ CREATE TABLE attributes (
   is_nullable BOOLEAN NOT NULL DEFAULT true,
   is_business_key BOOLEAN NOT NULL DEFAULT false,
   default_value TEXT,
-  value_domain_id UUID,
+  enumeration_id UUID,
   derivation_rule TEXT,
   position INTEGER NOT NULL,
   status VARCHAR(20) NOT NULL DEFAULT 'active'
@@ -238,8 +238,8 @@ CREATE TABLE relationships (
   created_by VARCHAR(100) NOT NULL
 );
 
--- Value Domains table
-CREATE TABLE value_domains (
+-- Enumerations table
+CREATE TABLE enumerations (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   is_shared BOOLEAN NOT NULL DEFAULT false,
@@ -407,8 +407,8 @@ CREATE INDEX idx_logical_entities_catalog ON logical_entities(catalog_id);
 CREATE INDEX idx_attributes_entity ON attributes(entity_id);
 CREATE INDEX idx_relationships_source ON relationships(source_entity_id);
 CREATE INDEX idx_relationships_target ON relationships(target_entity_id);
-CREATE INDEX idx_value_domains_catalog ON value_domains(catalog_id);
-CREATE INDEX idx_value_domains_shared ON value_domains(is_shared) WHERE is_shared = true;
+CREATE INDEX idx_enumerations_catalog ON enumerations(catalog_id);
+CREATE INDEX idx_enumerations_shared ON enumerations(is_shared) WHERE is_shared = true;
 CREATE INDEX idx_datasets_catalog ON datasets(catalog_id);
 
 -- Physical layer indexes

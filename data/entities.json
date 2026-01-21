@@ -20,120 +20,7 @@
     "domain": "dom-immo",
     "physicalSchemas": ["sch-sap-refx", "sch-postgis-geo"],
     "created": "2024-01-20",
-    "updated": "2025-01-10",
-    "attributes": [
-      {
-        "name": "egid",
-        "type": "Integer",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Eidgenössischer Gebäudeidentifikator",
-          "en": "Federal Building Identifier",
-          "fr": "Identifiant fédéral de bâtiment",
-          "it": "Identificatore federale degli edifici"
-        }
-      },
-      {
-        "name": "building_type",
-        "type": "Reference",
-        "nullable": false,
-        "key": "",
-        "valueDomain": "vd-building-type",
-        "description": {
-          "de": "Gebäudetyp",
-          "en": "Building type",
-          "fr": "Type de bâtiment",
-          "it": "Tipo di edificio"
-        }
-      },
-      {
-        "name": "address_street",
-        "type": "String",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Strassenadresse",
-          "en": "Street address",
-          "fr": "Adresse de rue",
-          "it": "Indirizzo stradale"
-        }
-      },
-      {
-        "name": "address_city",
-        "type": "String",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Stadt/Ort",
-          "en": "City/Location",
-          "fr": "Ville/Localité",
-          "it": "Città/Località"
-        }
-      },
-      {
-        "name": "construction_year",
-        "type": "Integer",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Baujahr",
-          "en": "Construction year",
-          "fr": "Année de construction",
-          "it": "Anno di costruzione"
-        }
-      },
-      {
-        "name": "total_area_sqm",
-        "type": "Decimal",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Gesamtfläche in m²",
-          "en": "Total area in m²",
-          "fr": "Surface totale en m²",
-          "it": "Superficie totale in m²"
-        }
-      },
-      {
-        "name": "plot_id",
-        "type": "Reference",
-        "nullable": false,
-        "key": "FK",
-        "description": {
-          "de": "Referenz zum Grundstück",
-          "en": "Reference to plot",
-          "fr": "Référence au terrain",
-          "it": "Riferimento al terreno"
-        }
-      },
-      {
-        "name": "status",
-        "type": "Reference",
-        "nullable": false,
-        "key": "",
-        "valueDomain": "vd-status",
-        "description": {
-          "de": "Status des Gebäudes",
-          "en": "Building status",
-          "fr": "Statut du bâtiment",
-          "it": "Stato dell'edificio"
-        }
-      },
-      {
-        "name": "energy_rating",
-        "type": "Reference",
-        "nullable": true,
-        "key": "",
-        "valueDomain": "vd-energy-rating",
-        "description": {
-          "de": "Energieeffizienzklasse (GEAK)",
-          "en": "Energy efficiency class (GEAK)",
-          "fr": "Classe d'efficacité énergétique (CECB)",
-          "it": "Classe di efficienza energetica (CECE)"
-        }
-      }
-    ]
+    "updated": "2025-01-10"
   },
   {
     "id": "ent-plot",
@@ -156,58 +43,7 @@
     "domain": "dom-immo",
     "physicalSchemas": ["sch-sap-refx"],
     "created": "2024-01-20",
-    "updated": "2024-08-15",
-    "attributes": [
-      {
-        "name": "plot_id",
-        "type": "String",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Grundstücksidentifikator",
-          "en": "Plot identifier",
-          "fr": "Identifiant du bien-fonds",
-          "it": "Identificatore del fondo"
-        }
-      },
-      {
-        "name": "area_sqm",
-        "type": "Decimal",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Fläche in m²",
-          "en": "Area in m²",
-          "fr": "Surface en m²",
-          "it": "Superficie in m²"
-        }
-      },
-      {
-        "name": "zone_type",
-        "type": "Reference",
-        "nullable": true,
-        "key": "",
-        "valueDomain": "vd-zone",
-        "description": {
-          "de": "Nutzungszone",
-          "en": "Usage zone",
-          "fr": "Zone d'utilisation",
-          "it": "Zona d'uso"
-        }
-      },
-      {
-        "name": "municipality",
-        "type": "String",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Gemeinde",
-          "en": "Municipality",
-          "fr": "Commune",
-          "it": "Comune"
-        }
-      }
-    ]
+    "updated": "2024-08-15"
   },
   {
     "id": "ent-rental-unit",
@@ -230,82 +66,7 @@
     "domain": "dom-immo",
     "physicalSchemas": ["sch-sap-refx"],
     "created": "2024-02-05",
-    "updated": "2024-06-20",
-    "attributes": [
-      {
-        "name": "unit_id",
-        "type": "String",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Mietobjekt-ID",
-          "en": "Rental unit ID",
-          "fr": "ID de l'objet locatif",
-          "it": "ID dell'unità in affitto"
-        }
-      },
-      {
-        "name": "building_egid",
-        "type": "Integer",
-        "nullable": false,
-        "key": "FK",
-        "description": {
-          "de": "Referenz zum Gebäude",
-          "en": "Reference to building",
-          "fr": "Référence au bâtiment",
-          "it": "Riferimento all'edificio"
-        }
-      },
-      {
-        "name": "floor",
-        "type": "Integer",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Stockwerk",
-          "en": "Floor",
-          "fr": "Étage",
-          "it": "Piano"
-        }
-      },
-      {
-        "name": "area_sqm",
-        "type": "Decimal",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Fläche in m²",
-          "en": "Area in m²",
-          "fr": "Surface en m²",
-          "it": "Superficie in m²"
-        }
-      },
-      {
-        "name": "unit_type",
-        "type": "Reference",
-        "nullable": false,
-        "key": "",
-        "valueDomain": "vd-unit-type",
-        "description": {
-          "de": "Objekttyp",
-          "en": "Unit type",
-          "fr": "Type d'objet",
-          "it": "Tipo di unità"
-        }
-      },
-      {
-        "name": "rent_monthly",
-        "type": "Decimal",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Monatsmiete CHF",
-          "en": "Monthly rent CHF",
-          "fr": "Loyer mensuel CHF",
-          "it": "Affitto mensile CHF"
-        }
-      }
-    ]
+    "updated": "2024-06-20"
   },
   {
     "id": "ent-project",
@@ -328,94 +89,7 @@
     "domain": "dom-project",
     "physicalSchemas": ["sch-sap-ps"],
     "created": "2024-04-01",
-    "updated": "2025-01-15",
-    "attributes": [
-      {
-        "name": "project_id",
-        "type": "String",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Projekt-ID",
-          "en": "Project ID",
-          "fr": "ID du projet",
-          "it": "ID del progetto"
-        }
-      },
-      {
-        "name": "name",
-        "type": "String",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Projektname",
-          "en": "Project name",
-          "fr": "Nom du projet",
-          "it": "Nome del progetto"
-        }
-      },
-      {
-        "name": "building_egid",
-        "type": "Integer",
-        "nullable": true,
-        "key": "FK",
-        "description": {
-          "de": "Referenz zum Gebäude",
-          "en": "Reference to building",
-          "fr": "Référence au bâtiment",
-          "it": "Riferimento all'edificio"
-        }
-      },
-      {
-        "name": "phase",
-        "type": "Reference",
-        "nullable": false,
-        "key": "",
-        "valueDomain": "vd-project-phase",
-        "description": {
-          "de": "Projektphase",
-          "en": "Project phase",
-          "fr": "Phase du projet",
-          "it": "Fase del progetto"
-        }
-      },
-      {
-        "name": "budget_chf",
-        "type": "Decimal",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Budget in CHF",
-          "en": "Budget in CHF",
-          "fr": "Budget en CHF",
-          "it": "Budget in CHF"
-        }
-      },
-      {
-        "name": "start_date",
-        "type": "Date",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Startdatum",
-          "en": "Start date",
-          "fr": "Date de début",
-          "it": "Data di inizio"
-        }
-      },
-      {
-        "name": "end_date",
-        "type": "Date",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Enddatum",
-          "en": "End date",
-          "fr": "Date de fin",
-          "it": "Data di fine"
-        }
-      }
-    ]
+    "updated": "2025-01-15"
   },
   {
     "id": "ent-cost-center",
@@ -438,57 +112,7 @@
     "domain": "dom-project",
     "physicalSchemas": ["sch-sap-ps"],
     "created": "2024-04-15",
-    "updated": "2024-07-20",
-    "attributes": [
-      {
-        "name": "cost_center_id",
-        "type": "String",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Kostenstellen-ID",
-          "en": "Cost center ID",
-          "fr": "ID du centre de coûts",
-          "it": "ID del centro di costo"
-        }
-      },
-      {
-        "name": "name",
-        "type": "String",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Bezeichnung",
-          "en": "Name",
-          "fr": "Désignation",
-          "it": "Denominazione"
-        }
-      },
-      {
-        "name": "responsible_person",
-        "type": "String",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Verantwortliche Person",
-          "en": "Responsible person",
-          "fr": "Personne responsable",
-          "it": "Persona responsabile"
-        }
-      },
-      {
-        "name": "budget_year",
-        "type": "Integer",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Budgetjahr",
-          "en": "Budget year",
-          "fr": "Année budgétaire",
-          "it": "Anno di bilancio"
-        }
-      }
-    ]
+    "updated": "2024-07-20"
   },
   {
     "id": "ent-location",
@@ -511,57 +135,7 @@
     "domain": "dom-geo",
     "physicalSchemas": ["sch-postgis-geo"],
     "created": "2024-03-15",
-    "updated": "2025-01-05",
-    "attributes": [
-      {
-        "name": "location_id",
-        "type": "Integer",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Standort-ID",
-          "en": "Location ID",
-          "fr": "ID de l'emplacement",
-          "it": "ID della posizione"
-        }
-      },
-      {
-        "name": "coord_e",
-        "type": "Decimal",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Koordinate Ost (E)",
-          "en": "Easting coordinate (E)",
-          "fr": "Coordonnée Est (E)",
-          "it": "Coordinata Est (E)"
-        }
-      },
-      {
-        "name": "coord_n",
-        "type": "Decimal",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Koordinate Nord (N)",
-          "en": "Northing coordinate (N)",
-          "fr": "Coordonnée Nord (N)",
-          "it": "Coordinata Nord (N)"
-        }
-      },
-      {
-        "name": "elevation",
-        "type": "Decimal",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Höhe über Meer (m)",
-          "en": "Elevation above sea level (m)",
-          "fr": "Altitude (m)",
-          "it": "Altitudine (m)"
-        }
-      }
-    ]
+    "updated": "2025-01-05"
   },
   {
     "id": "ent-address",
@@ -584,68 +158,6 @@
     "domain": "dom-geo",
     "physicalSchemas": ["sch-postgis-geo"],
     "created": "2024-03-20",
-    "updated": "2025-01-05",
-    "attributes": [
-      {
-        "name": "address_id",
-        "type": "Integer",
-        "nullable": false,
-        "key": "PK",
-        "description": {
-          "de": "Adress-ID",
-          "en": "Address ID",
-          "fr": "ID de l'adresse",
-          "it": "ID dell'indirizzo"
-        }
-      },
-      {
-        "name": "street",
-        "type": "String",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Strasse",
-          "en": "Street",
-          "fr": "Rue",
-          "it": "Via"
-        }
-      },
-      {
-        "name": "house_number",
-        "type": "String",
-        "nullable": true,
-        "key": "",
-        "description": {
-          "de": "Hausnummer",
-          "en": "House number",
-          "fr": "Numéro de maison",
-          "it": "Numero civico"
-        }
-      },
-      {
-        "name": "postal_code",
-        "type": "String",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Postleitzahl",
-          "en": "Postal code",
-          "fr": "Code postal",
-          "it": "Codice postale"
-        }
-      },
-      {
-        "name": "city",
-        "type": "String",
-        "nullable": false,
-        "key": "",
-        "description": {
-          "de": "Ort",
-          "en": "City",
-          "fr": "Localité",
-          "it": "Località"
-        }
-      }
-    ]
+    "updated": "2025-01-05"
   }
 ]

@@ -121,18 +121,22 @@ const data = {
     entities: [],
     systems: [],
     schemas: [],
-    valueDomains: []
+    enumerations: [],
+    attributes: [],
+    columns: []
 };
 
 async function loadData() {
     try {
-        const [catalogs, domains, entities, systems, schemas, valueDomains] = await Promise.all([
+        const [catalogs, domains, entities, systems, schemas, enumerations, attributes, columns] = await Promise.all([
             fetch('data/catalogs.json').then(r => r.json()),
             fetch('data/domains.json').then(r => r.json()),
             fetch('data/entities.json').then(r => r.json()),
             fetch('data/systems.json').then(r => r.json()),
             fetch('data/schemas.json').then(r => r.json()),
-            fetch('data/value-domains.json').then(r => r.json())
+            fetch('data/enumerations.json').then(r => r.json()),
+            fetch('data/attributes.json').then(r => r.json()),
+            fetch('data/columns.json').then(r => r.json())
         ]);
 
         data.catalogs = catalogs;
@@ -140,7 +144,40 @@ async function loadData() {
         data.entities = entities;
         data.systems = systems;
         data.schemas = schemas;
-        data.valueDomains = valueDomains;
+        data.enumerations = enumerations;
+        data.attributes = attributes;
+        data.columns = columns;
+
+        // Attach attributes to entities
+        data.entities.forEach(entity => {
+            entity.attributes = data.attributes
+                .filter(attr => attr.entity_id === entity.id)
+                .sort((a, b) => a.display_order - b.display_order)
+                .map(attr => ({
+                    name: attr.name,
+                    type: attr.type,
+                    nullable: attr.nullable,
+                    key: attr.key,
+                    enumeration: attr.enumeration_id,
+                    description: attr.description
+                }));
+        });
+
+        // Attach columns to schemas
+        data.schemas.forEach(schema => {
+            schema.columns = data.columns
+                .filter(col => col.schema_id === schema.id)
+                .sort((a, b) => a.display_order - b.display_order)
+                .map(col => ({
+                    name: col.name,
+                    type: col.type,
+                    nullable: col.nullable,
+                    key: col.key,
+                    table: col.table,
+                    mappedTo: col.mapped_to,
+                    description: col.description
+                }));
+        });
 
         return true;
     } catch (error) {
@@ -767,6 +804,11 @@ function renderTreeItemWithSchemas(system, schemas) {
 }
 
 function renderTreeLeaf(item) {
+    // For entities with attributes, use the expanded view
+    if (item.type === 'entity' && item.attributes && item.attributes.length > 0) {
+        return renderTreeEntityWithAttributes(item);
+    }
+
     const isSelected = state.selectedItem?.id === item.id;
     return `
         <div class="tree-item" data-id="${escapeHtml(item.id)}">
@@ -783,21 +825,57 @@ function renderTreeLeaf(item) {
     `;
 }
 
+function renderTreeEntityWithAttributes(entity) {
+    const isExpanded = state.expandedNodes.has(entity.id);
+    const isSelected = state.selectedItem?.id === entity.id;
+    const attributes = entity.attributes || [];
+    const hasChildren = attributes.length > 0;
+
+    let attributesHtml = '';
+    if (hasChildren) {
+        for (const attr of attributes) {
+            attributesHtml += renderTreeAttribute(attr, entity.id);
+        }
+    }
+
+    return `
+        <div class="tree-item" data-id="${escapeHtml(entity.id)}">
+            <div class="tree-node ${escapeHtml(entity.layer)} ${isSelected ? 'selected ' + escapeHtml(entity.layer) : ''}"
+                 data-id="${escapeHtml(entity.id)}"
+                 data-layer="${escapeHtml(entity.layer)}"
+                 role="treeitem"
+                 aria-expanded="${isExpanded}"
+                 aria-selected="${isSelected}">
+                <span class="tree-toggle ${isExpanded ? 'expanded' : ''}" aria-hidden="true">
+                    ${hasChildren ? icons.chevronRight : ''}
+                </span>
+                <span class="tree-icon">${getTreeIcon(entity.type)}</span>
+                <span class="tree-label">${escapeHtml(getText(entity.name))}</span>
+                ${hasChildren ? `<span class="tree-count">${attributes.length}</span>` : ''}
+            </div>
+            <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(entity.id)}">
+                ${attributesHtml}
+            </div>
+        </div>
+    `;
+}
+
 function renderTreeAttribute(attr, entityId) {
-    const attrId = `${entityId}-attr-${attr.name}`;
-    const isSelected = state.selectedAttribute?.attr?.name === attr.name &&
+    const attrName = getText(attr.name);
+    const attrId = `${entityId}-attr-${attrName}`;
+    const isSelected = getText(state.selectedAttribute?.attr?.name) === attrName &&
                        state.selectedAttribute?.parentItem?.id === entityId;
     return `
-        <div class="tree-item tree-attribute" data-id="${escapeHtml(attrId)}" data-entity="${escapeHtml(entityId)}" data-attr-name="${escapeHtml(attr.name)}">
+        <div class="tree-item tree-attribute" data-id="${escapeHtml(attrId)}" data-entity="${escapeHtml(entityId)}" data-attr-name="${escapeHtml(attrName)}">
             <div class="tree-node attribute-node ${isSelected ? 'selected' : ''}"
                  data-id="${escapeHtml(attrId)}"
                  data-entity="${escapeHtml(entityId)}"
-                 data-attr-name="${escapeHtml(attr.name)}"
+                 data-attr-name="${escapeHtml(attrName)}"
                  role="treeitem"
                  aria-selected="${isSelected}">
                 <span class="tree-toggle" aria-hidden="true"></span>
                 <span class="tree-icon">${icons.hash}</span>
-                <span class="tree-label">${escapeHtml(attr.name)}</span>
+                <span class="tree-label">${escapeHtml(attrName)}</span>
             </div>
         </div>
     `;
@@ -1342,8 +1420,8 @@ function renderWikiView(item) {
                         </thead>
                         <tbody>
                             ${attrs.map(attr => `
-                                <tr class="clickable-row" data-attr-name="${escapeHtml(attr.name)}" data-parent-id="${escapeHtml(item.id)}" data-parent-type="${escapeHtml(item.type)}">
-                                    <td>${escapeHtml(attr.name)}</td>
+                                <tr class="clickable-row" data-attr-name="${escapeHtml(getText(attr.name))}" data-parent-id="${escapeHtml(item.id)}" data-parent-type="${escapeHtml(item.type)}">
+                                    <td>${escapeHtml(getText(attr.name))}</td>
                                     <td>${escapeHtml(attr.type)}</td>
                                     <td>${attr.nullable ? 'Yes' : 'No'}</td>
                                     <td>${attr.key ? `<span class="tag">${escapeHtml(attr.key)}</span>` : '—'}</td>
@@ -1368,15 +1446,15 @@ function renderAttributeDetailView(attr, parentItem) {
     const itemLabel = isAttribute ? 'Attribut' : 'Spalte';
     const parentLabel = isAttribute ? 'Entität' : 'Tabelle';
 
-    // Find value domain if exists
-    const valueDomain = attr.valueDomain ? data.valueDomains.find(vd => vd.id === attr.valueDomain) : null;
+    // Find enumeration if exists
+    const enumeration = attr.enumeration ? data.enumerations.find(e => e.id === attr.enumeration) : null;
 
     let html = `
         <div class="entity-header">
             <div class="entity-badges">
                 <span class="badge badge-layer ${escapeHtml(parentItem.layer)}">${itemLabel}</span>
             </div>
-            <h1 class="entity-title">${escapeHtml(attr.name)}</h1>
+            <h1 class="entity-title">${escapeHtml(getText(attr.name))}</h1>
             <p class="entity-subtitle">${escapeHtml(getText(attr.description))}</p>
         </div>
 
@@ -1401,7 +1479,7 @@ function renderAttributeDetailView(attr, parentItem) {
             <div class="card-content">
                 <div class="meta-grid">
                     <span class="meta-label">Name :</span>
-                    <span class="meta-value">${escapeHtml(attr.name)}</span>
+                    <span class="meta-value">${escapeHtml(getText(attr.name))}</span>
                     <span class="meta-label">Beschreibung :</span>
                     <span class="meta-value">${escapeHtml(getText(attr.description) || '—')}</span>
                     <span class="meta-label">Datentyp :</span>
@@ -1416,9 +1494,9 @@ function renderAttributeDetailView(attr, parentItem) {
                     <span class="meta-label">${parentLabel} :</span>
                     <span class="meta-value"><a href="#" class="attr-parent-link" data-id="${escapeHtml(parentItem.id)}">${escapeHtml(getText(parentItem.name))}</a></span>
 
-                    ${valueDomain ? `
-                        <span class="meta-label">Wertedomäne :</span>
-                        <span class="meta-value">${escapeHtml(getText(valueDomain.name))}</span>
+                    ${enumeration ? `
+                        <span class="meta-label">Enumeration :</span>
+                        <span class="meta-value">${escapeHtml(getText(enumeration.name))}</span>
                     ` : ''}
                 </div>
             </div>
@@ -1438,7 +1516,7 @@ function renderAttributeDetailView(attr, parentItem) {
                     <span class="meta-value"><span class="badge badge-compliance internal">Intern</span></span>
 
                     <span class="meta-label">Personendaten :</span>
-                    <span class="meta-value">${attr.name.toLowerCase().includes('name') || attr.name.toLowerCase().includes('email') ? 'Ja' : 'Nein'}</span>
+                    <span class="meta-value">${getText(attr.name).toLowerCase().includes('name') || getText(attr.name).toLowerCase().includes('email') ? 'Ja' : 'Nein'}</span>
 
                     <span class="meta-label">Aufbewahrungsfrist :</span>
                     <span class="meta-value">10 Jahre</span>
@@ -1450,12 +1528,12 @@ function renderAttributeDetailView(attr, parentItem) {
         </div>
     `;
 
-    // Reference Data Card (only if valueDomain exists)
-    if (valueDomain) {
+    // Reference Data Card (only if enumeration exists)
+    if (enumeration) {
         html += `
             <div class="card">
                 <div class="card-header" data-card="reference" aria-expanded="true">
-                    <span class="card-title">Referenzdaten (${valueDomain.values?.length || 0})</span>
+                    <span class="card-title">Referenzdaten (${enumeration.values?.length || 0})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
                 <div class="card-content" style="padding: 0;">
@@ -1468,7 +1546,7 @@ function renderAttributeDetailView(attr, parentItem) {
                             </tr>
                         </thead>
                         <tbody>
-                            ${(valueDomain.values || []).map(val => `
+                            ${(enumeration.values || []).map(val => `
                                 <tr>
                                     <td>${escapeHtml(val.code)}</td>
                                     <td>${escapeHtml(getText(val.label))}</td>
@@ -1570,7 +1648,7 @@ function renderCatalogDetailsTab(catalog) {
     const catalogEntities = data.entities || [];
     const catalogSystems = data.systems || [];
     const catalogSchemas = data.schemas || [];
-    const catalogValueDomains = data.valueDomains || [];
+    const catalogEnumerations = data.enumerations || [];
     const catalogVersions = data.versions || [];
 
     // Count attributes (from entities) and columns (from schemas)
@@ -1609,7 +1687,7 @@ function renderCatalogDetailsTab(catalog) {
                     <div class="catalog-stat-item">
                         <span class="catalog-stat-icon">${icons.tag}</span>
                         <div class="catalog-stat-content">
-                            <span class="catalog-stat-value">${catalogValueDomains.length}</span>
+                            <span class="catalog-stat-value">${catalogEnumerations.length}</span>
                             <span class="catalog-stat-label">Wertedomänen</span>
                         </div>
                     </div>
@@ -2042,12 +2120,12 @@ function generateDomainDiagram(domain) {
                 const hasRelation = (entity.attributes || []).some(attr =>
                     attr.key === 'FK' && (
                         getText(attr.description).toLowerCase().includes(otherName) ||
-                        attr.name.toLowerCase().includes(otherName)
+                        getText(attr.name).toLowerCase().includes(otherName)
                     )
                 ) || (otherEntity.attributes || []).some(attr =>
                     attr.key === 'FK' && (
                         getText(attr.description).toLowerCase().includes(entityName) ||
-                        attr.name.toLowerCase().includes(entityName)
+                        getText(attr.name).toLowerCase().includes(entityName)
                     )
                 );
 
@@ -2069,7 +2147,7 @@ function generateEntityDiagram(entity) {
     if (entity.attributes) {
         entity.attributes.forEach(attr => {
             const keyMark = attr.key === 'PK' ? 'PK' : (attr.key === 'FK' ? 'FK' : '');
-            code += `        ${escapeHtml(attr.type)} ${escapeHtml(attr.name)} ${keyMark}\n`;
+            code += `        ${escapeHtml(attr.type)} ${sanitizeMermaidId(getText(attr.name))} ${keyMark}\n`;
         });
     }
     code += '    }\n';
@@ -2086,7 +2164,7 @@ function generateEntityDiagram(entity) {
                 if (schema.columns) {
                     schema.columns.forEach(col => {
                         const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
-                        code += `        ${escapeHtml(col.type.split('(')[0])} ${escapeHtml(col.name)} ${keyMark}\n`;
+                        code += `        ${escapeHtml(col.type.split('(')[0])} ${sanitizeMermaidId(col.name)} ${keyMark}\n`;
                     });
                 }
                 code += '    }\n';
@@ -2115,7 +2193,7 @@ function generateSystemDiagram(system) {
             schema.columns.forEach(col => {
                 const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
                 const colType = col.type.split('(')[0]; // Remove size from type
-                code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)} ${keyMark}\n`;
+                code += `        ${escapeHtml(colType)} ${sanitizeMermaidId(col.name)} ${keyMark}\n`;
             });
         }
         code += '    }\n';
@@ -2165,8 +2243,7 @@ function generateSchemaDiagram(schema) {
         schema.columns.forEach(col => {
             const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
             const colType = col.type.split('(')[0]; // Remove size from type
-            const tableComment = col.table ? ` "${col.table}"` : '';
-            code += `        ${colType} ${col.name} ${keyMark}${tableComment}\n`;
+            code += `        ${colType} ${sanitizeMermaidId(col.name)} ${keyMark}\n`;
         });
     }
     code += '    }\n';
@@ -2313,7 +2390,7 @@ function renderAttributeBreadcrumb(attr, parentItem) {
     html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
 
     // Add attribute name as current
-    html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(attr.name)}</span>`;
+    html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(getText(attr.name))}</span>`;
 
     breadcrumb.innerHTML = html;
     // Event delegation handles breadcrumb listeners

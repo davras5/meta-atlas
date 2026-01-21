@@ -1,0 +1,647 @@
+[
+  {
+    "id": "col-sap-refx-EGID",
+    "schema_id": "sch-sap-refx",
+    "name": "EGID",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "PK",
+    "table": "VIBDBE",
+    "mapped_to": "egid",
+    "description": {
+      "de": "EGID Gebäudekennung",
+      "en": "EGID building identifier"
+    },
+    "display_order": 1
+  },
+  {
+    "id": "col-sap-refx-VITYPART",
+    "schema_id": "sch-sap-refx",
+    "name": "VITYPART",
+    "type": "CHAR(4)",
+    "nullable": false,
+    "key": "",
+    "table": "VIBDBE",
+    "mapped_to": "building_type",
+    "description": {
+      "de": "Gebäudetyp",
+      "en": "Building type"
+    },
+    "display_order": 2
+  },
+  {
+    "id": "col-sap-refx-VISTREET",
+    "schema_id": "sch-sap-refx",
+    "name": "VISTREET",
+    "type": "VARCHAR(100)",
+    "nullable": true,
+    "key": "",
+    "table": "VIBDBE",
+    "mapped_to": "address_street",
+    "description": {
+      "de": "Strassenadresse",
+      "en": "Street address"
+    },
+    "display_order": 3
+  },
+  {
+    "id": "col-sap-refx-VICITY",
+    "schema_id": "sch-sap-refx",
+    "name": "VICITY",
+    "type": "VARCHAR(50)",
+    "nullable": true,
+    "key": "",
+    "table": "VIBDBE",
+    "mapped_to": "address_city",
+    "description": {
+      "de": "Stadt/Ort",
+      "en": "City/Location"
+    },
+    "display_order": 4
+  },
+  {
+    "id": "col-sap-refx-VICONSTYR",
+    "schema_id": "sch-sap-refx",
+    "name": "VICONSTYR",
+    "type": "INT",
+    "nullable": true,
+    "key": "",
+    "table": "VIBDBE",
+    "mapped_to": "construction_year",
+    "description": {
+      "de": "Baujahr",
+      "en": "Construction year"
+    },
+    "display_order": 5
+  },
+  {
+    "id": "col-sap-refx-VIAREA",
+    "schema_id": "sch-sap-refx",
+    "name": "VIAREA",
+    "type": "DECIMAL(10,2)",
+    "nullable": true,
+    "key": "",
+    "table": "VIBDBE",
+    "mapped_to": "total_area_sqm",
+    "description": {
+      "de": "Gesamtfläche m²",
+      "en": "Total area m²"
+    },
+    "display_order": 6
+  },
+  {
+    "id": "col-sap-refx-VIENERGY",
+    "schema_id": "sch-sap-refx",
+    "name": "VIENERGY",
+    "type": "CHAR(1)",
+    "nullable": true,
+    "key": "",
+    "table": "VIBDBE",
+    "mapped_to": "energy_rating",
+    "description": {
+      "de": "Energieeffizienzklasse",
+      "en": "Energy efficiency class"
+    },
+    "display_order": 7
+  },
+  {
+    "id": "col-sap-refx-VIPLOTREF",
+    "schema_id": "sch-sap-refx",
+    "name": "VIPLOTREF",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "FK",
+    "table": "VIBDBE",
+    "mapped_to": "plot_id",
+    "description": {
+      "de": "Referenz zum Grundstück",
+      "en": "Reference to plot"
+    },
+    "display_order": 8
+  },
+  {
+    "id": "col-sap-refx-VIPLOTID",
+    "schema_id": "sch-sap-refx",
+    "name": "VIPLOTID",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "FK",
+    "table": "VIBDGR",
+    "mapped_to": "plot_id",
+    "description": {
+      "de": "Grundstücks-ID",
+      "en": "Plot ID"
+    },
+    "display_order": 9
+  },
+  {
+    "id": "col-sap-refx-VIPLOTAREA",
+    "schema_id": "sch-sap-refx",
+    "name": "VIPLOTAREA",
+    "type": "DECIMAL(12,2)",
+    "nullable": false,
+    "key": "",
+    "table": "VIBDGR",
+    "mapped_to": "area_sqm",
+    "description": {
+      "de": "Fläche m²",
+      "en": "Area m²"
+    },
+    "display_order": 10
+  },
+  {
+    "id": "col-sap-refx-VIZONE",
+    "schema_id": "sch-sap-refx",
+    "name": "VIZONE",
+    "type": "CHAR(10)",
+    "nullable": true,
+    "key": "",
+    "table": "VIBDGR",
+    "mapped_to": "zone_type",
+    "description": {
+      "de": "Nutzungszone",
+      "en": "Usage zone"
+    },
+    "display_order": 11
+  },
+  {
+    "id": "col-sap-refx-VIMUNI",
+    "schema_id": "sch-sap-refx",
+    "name": "VIMUNI",
+    "type": "VARCHAR(50)",
+    "nullable": false,
+    "key": "",
+    "table": "VIBDGR",
+    "mapped_to": "municipality",
+    "description": {
+      "de": "Gemeinde",
+      "en": "Municipality"
+    },
+    "display_order": 12
+  },
+  {
+    "id": "col-sap-refx-VIOBJID",
+    "schema_id": "sch-sap-refx",
+    "name": "VIOBJID",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "FK",
+    "table": "VIOBJ",
+    "mapped_to": "unit_id",
+    "description": {
+      "de": "Mietobjekt-ID",
+      "en": "Rental unit ID"
+    },
+    "display_order": 13
+  },
+  {
+    "id": "col-sap-refx-VIOBJREF",
+    "schema_id": "sch-sap-refx",
+    "name": "VIOBJREF",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "FK",
+    "table": "VIOBJ",
+    "mapped_to": "building_egid",
+    "description": {
+      "de": "Gebäudereferenz",
+      "en": "Building reference"
+    },
+    "display_order": 14
+  },
+  {
+    "id": "col-sap-refx-VIFLOOR",
+    "schema_id": "sch-sap-refx",
+    "name": "VIFLOOR",
+    "type": "INT",
+    "nullable": true,
+    "key": "",
+    "table": "VIOBJ",
+    "mapped_to": "floor",
+    "description": {
+      "de": "Stockwerk",
+      "en": "Floor"
+    },
+    "display_order": 15
+  },
+  {
+    "id": "col-sap-refx-VIOBJAREA",
+    "schema_id": "sch-sap-refx",
+    "name": "VIOBJAREA",
+    "type": "DECIMAL(8,2)",
+    "nullable": false,
+    "key": "",
+    "table": "VIOBJ",
+    "mapped_to": "area_sqm",
+    "description": {
+      "de": "Fläche m²",
+      "en": "Area m²"
+    },
+    "display_order": 16
+  },
+  {
+    "id": "col-sap-refx-VIUNITTYPE",
+    "schema_id": "sch-sap-refx",
+    "name": "VIUNITTYPE",
+    "type": "CHAR(10)",
+    "nullable": false,
+    "key": "",
+    "table": "VIOBJ",
+    "mapped_to": "unit_type",
+    "description": {
+      "de": "Objekttyp",
+      "en": "Unit type"
+    },
+    "display_order": 17
+  },
+  {
+    "id": "col-sap-refx-VIRENT",
+    "schema_id": "sch-sap-refx",
+    "name": "VIRENT",
+    "type": "DECIMAL(10,2)",
+    "nullable": true,
+    "key": "",
+    "table": "VIOBJ",
+    "mapped_to": "rent_monthly",
+    "description": {
+      "de": "Monatsmiete",
+      "en": "Monthly rent"
+    },
+    "display_order": 18
+  },
+  {
+    "id": "col-postgis-geo-id",
+    "schema_id": "sch-postgis-geo",
+    "name": "id",
+    "type": "SERIAL",
+    "nullable": false,
+    "key": "PK",
+    "table": "buildings",
+    "mapped_to": "",
+    "description": {
+      "de": "Primärschlüssel",
+      "en": "Primary key"
+    },
+    "display_order": 1
+  },
+  {
+    "id": "col-postgis-geo-egid",
+    "schema_id": "sch-postgis-geo",
+    "name": "egid",
+    "type": "INTEGER",
+    "nullable": false,
+    "key": "UK",
+    "table": "buildings",
+    "mapped_to": "egid",
+    "description": {
+      "de": "EGID Referenz",
+      "en": "EGID reference"
+    },
+    "display_order": 2
+  },
+  {
+    "id": "col-postgis-geo-geom",
+    "schema_id": "sch-postgis-geo",
+    "name": "geom",
+    "type": "GEOMETRY(POLYGON, 2056)",
+    "nullable": false,
+    "key": "",
+    "table": "buildings",
+    "mapped_to": "",
+    "description": {
+      "de": "Gebäudeumriss LV95",
+      "en": "Building footprint LV95"
+    },
+    "display_order": 3
+  },
+  {
+    "id": "col-postgis-geo-footprint_area",
+    "schema_id": "sch-postgis-geo",
+    "name": "footprint_area",
+    "type": "NUMERIC(10,2)",
+    "nullable": true,
+    "key": "",
+    "table": "buildings",
+    "mapped_to": "",
+    "description": {
+      "de": "Grundfläche m²",
+      "en": "Footprint area m²"
+    },
+    "display_order": 4
+  },
+  {
+    "id": "col-postgis-geo-centroid",
+    "schema_id": "sch-postgis-geo",
+    "name": "centroid",
+    "type": "GEOMETRY(POINT, 2056)",
+    "nullable": true,
+    "key": "",
+    "table": "buildings",
+    "mapped_to": "",
+    "description": {
+      "de": "Gebäudemittelpunkt",
+      "en": "Building centroid"
+    },
+    "display_order": 5
+  },
+  {
+    "id": "col-postgis-geo-location_id",
+    "schema_id": "sch-postgis-geo",
+    "name": "location_id",
+    "type": "SERIAL",
+    "nullable": false,
+    "key": "FK",
+    "table": "locations",
+    "mapped_to": "location_id",
+    "description": {
+      "de": "Standort-ID",
+      "en": "Location ID"
+    },
+    "display_order": 6
+  },
+  {
+    "id": "col-postgis-geo-coord_e",
+    "schema_id": "sch-postgis-geo",
+    "name": "coord_e",
+    "type": "NUMERIC(12,3)",
+    "nullable": false,
+    "key": "",
+    "table": "locations",
+    "mapped_to": "coord_e",
+    "description": {
+      "de": "Koordinate Ost",
+      "en": "Easting coordinate"
+    },
+    "display_order": 7
+  },
+  {
+    "id": "col-postgis-geo-coord_n",
+    "schema_id": "sch-postgis-geo",
+    "name": "coord_n",
+    "type": "NUMERIC(12,3)",
+    "nullable": false,
+    "key": "",
+    "table": "locations",
+    "mapped_to": "coord_n",
+    "description": {
+      "de": "Koordinate Nord",
+      "en": "Northing coordinate"
+    },
+    "display_order": 8
+  },
+  {
+    "id": "col-postgis-geo-elevation",
+    "schema_id": "sch-postgis-geo",
+    "name": "elevation",
+    "type": "NUMERIC(8,2)",
+    "nullable": true,
+    "key": "",
+    "table": "locations",
+    "mapped_to": "elevation",
+    "description": {
+      "de": "Höhe über Meer",
+      "en": "Elevation"
+    },
+    "display_order": 9
+  },
+  {
+    "id": "col-postgis-geo-address_id",
+    "schema_id": "sch-postgis-geo",
+    "name": "address_id",
+    "type": "SERIAL",
+    "nullable": false,
+    "key": "FK",
+    "table": "addresses",
+    "mapped_to": "address_id",
+    "description": {
+      "de": "Adress-ID",
+      "en": "Address ID"
+    },
+    "display_order": 10
+  },
+  {
+    "id": "col-postgis-geo-street",
+    "schema_id": "sch-postgis-geo",
+    "name": "street",
+    "type": "VARCHAR(200)",
+    "nullable": false,
+    "key": "",
+    "table": "addresses",
+    "mapped_to": "street",
+    "description": {
+      "de": "Strasse",
+      "en": "Street"
+    },
+    "display_order": 11
+  },
+  {
+    "id": "col-postgis-geo-house_number",
+    "schema_id": "sch-postgis-geo",
+    "name": "house_number",
+    "type": "VARCHAR(20)",
+    "nullable": true,
+    "key": "",
+    "table": "addresses",
+    "mapped_to": "house_number",
+    "description": {
+      "de": "Hausnummer",
+      "en": "House number"
+    },
+    "display_order": 12
+  },
+  {
+    "id": "col-postgis-geo-postal_code",
+    "schema_id": "sch-postgis-geo",
+    "name": "postal_code",
+    "type": "CHAR(4)",
+    "nullable": false,
+    "key": "",
+    "table": "addresses",
+    "mapped_to": "postal_code",
+    "description": {
+      "de": "Postleitzahl",
+      "en": "Postal code"
+    },
+    "display_order": 13
+  },
+  {
+    "id": "col-postgis-geo-city",
+    "schema_id": "sch-postgis-geo",
+    "name": "city",
+    "type": "VARCHAR(100)",
+    "nullable": false,
+    "key": "",
+    "table": "addresses",
+    "mapped_to": "city",
+    "description": {
+      "de": "Ort",
+      "en": "City"
+    },
+    "display_order": 14
+  },
+  {
+    "id": "col-sap-ps-PSPNR",
+    "schema_id": "sch-sap-ps",
+    "name": "PSPNR",
+    "type": "CHAR(24)",
+    "nullable": false,
+    "key": "PK",
+    "table": "PROJ",
+    "mapped_to": "project_id",
+    "description": {
+      "de": "Projektnummer",
+      "en": "Project number"
+    },
+    "display_order": 1
+  },
+  {
+    "id": "col-sap-ps-POST1",
+    "schema_id": "sch-sap-ps",
+    "name": "POST1",
+    "type": "VARCHAR(100)",
+    "nullable": false,
+    "key": "",
+    "table": "PROJ",
+    "mapped_to": "name",
+    "description": {
+      "de": "Projektbezeichnung",
+      "en": "Project name"
+    },
+    "display_order": 2
+  },
+  {
+    "id": "col-sap-ps-EGID_REF",
+    "schema_id": "sch-sap-ps",
+    "name": "EGID_REF",
+    "type": "INT",
+    "nullable": true,
+    "key": "FK",
+    "table": "PROJ",
+    "mapped_to": "building_egid",
+    "description": {
+      "de": "Gebäudereferenz",
+      "en": "Building reference"
+    },
+    "display_order": 3
+  },
+  {
+    "id": "col-sap-ps-PHASE",
+    "schema_id": "sch-sap-ps",
+    "name": "PHASE",
+    "type": "CHAR(2)",
+    "nullable": false,
+    "key": "",
+    "table": "PROJ",
+    "mapped_to": "phase",
+    "description": {
+      "de": "Projektphase",
+      "en": "Project phase"
+    },
+    "display_order": 4
+  },
+  {
+    "id": "col-sap-ps-BUDGET",
+    "schema_id": "sch-sap-ps",
+    "name": "BUDGET",
+    "type": "DECIMAL(15,2)",
+    "nullable": true,
+    "key": "",
+    "table": "PROJ",
+    "mapped_to": "budget_chf",
+    "description": {
+      "de": "Projektbudget",
+      "en": "Project budget"
+    },
+    "display_order": 5
+  },
+  {
+    "id": "col-sap-ps-PLFAZ",
+    "schema_id": "sch-sap-ps",
+    "name": "PLFAZ",
+    "type": "DATE",
+    "nullable": true,
+    "key": "",
+    "table": "PROJ",
+    "mapped_to": "start_date",
+    "description": {
+      "de": "Startdatum",
+      "en": "Start date"
+    },
+    "display_order": 6
+  },
+  {
+    "id": "col-sap-ps-PLSEZ",
+    "schema_id": "sch-sap-ps",
+    "name": "PLSEZ",
+    "type": "DATE",
+    "nullable": true,
+    "key": "",
+    "table": "PROJ",
+    "mapped_to": "end_date",
+    "description": {
+      "de": "Enddatum",
+      "en": "End date"
+    },
+    "display_order": 7
+  },
+  {
+    "id": "col-sap-ps-KOSTL",
+    "schema_id": "sch-sap-ps",
+    "name": "KOSTL",
+    "type": "CHAR(10)",
+    "nullable": false,
+    "key": "FK",
+    "table": "CSKS",
+    "mapped_to": "cost_center_id",
+    "description": {
+      "de": "Kostenstellen-ID",
+      "en": "Cost center ID"
+    },
+    "display_order": 8
+  },
+  {
+    "id": "col-sap-ps-KTEXT",
+    "schema_id": "sch-sap-ps",
+    "name": "KTEXT",
+    "type": "VARCHAR(100)",
+    "nullable": false,
+    "key": "",
+    "table": "CSKS",
+    "mapped_to": "name",
+    "description": {
+      "de": "Kostenstellenbezeichnung",
+      "en": "Cost center name"
+    },
+    "display_order": 9
+  },
+  {
+    "id": "col-sap-ps-VERAK",
+    "schema_id": "sch-sap-ps",
+    "name": "VERAK",
+    "type": "VARCHAR(50)",
+    "nullable": true,
+    "key": "",
+    "table": "CSKS",
+    "mapped_to": "responsible_person",
+    "description": {
+      "de": "Verantwortlicher",
+      "en": "Responsible person"
+    },
+    "display_order": 10
+  },
+  {
+    "id": "col-sap-ps-GJAHR",
+    "schema_id": "sch-sap-ps",
+    "name": "GJAHR",
+    "type": "INT",
+    "nullable": false,
+    "key": "",
+    "table": "CSKS",
+    "mapped_to": "budget_year",
+    "description": {
+      "de": "Geschäftsjahr",
+      "en": "Fiscal year"
+    },
+    "display_order": 11
+  }
+]

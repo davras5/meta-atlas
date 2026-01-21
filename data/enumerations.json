@@ -1,6 +1,6 @@
 [
   {
-    "id": "vd-building-type",
+    "id": "enum-building-type",
     "name": {
       "de": "Gebäudetyp",
       "en": "Building Type",
@@ -26,7 +26,7 @@
     ]
   },
   {
-    "id": "vd-status",
+    "id": "enum-status",
     "name": {
       "de": "Status",
       "en": "Status",
@@ -50,7 +50,7 @@
     ]
   },
   {
-    "id": "vd-zone",
+    "id": "enum-zone",
     "name": {
       "de": "Nutzungszone",
       "en": "Usage Zone",
@@ -76,7 +76,7 @@
     ]
   },
   {
-    "id": "vd-unit-type",
+    "id": "enum-unit-type",
     "name": {
       "de": "Objekttyp",
       "en": "Unit Type",
@@ -102,7 +102,7 @@
     ]
   },
   {
-    "id": "vd-energy-rating",
+    "id": "enum-energy-rating",
     "name": {
       "de": "Energieeffizienzklasse",
       "en": "Energy Efficiency Class",
@@ -130,7 +130,7 @@
     ]
   },
   {
-    "id": "vd-project-phase",
+    "id": "enum-project-phase",
     "name": {
       "de": "Projektphase",
       "en": "Project Phase",

@@ -7,7 +7,7 @@
 | Principle | Description |
 |-----------|-------------|
 | **Interoperability** | Align with Swiss (eCH, I14Y) and international (DCAT, ISO) standards for seamless data exchange |
-| **Reusability** | Define once, use everywhere — Concepts, ValueDomains, and entities shareable across catalogs |
+| **Reusability** | Define once, use everywhere — Concepts, Enumerations, and entities shareable across catalogs |
 | **API First** | Design for programmatic access; all data accessible via REST/GraphQL APIs |
 | **Open by Default** | Public metadata unless classified; support opendata.swiss publication |
 | **Multilingual** | Native DE/FR/IT/EN support for all content in Switzerland's four-language context |
@@ -22,7 +22,7 @@ This document defines the data model for the Metadata Catalog prototype. The fol
 | ID | Category | Requirement | Description | Status |
 |----|----------|-------------|-------------|--------|
 | **Architecture** |||||
-| R-01 | Architecture | TOGAF layer model (Conceptual, Logical, Physical) | Three distinct layers: Conceptual (Domain, Concept), Logical (Entity, Attribute, ValueDomain), Physical (System, Table, Column, Dataset) | ✅ Implemented |
+| R-01 | Architecture | TOGAF layer model (Conceptual, Logical, Physical) | Three distinct layers: Conceptual (Domain, Concept), Logical (Entity, Attribute, Enumeration), Physical (System, Table, Column, Dataset) | ✅ Implemented |
 | R-02 | Architecture | Documentation of data lineage | Track data flow from source systems through transformations to targets with lineage JSONB structure | ✅ Implemented |
 | **Standards** |||||
 | R-03 | Standards | DCAT 3 class alignment | Map to Dataset, Distribution, DataService classes with compatible properties | ✅ Implemented |
@@ -36,7 +36,7 @@ This document defines the data model for the Metadata Catalog prototype. The fol
 | R-10 | Swiss | TERMDAT terminology links | Link Concepts to federal terminology database [TERMDAT](https://www.termdat.bk.admin.ch) — supports all five languages including Romansh; uses TBX (ISO 30042) | 🔲 Planned |
 | **Data Management** |||||
 | R-11 | Data Mgmt | Business glossary / terminology | Concept entity with multilingual definitions, synonyms, business rules, related concepts | ✅ Implemented |
-| R-12 | Data Mgmt | Code lists / reference data | ValueDomain entity with coded values, multilingual labels, external source references | ✅ Implemented |
+| R-12 | Data Mgmt | Code lists / reference data | Enumeration entity with coded values, multilingual labels, external source references | ✅ Implemented |
 | R-13 | Data Mgmt | Entity relationships | Relationship entity with types (1:1, 1:n, n:m), cardinality, and descriptions | ✅ Implemented |
 | R-14 | Data Mgmt | Physical-to-logical mappings | Column.mappedTo links physical columns to logical attributes; Entity.physicalTables references | ✅ Implemented |
 | R-15 | Data Mgmt | Business metadata references | Link entities to standards (eCH, SIA), laws (DSG, ISG, GeoIG), and business processes | ✅ Implemented |
@@ -118,7 +118,7 @@ Catalog
 | Structure | Struktur | LogicalEntity | Logical | SHACL sh:NodeShape |
 | DataElement | Datenelement/Attribut | Attribute | Logical | SHACL sh:PropertyShape |
 | Concept | Konzept | Concept | Conceptual | ISO 11179-1:2023 |
-| Concept (CodeList) | Konzept (Codeliste) | ValueDomain | Logical | ISO 11179-1:2023 (Eigenschaftstyp=CodeList) |
+| Concept (CodeList) | Konzept (Codeliste) | Enumeration | Logical | ISO 11179-1:2023 (Eigenschaftstyp=CodeList) |
 | Distribution | Distribution | Distribution | Physical | dcat:Distribution |
 | DataService | Elektronische Schnittstelle | DataService | Physical | dcat:DataService |
 
@@ -195,12 +195,12 @@ flowchart TB
         Dataset["Dataset"]
         LogicalEntity["LogicalEntity"]
         Attribute["Attribute"]
-        ValueDomain["ValueDomain"]
+        Enumeration["Enumeration"]
         Relationship["Relationship"]
         Dataset -->|describes| LogicalEntity
         LogicalEntity -->|has| Attribute
         LogicalEntity -->|has| Relationship
-        Attribute -->|uses| ValueDomain
+        Attribute -->|uses| Enumeration
     end
 
     subgraph PHYSICAL["PHYSICAL LAYER"]
@@ -222,7 +222,7 @@ flowchart TB
     Catalog -->|scopes| Domain
     Catalog -->|scopes| Concept
     Catalog -->|scopes| LogicalEntity
-    Catalog -->|scopes| ValueDomain
+    Catalog -->|scopes| Enumeration
     Catalog -->|scopes| Dataset
     Concept -->|realized_by| LogicalEntity
     LogicalEntity -->|implements| Table
@@ -241,7 +241,7 @@ flowchart TB
     style Dataset fill:#6ee7b7,stroke:#059669
     style LogicalEntity fill:#6ee7b7,stroke:#059669
     style Attribute fill:#6ee7b7,stroke:#059669
-    style ValueDomain fill:#6ee7b7,stroke:#059669
+    style Enumeration fill:#6ee7b7,stroke:#059669
     style Relationship fill:#6ee7b7,stroke:#059669
     style System fill:#fdba74,stroke:#d97706
     style Schema fill:#fdba74,stroke:#d97706
@@ -261,7 +261,7 @@ erDiagram
     Catalog ||--o{ Domain : "contains"
     Catalog ||--o{ Concept : "contains"
     Catalog ||--o{ LogicalEntity : "contains"
-    Catalog ||--o{ ValueDomain : "contains"
+    Catalog ||--o{ Enumeration : "contains"
     Catalog ||--o{ Dataset : "contains"
     Version ||--o{ Changelog : "includes"
 
@@ -270,7 +270,7 @@ erDiagram
 
     Dataset }o--o{ LogicalEntity : describes
     LogicalEntity ||--o{ Attribute : has
-    Attribute }o--o| ValueDomain : uses
+    Attribute }o--o| Enumeration : uses
     LogicalEntity ||--o{ Relationship : has
 
     Dataset ||--o{ Distribution : "distributed_via"
@@ -389,7 +389,7 @@ erDiagram
         enum logical_type
         boolean is_nullable
         boolean is_business_key
-        uuid value_domain_id FK
+        uuid enumeration_id FK
     }
 
     Relationship {
@@ -403,7 +403,7 @@ erDiagram
         boolean is_identifying
     }
 
-    ValueDomain {
+    Enumeration {
         uuid id PK
         uuid catalog_id FK
         boolean is_shared
@@ -514,7 +514,7 @@ erDiagram
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
 | **Logical** | Attribute | Data element within an entity | Datenelement | - |
 | **Logical** | Relationship | Connection between logical entities | - | - |
-| **Logical** | ValueDomain | Permissible values (code list) | Konzept (Codeliste) | ISO 11179-1:2023 |
+| **Logical** | Enumeration | Permissible values (code list) | Konzept (Codeliste) | ISO 11179-1:2023 |
 | **Logical** | Dataset | Published data collection | Datensatz | dcat:Dataset |
 | **Physical** | System | Application or database | - | - |
 | **Physical** | Schema | Database namespace | - | - |
@@ -618,7 +618,7 @@ The snapshot contains a complete copy of all catalog content at the time of publ
     "relationships": [
       { "id": "rel-001", "name": "belongs_to", "source_entity_id": "ent-001", "target_entity_id": "ent-002", ... }
     ],
-    "value_domains": [
+    "enumerations": [
       { "id": "vd-001", "name": "BuildingType", "values": [...], ... }
     ],
     "datasets": [
@@ -642,7 +642,7 @@ The snapshot contains a complete copy of all catalog content at the time of publ
     "concepts_count": 5,
     "logical_entities_count": 3,
     "relationships_count": 5,
-    "value_domains_count": 6,
+    "enumerations_count": 6,
     "datasets_count": 1,
     "systems_count": 2,
     "tables_count": 4,
@@ -872,7 +872,7 @@ standard_references: [{ standard: "eCH-0129", version: "5.0" }]
 
 ### 4.4 Logical Layer Entities
 
-> **Catalog Scoping:** All Logical Layer entities are scoped to a catalog. ValueDomains can optionally be shared across catalogs by setting `is_shared = true`.
+> **Catalog Scoping:** All Logical Layer entities are scoped to a catalog. Enumerations can optionally be shared across catalogs by setting `is_shared = true`.
 
 #### 4.4.1 LogicalEntity
 
@@ -929,7 +929,7 @@ A data element within a logical entity, describing a single piece of information
 | is_nullable | Boolean | Yes | Allows null/empty values | - |
 | is_business_key | Boolean | Yes | Part of business identifier | - |
 | default_value | String | No | Default value expression | - |
-| value_domain_id | UUID | No | Reference to code list | i14y:concept |
+| enumeration_id | UUID | No | Reference to code list | i14y:concept |
 | derivation_rule | String | No | Calculation/derivation formula | - |
 | validation_rules | Rule[] | No | Validation constraints | - |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
@@ -949,13 +949,13 @@ A data element within a logical entity, describing a single piece of information
 
 ---
 
-#### 4.4.3 ValueDomain (Codeliste)
+#### 4.4.3 Enumeration (Codeliste)
 
 A set of permissible values for an attribute, also known as a code list or enumeration. In the I14Y model, this corresponds to a **Konzept with Eigenschaftstyp=CodeList**.
 
-> **Standard Alignment:** ValueDomains are governed by **ISO 11179-1:2023** as code list Konzepte, not skos:ConceptScheme. SKOS is used for theme taxonomies (dcat:themeTaxonomy) only.
+> **Standard Alignment:** Enumerations are governed by **ISO 11179-1:2023** as code list Konzepte, not skos:ConceptScheme. SKOS is used for theme taxonomies (dcat:themeTaxonomy) only.
 
-**Entity: ValueDomain**
+**Entity: Enumeration**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
@@ -1452,7 +1452,7 @@ Per Articles 11-15 of the ISG, Switzerland defines **three classification levels
 | realized_by | Concept | LogicalEntity | 1:n | Concept realized by logical entities |
 | implements | LogicalEntity | Table | 1:n | Entity implemented by tables |
 | maps_to | Attribute | Column | 1:n | Attribute mapped to columns |
-| uses | Attribute | ValueDomain | n:1 | Attribute uses value domain |
+| uses | Attribute | Enumeration | n:1 | Attribute uses value domain |
 | describes | Dataset | LogicalEntity | n:n | Dataset describes entities |
 | serves | DataService | Dataset | n:n | Service provides dataset access |
 | distributes | Distribution | Dataset | n:1 | Distribution of dataset |
@@ -1598,7 +1598,7 @@ Sample data files demonstrating the data model are located in the `data/` folder
 | `domains.json` | Business domains |
 | `concepts.json` | Business concepts |
 | `entities.json` | Logical entities |
-| `value-domains.json` | Code lists and enumerations |
+| `enumerations.json` | Code lists and enumerations |
 | `systems.json` | Physical systems |
 | `tables.json` | Physical tables |
 
