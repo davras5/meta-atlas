@@ -1,7 +1,7 @@
 [
   {
     "id": "ver-bundesimmobilien-1.0.0",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionNumber": "1.0.0",
     "name": "Erstveröffentlichung",
     "nameEn": "Initial Release",
@@ -19,7 +19,7 @@
   },
   {
     "id": "ver-bundesimmobilien-1.1.0",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionNumber": "1.1.0",
     "name": "Mietobjekte hinzugefügt",
     "nameEn": "Rental Units Added",
@@ -37,7 +37,7 @@
   },
   {
     "id": "ver-bundesimmobilien-1.2.0",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionNumber": "1.2.0",
     "name": "Energiedaten Integration",
     "nameEn": "Energy Data Integration",
@@ -55,7 +55,7 @@
   },
   {
     "id": "ver-bundesimmobilien-2.0.0",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionNumber": "2.0.0",
     "name": "Projektmanagement Erweiterung",
     "nameEn": "Project Management Extension",
@@ -73,7 +73,7 @@
   },
   {
     "id": "ver-geodaten-1.0.0",
-    "projectId": "proj-geodaten",
+    "catalogId": "cat-geodaten",
     "versionNumber": "1.0.0",
     "name": "Basis-Geodaten",
     "nameEn": "Base Geodata",
@@ -91,7 +91,7 @@
   },
   {
     "id": "ver-geodaten-2.0.0",
-    "projectId": "proj-geodaten",
+    "catalogId": "cat-geodaten",
     "versionNumber": "2.0.0",
     "name": "Erweiterte Geodatenmodelle",
     "nameEn": "Extended Geodata Models",
@@ -109,7 +109,7 @@
   },
   {
     "id": "ver-finanzen-1.0.0",
-    "projectId": "proj-finanzen",
+    "catalogId": "cat-finanzen",
     "versionNumber": "1.0.0",
     "name": "Finanz-Grunddaten",
     "nameEn": "Finance Base Data",
@@ -127,7 +127,7 @@
   },
   {
     "id": "ver-bauprojekte-1.0.0",
-    "projectId": "proj-bauprojekte",
+    "catalogId": "cat-bauprojekte",
     "versionNumber": "1.0.0",
     "name": "Basis Projektdaten",
     "nameEn": "Base Project Data",
@@ -145,7 +145,7 @@
   },
   {
     "id": "ver-bauprojekte-1.1.0",
-    "projectId": "proj-bauprojekte",
+    "catalogId": "cat-bauprojekte",
     "versionNumber": "1.1.0",
     "name": "Kostenmanagement",
     "nameEn": "Cost Management",

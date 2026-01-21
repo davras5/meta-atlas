@@ -1,0 +1,56 @@
+[
+  {
+    "id": "sch-sap-refx",
+    "type": "schema",
+    "layer": "physical",
+    "name": "Building",
+    "description": "Gebäude-Schema für Immobiliendaten",
+    "descriptionEn": "Building schema for real estate data",
+    "descriptionFr": "Schéma Building pour les données immobilières",
+    "descriptionIt": "Schema Building per i dati immobiliari",
+    "status": "active",
+    "system": "sys-sap",
+    "created": "2024-01-10",
+    "updated": "2025-01-15",
+    "columns": [
+      { "name": "VIESSION", "type": "CHAR(20)", "nullable": false, "key": "PK", "table": "VIBDBE", "mappedTo": "egid", "description": "Interner Schlüssel", "descriptionEn": "Internal key" },
+      { "name": "VITYPART", "type": "CHAR(4)", "nullable": false, "key": "", "table": "VIBDBE", "mappedTo": "building_type", "description": "Gebäudetyp", "descriptionEn": "Building type" },
+      { "name": "VISTREET", "type": "VARCHAR(100)", "nullable": true, "key": "", "table": "VIBDBE", "mappedTo": "address_street", "description": "Strassenadresse", "descriptionEn": "Street address" },
+      { "name": "VICITY", "type": "VARCHAR(50)", "nullable": true, "key": "", "table": "VIBDBE", "mappedTo": "address_city", "description": "Stadt/Ort", "descriptionEn": "City/Location" },
+      { "name": "VICONSTYR", "type": "INT", "nullable": true, "key": "", "table": "VIBDBE", "mappedTo": "construction_year", "description": "Baujahr", "descriptionEn": "Construction year" },
+      { "name": "VIAREA", "type": "DECIMAL(10,2)", "nullable": true, "key": "", "table": "VIBDBE", "mappedTo": "total_area_sqm", "description": "Gesamtfläche m²", "descriptionEn": "Total area m²" },
+      { "name": "VIENERGY", "type": "CHAR(1)", "nullable": true, "key": "", "table": "VIBDBE", "mappedTo": "energy_rating", "description": "Energieeffizienzklasse", "descriptionEn": "Energy efficiency class" },
+      { "name": "VIPLOTID", "type": "CHAR(20)", "nullable": false, "key": "PK", "table": "VIBDGR", "mappedTo": "plot_id", "description": "Grundstücks-ID", "descriptionEn": "Plot ID" },
+      { "name": "VIPLOTAREA", "type": "DECIMAL(12,2)", "nullable": false, "key": "", "table": "VIBDGR", "mappedTo": "area_sqm", "description": "Fläche m²", "descriptionEn": "Area m²" },
+      { "name": "VIZONE", "type": "CHAR(10)", "nullable": true, "key": "", "table": "VIBDGR", "mappedTo": "zone_type", "description": "Nutzungszone", "descriptionEn": "Usage zone" },
+      { "name": "VIMUNI", "type": "VARCHAR(50)", "nullable": false, "key": "", "table": "VIBDGR", "mappedTo": "municipality", "description": "Gemeinde", "descriptionEn": "Municipality" },
+      { "name": "VIOBJID", "type": "CHAR(20)", "nullable": false, "key": "PK", "table": "VIOBJ", "mappedTo": "unit_id", "description": "Mietobjekt-ID", "descriptionEn": "Rental unit ID" },
+      { "name": "VIOBJREF", "type": "CHAR(20)", "nullable": false, "key": "FK", "table": "VIOBJ", "mappedTo": "building_egid", "description": "Gebäudereferenz", "descriptionEn": "Building reference" },
+      { "name": "VIFLOOR", "type": "INT", "nullable": true, "key": "", "table": "VIOBJ", "mappedTo": "floor", "description": "Stockwerk", "descriptionEn": "Floor" },
+      { "name": "VIOBJAREA", "type": "DECIMAL(8,2)", "nullable": false, "key": "", "table": "VIOBJ", "mappedTo": "area_sqm", "description": "Fläche m²", "descriptionEn": "Area m²" },
+      { "name": "VIUNITTYPE", "type": "CHAR(10)", "nullable": false, "key": "", "table": "VIOBJ", "mappedTo": "unit_type", "description": "Objekttyp", "descriptionEn": "Unit type" },
+      { "name": "VIRENT", "type": "DECIMAL(10,2)", "nullable": true, "key": "", "table": "VIOBJ", "mappedTo": "rent_monthly", "description": "Monatsmiete", "descriptionEn": "Monthly rent" }
+    ]
+  },
+  {
+    "id": "sch-postgis-geo",
+    "type": "schema",
+    "layer": "physical",
+    "name": "geo",
+    "description": "Geodaten-Schema in PostGIS",
+    "descriptionEn": "Geodata schema in PostGIS",
+    "descriptionFr": "Schéma de géodonnées dans PostGIS",
+    "descriptionIt": "Schema geodati in PostGIS",
+    "status": "active",
+    "system": "sys-postgis",
+    "created": "2024-01-15",
+    "updated": "2025-01-10",
+    "columns": [
+      { "name": "id", "type": "SERIAL", "nullable": false, "key": "PK", "table": "buildings", "mappedTo": "", "description": "Primärschlüssel", "descriptionEn": "Primary key" },
+      { "name": "egid", "type": "INTEGER", "nullable": false, "key": "UK", "table": "buildings", "mappedTo": "egid", "description": "EGID Referenz", "descriptionEn": "EGID reference" },
+      { "name": "geom", "type": "GEOMETRY(POLYGON, 2056)", "nullable": false, "key": "", "table": "buildings", "mappedTo": "", "description": "Gebäudeumriss LV95", "descriptionEn": "Building footprint LV95" },
+      { "name": "footprint_area", "type": "NUMERIC(10,2)", "nullable": true, "key": "", "table": "buildings", "mappedTo": "", "description": "Grundfläche m²", "descriptionEn": "Footprint area m²" },
+      { "name": "centroid", "type": "GEOMETRY(POINT, 2056)", "nullable": true, "key": "", "table": "buildings", "mappedTo": "", "description": "Gebäudemittelpunkt", "descriptionEn": "Building centroid" }
+    ]
+  }
+]

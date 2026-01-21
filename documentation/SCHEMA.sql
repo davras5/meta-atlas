@@ -5,7 +5,7 @@
 -- metadata catalog. It is designed for use with Supabase but can be adapted
 -- for any PostgreSQL database.
 --
--- Version: 1.0
+-- Version: 2.0
 -- Last Updated: January 2026
 --
 -- Related Documentation:
@@ -15,6 +15,10 @@
 -- Usage:
 --   Run this script against a PostgreSQL database to create all tables,
 --   indexes, and constraints required for the metadata catalog.
+--
+-- Changelog:
+--   v2.0 - Renamed: projects → catalogs, project_versions → versions,
+--          project_users → agents, project_id → catalog_id
 -- ============================================================================
 
 -- Enable UUID extension
@@ -24,8 +28,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ORGANIZATION LAYER
 -- ============================================================================
 
--- Projects table
-CREATE TABLE projects (
+-- Catalogs table
+CREATE TABLE catalogs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name JSONB NOT NULL,
   description JSONB NOT NULL,
@@ -43,10 +47,10 @@ CREATE TABLE projects (
   version INTEGER NOT NULL DEFAULT 1
 );
 
--- Project Versions table
-CREATE TABLE project_versions (
+-- Versions table
+CREATE TABLE versions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   version_number VARCHAR(20) NOT NULL,
   name JSONB,
   description JSONB,
@@ -54,26 +58,26 @@ CREATE TABLE project_versions (
   published_at TIMESTAMPTZ,
   published_by JSONB,
   snapshot JSONB,
-  previous_version_id UUID REFERENCES project_versions(id),
+  previous_version_id UUID REFERENCES versions(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
   version INTEGER NOT NULL DEFAULT 1,
-  UNIQUE(project_id, version_number)
+  UNIQUE(catalog_id, version_number)
 );
 
--- Add foreign key for current_version after project_versions exists
-ALTER TABLE projects
+-- Add foreign key for current_version after versions table exists
+ALTER TABLE catalogs
   ADD CONSTRAINT fk_current_version
   FOREIGN KEY (current_version_id)
-  REFERENCES project_versions(id);
+  REFERENCES versions(id);
 
 -- Changelogs table
 CREATE TABLE changelogs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  version_id UUID REFERENCES project_versions(id),
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
+  version_id UUID REFERENCES versions(id),
   change_type VARCHAR(20) NOT NULL,
   entity_type VARCHAR(50) NOT NULL,
   entity_id UUID NOT NULL,
@@ -90,23 +94,23 @@ CREATE TABLE changelogs (
   version INTEGER NOT NULL DEFAULT 1
 );
 
--- Project Users table
-CREATE TABLE project_users (
+-- Agents table (catalog members with roles)
+CREATE TABLE agents (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   user_id UUID,
   name VARCHAR(200) NOT NULL,
   email VARCHAR(200) NOT NULL,
   role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'editor', 'viewer')),
   status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'invited')),
   joined_at TIMESTAMPTZ,
-  invited_by UUID REFERENCES project_users(id),
+  invited_by UUID REFERENCES agents(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
   version INTEGER NOT NULL DEFAULT 1,
-  UNIQUE(project_id, email)
+  UNIQUE(catalog_id, email)
 );
 
 -- Governance Assignments table (Data Governance roles at entity level)
@@ -119,7 +123,7 @@ CREATE TABLE governance_assignments (
   person_email VARCHAR(200) NOT NULL,
   organization VARCHAR(200),
   assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  assigned_by UUID REFERENCES project_users(id),
+  assigned_by UUID REFERENCES agents(id),
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL
@@ -132,7 +136,7 @@ CREATE TABLE governance_assignments (
 -- Domains table
 CREATE TABLE domains (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   name JSONB NOT NULL,
   description JSONB NOT NULL,
   abbreviation VARCHAR(10),
@@ -147,16 +151,17 @@ CREATE TABLE domains (
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
   version INTEGER NOT NULL DEFAULT 1,
-  UNIQUE(project_id, abbreviation)
+  UNIQUE(catalog_id, abbreviation)
 );
 
 -- Concepts table
 CREATE TABLE concepts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   domain_id UUID NOT NULL REFERENCES domains(id),
   name JSONB NOT NULL,
   definition JSONB NOT NULL,
+  property_type VARCHAR(20) CHECK (property_type IN ('codelist', 'date', 'numeric', 'string')),
   synonyms JSONB,
   business_rules TEXT[],
   legal_references JSONB,
@@ -180,7 +185,7 @@ CREATE TABLE concepts (
 -- Logical Entities table
 CREATE TABLE logical_entities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   description JSONB NOT NULL,
   concept_ids UUID[] NOT NULL,
@@ -195,7 +200,7 @@ CREATE TABLE logical_entities (
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
   version INTEGER NOT NULL DEFAULT 1,
-  UNIQUE(project_id, name)
+  UNIQUE(catalog_id, name)
 );
 
 -- Attributes table
@@ -236,7 +241,7 @@ CREATE TABLE relationships (
 -- Value Domains table
 CREATE TABLE value_domains (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   is_shared BOOLEAN NOT NULL DEFAULT false,
   name VARCHAR(100) NOT NULL,
   description JSONB NOT NULL,
@@ -253,13 +258,13 @@ CREATE TABLE value_domains (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   version_num INTEGER NOT NULL DEFAULT 1,
-  UNIQUE(project_id, name)
+  UNIQUE(catalog_id, name)
 );
 
 -- Datasets table
 CREATE TABLE datasets (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  catalog_id UUID NOT NULL REFERENCES catalogs(id) ON DELETE CASCADE,
   name JSONB NOT NULL,
   description JSONB NOT NULL,
   publisher JSONB NOT NULL,
@@ -284,7 +289,7 @@ CREATE TABLE datasets (
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
   version_num INTEGER NOT NULL DEFAULT 1,
-  UNIQUE(project_id, (name->>'de'))
+  UNIQUE(catalog_id, (name->>'de'))
 );
 
 -- ============================================================================
@@ -382,29 +387,29 @@ CREATE TABLE mappings (
 -- ============================================================================
 
 -- Organization layer indexes
-CREATE INDEX idx_project_versions_project ON project_versions(project_id);
-CREATE INDEX idx_changelogs_project ON changelogs(project_id);
+CREATE INDEX idx_versions_catalog ON versions(catalog_id);
+CREATE INDEX idx_changelogs_catalog ON changelogs(catalog_id);
 CREATE INDEX idx_changelogs_version ON changelogs(version_id);
 CREATE INDEX idx_changelogs_entity ON changelogs(entity_type, entity_id);
 CREATE INDEX idx_changelogs_changed_at ON changelogs(changed_at DESC);
-CREATE INDEX idx_project_users_project ON project_users(project_id);
-CREATE INDEX idx_project_users_email ON project_users(email);
+CREATE INDEX idx_agents_catalog ON agents(catalog_id);
+CREATE INDEX idx_agents_email ON agents(email);
 CREATE INDEX idx_governance_entity ON governance_assignments(entity_type, entity_id);
 CREATE INDEX idx_governance_role ON governance_assignments(role);
 
 -- Conceptual layer indexes
-CREATE INDEX idx_domains_project ON domains(project_id);
-CREATE INDEX idx_concepts_project ON concepts(project_id);
+CREATE INDEX idx_domains_catalog ON domains(catalog_id);
+CREATE INDEX idx_concepts_catalog ON concepts(catalog_id);
 CREATE INDEX idx_concepts_domain ON concepts(domain_id);
 
 -- Logical layer indexes
-CREATE INDEX idx_logical_entities_project ON logical_entities(project_id);
+CREATE INDEX idx_logical_entities_catalog ON logical_entities(catalog_id);
 CREATE INDEX idx_attributes_entity ON attributes(entity_id);
 CREATE INDEX idx_relationships_source ON relationships(source_entity_id);
 CREATE INDEX idx_relationships_target ON relationships(target_entity_id);
-CREATE INDEX idx_value_domains_project ON value_domains(project_id);
+CREATE INDEX idx_value_domains_catalog ON value_domains(catalog_id);
 CREATE INDEX idx_value_domains_shared ON value_domains(is_shared) WHERE is_shared = true;
-CREATE INDEX idx_datasets_project ON datasets(project_id);
+CREATE INDEX idx_datasets_catalog ON datasets(catalog_id);
 
 -- Physical layer indexes
 CREATE INDEX idx_schemas_system ON schemas(system_id);
@@ -416,7 +421,7 @@ CREATE INDEX idx_mappings_source ON mappings(source_type, source_id);
 CREATE INDEX idx_mappings_target ON mappings(target_type, target_id);
 
 -- Full-text search indexes (JSONB)
-CREATE INDEX idx_projects_name_gin ON projects USING GIN (name jsonb_path_ops);
+CREATE INDEX idx_catalogs_name_gin ON catalogs USING GIN (name jsonb_path_ops);
 CREATE INDEX idx_domains_name_gin ON domains USING GIN (name jsonb_path_ops);
 CREATE INDEX idx_concepts_name_gin ON concepts USING GIN (name jsonb_path_ops);
 CREATE INDEX idx_concepts_definition_gin ON concepts USING GIN (definition jsonb_path_ops);

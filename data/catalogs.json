@@ -1,7 +1,7 @@
 [
   {
-    "id": "proj-bundesimmobilien",
-    "type": "project",
+    "id": "cat-bundesimmobilien",
+    "type": "catalog",
     "name": "Bundesimmobilien Katalog",
     "nameEn": "Federal Real Estate Catalog",
     "nameFr": "Catalogue immobilier fédéral",
@@ -22,17 +22,17 @@
     "icon": "building",
     "domains": ["dom-immo", "dom-project"],
     "lastActivity": "2026-01-20",
-    "users": [
-      { "id": "user-001", "name": "Anna Müller", "role": "owner", "email": "anna.mueller@admin.ch", "status": "active", "joinedAt": "2024-01-15" },
-      { "id": "user-002", "name": "Peter Schmidt", "role": "steward", "email": "peter.schmidt@admin.ch", "status": "active", "joinedAt": "2024-01-20" },
-      { "id": "user-003", "name": "Lisa Weber", "role": "engineer", "email": "lisa.weber@admin.ch", "status": "active", "joinedAt": "2024-02-01" },
-      { "id": "user-004", "name": "Thomas Brunner", "role": "analyst", "email": "thomas.brunner@admin.ch", "status": "active", "joinedAt": "2024-03-15" },
-      { "id": "user-005", "name": "Sarah Keller", "role": "viewer", "email": "sarah.keller@admin.ch", "status": "active", "joinedAt": "2024-04-01" }
+    "members": [
+      { "id": "agent-001", "name": "Anna Müller", "role": "admin", "email": "anna.mueller@admin.ch", "status": "active", "joinedAt": "2024-01-15" },
+      { "id": "agent-002", "name": "Peter Schmidt", "role": "editor", "email": "peter.schmidt@admin.ch", "status": "active", "joinedAt": "2024-01-20" },
+      { "id": "agent-003", "name": "Lisa Weber", "role": "editor", "email": "lisa.weber@admin.ch", "status": "active", "joinedAt": "2024-02-01" },
+      { "id": "agent-004", "name": "Thomas Brunner", "role": "viewer", "email": "thomas.brunner@admin.ch", "status": "active", "joinedAt": "2024-03-15" },
+      { "id": "agent-005", "name": "Sarah Keller", "role": "viewer", "email": "sarah.keller@admin.ch", "status": "active", "joinedAt": "2024-04-01" }
     ]
   },
   {
-    "id": "proj-geodaten",
-    "type": "project",
+    "id": "cat-geodaten",
+    "type": "catalog",
     "name": "Geodaten Schweiz",
     "nameEn": "Swiss Geodata",
     "nameFr": "Géodonnées Suisse",
@@ -53,15 +53,15 @@
     "icon": "map",
     "domains": ["dom-immo"],
     "lastActivity": "2026-01-17",
-    "users": [
-      { "id": "user-006", "name": "Marco Rossi", "role": "owner", "email": "marco.rossi@swisstopo.ch", "status": "active", "joinedAt": "2024-03-10" },
-      { "id": "user-007", "name": "Sophie Berger", "role": "steward", "email": "sophie.berger@swisstopo.ch", "status": "active", "joinedAt": "2024-03-15" },
-      { "id": "user-008", "name": "Jean-Pierre Favre", "role": "engineer", "email": "jean-pierre.favre@swisstopo.ch", "status": "active", "joinedAt": "2024-04-01" }
+    "members": [
+      { "id": "agent-006", "name": "Marco Rossi", "role": "admin", "email": "marco.rossi@swisstopo.ch", "status": "active", "joinedAt": "2024-03-10" },
+      { "id": "agent-007", "name": "Sophie Berger", "role": "editor", "email": "sophie.berger@swisstopo.ch", "status": "active", "joinedAt": "2024-03-15" },
+      { "id": "agent-008", "name": "Jean-Pierre Favre", "role": "editor", "email": "jean-pierre.favre@swisstopo.ch", "status": "active", "joinedAt": "2024-04-01" }
     ]
   },
   {
-    "id": "proj-finanzen",
-    "type": "project",
+    "id": "cat-finanzen",
+    "type": "catalog",
     "name": "Finanzwesen Bund",
     "nameEn": "Federal Finance",
     "nameFr": "Finances fédérales",
@@ -82,14 +82,14 @@
     "icon": "chart",
     "domains": ["dom-project"],
     "lastActivity": "2026-01-15",
-    "users": [
-      { "id": "user-009", "name": "Daniel Meier", "role": "owner", "email": "daniel.meier@efv.admin.ch", "status": "active", "joinedAt": "2024-02-20" },
-      { "id": "user-010", "name": "Claudia Huber", "role": "analyst", "email": "claudia.huber@efv.admin.ch", "status": "active", "joinedAt": "2024-03-01" }
+    "members": [
+      { "id": "agent-009", "name": "Daniel Meier", "role": "admin", "email": "daniel.meier@efv.admin.ch", "status": "active", "joinedAt": "2024-02-20" },
+      { "id": "agent-010", "name": "Claudia Huber", "role": "viewer", "email": "claudia.huber@efv.admin.ch", "status": "active", "joinedAt": "2024-03-01" }
     ]
   },
   {
-    "id": "proj-personal",
-    "type": "project",
+    "id": "cat-personal",
+    "type": "catalog",
     "name": "Personalwesen",
     "nameEn": "Human Resources",
     "nameFr": "Ressources humaines",
@@ -110,13 +110,13 @@
     "icon": "users",
     "domains": [],
     "lastActivity": "2026-01-10",
-    "users": [
-      { "id": "user-011", "name": "Eva Fischer", "role": "owner", "email": "eva.fischer@epa.admin.ch", "status": "active", "joinedAt": "2024-06-01" }
+    "members": [
+      { "id": "agent-011", "name": "Eva Fischer", "role": "admin", "email": "eva.fischer@epa.admin.ch", "status": "active", "joinedAt": "2024-06-01" }
     ]
   },
   {
-    "id": "proj-bauprojekte",
-    "type": "project",
+    "id": "cat-bauprojekte",
+    "type": "catalog",
     "name": "Bauprojekte Management",
     "nameEn": "Construction Projects Management",
     "nameFr": "Gestion des projets de construction",
@@ -137,10 +137,10 @@
     "icon": "hammer",
     "domains": ["dom-project"],
     "lastActivity": "2026-01-19",
-    "users": [
-      { "id": "user-012", "name": "Michael Bauer", "role": "owner", "email": "michael.bauer@bbl.admin.ch", "status": "active", "joinedAt": "2024-04-15" },
-      { "id": "user-013", "name": "Nina Keller", "role": "steward", "email": "nina.keller@bbl.admin.ch", "status": "active", "joinedAt": "2024-04-20" },
-      { "id": "user-014", "name": "Reto Zimmermann", "role": "engineer", "email": "reto.zimmermann@bbl.admin.ch", "status": "active", "joinedAt": "2024-05-01" }
+    "members": [
+      { "id": "agent-012", "name": "Michael Bauer", "role": "admin", "email": "michael.bauer@bbl.admin.ch", "status": "active", "joinedAt": "2024-04-15" },
+      { "id": "agent-013", "name": "Nina Keller", "role": "editor", "email": "nina.keller@bbl.admin.ch", "status": "active", "joinedAt": "2024-04-20" },
+      { "id": "agent-014", "name": "Reto Zimmermann", "role": "editor", "email": "reto.zimmermann@bbl.admin.ch", "status": "active", "joinedAt": "2024-05-01" }
     ]
   }
 ]

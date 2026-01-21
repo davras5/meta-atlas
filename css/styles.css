@@ -1373,10 +1373,10 @@ body {
 .badge-compliance.secret { color: var(--color-secret); border-color: var(--color-secret); background: var(--color-error-bg); }
 .badge-compliance.personal-data { color: var(--color-personal-data); border-color: var(--color-personal-data); background: var(--color-status-planned-bg); }
 
-/* Page title - shared by entity-title, projects-title, layer-overview-title */
+/* Page title - shared by entity-title, catalogs-title, layer-overview-title */
 .page-title,
 .entity-title,
-.projects-title,
+.catalogs-title,
 .layer-overview-title {
     font-size: var(--text-h1);
     font-weight: var(--font-semibold);
@@ -1389,7 +1389,7 @@ body {
 /* Page subtitle base */
 .page-subtitle,
 .entity-subtitle,
-.projects-subtitle,
+.catalogs-subtitle,
 .layer-overview-subtitle {
     color: var(--color-text-secondary);
     line-height: var(--leading-body);
@@ -1499,7 +1499,7 @@ body {
 
 /* ===== Cards/Panels - Clean, Professional Design ===== */
 .card,
-.project-card,
+.catalog-card,
 .kpi-card,
 .mapping-card {
     background: var(--color-bg-surface);
@@ -1513,7 +1513,7 @@ body {
 }
 
 .card:hover,
-.project-card:hover,
+.catalog-card:hover,
 .kpi-card:hover,
 .mapping-card:hover {
     border-color: var(--color-border-default);
@@ -1521,14 +1521,14 @@ body {
 
 /* Light mode card shadows */
 [data-theme="light"] .card,
-[data-theme="light"] .project-card,
+[data-theme="light"] .catalog-card,
 [data-theme="light"] .kpi-card,
 [data-theme="light"] .mapping-card {
     box-shadow: var(--shadow-sm);
 }
 
 [data-theme="light"] .card:hover,
-[data-theme="light"] .project-card:hover,
+[data-theme="light"] .catalog-card:hover,
 [data-theme="light"] .kpi-card:hover,
 [data-theme="light"] .mapping-card:hover {
     box-shadow: var(--shadow-md);
@@ -1666,10 +1666,10 @@ body {
     background: var(--color-bg-surface);
 }
 
-/* Icon box - shared by mapping-icon, project-icon */
+/* Icon box - shared by mapping-icon, catalog-icon */
 .icon-box,
 .mapping-icon,
-.project-icon {
+.catalog-icon {
     width: 40px;
     height: 40px;
     border-radius: var(--radius-md);
@@ -1694,7 +1694,7 @@ body {
 /* Flex content container - grows to fill, allows truncation */
 .flex-content,
 .mapping-info,
-.project-info,
+.catalog-info,
 .search-result-info {
     flex: 1;
     min-width: 0;
@@ -1803,14 +1803,14 @@ body {
     background: var(--color-conceptual);
 }
 
-/* ===== Project Tab Content ===== */
-.project-stats-grid {
+/* ===== Catalog Tab Content ===== */
+.catalog-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: var(--space-4);
 }
 
-.project-stat-item {
+.catalog-stat-item {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -1820,7 +1820,7 @@ body {
     border-radius: var(--radius-md);
 }
 
-.project-stat-icon {
+.catalog-stat-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1830,35 +1830,35 @@ body {
     flex-shrink: 0;
 }
 
-.project-stat-icon svg {
+.catalog-stat-icon svg {
     width: var(--icon-xl);
     height: var(--icon-xl);
 }
 
-.project-stat-content {
+.catalog-stat-content {
     display: flex;
     flex-direction: column;
 }
 
-.project-stat-value {
+.catalog-stat-value {
     font-size: var(--text-h2);
     font-weight: var(--font-bold);
     color: var(--color-text-primary);
     line-height: 1;
 }
 
-.project-stat-label {
+.catalog-stat-label {
     font-size: var(--text-small);
     color: var(--color-text-secondary);
     margin-top: var(--space-1);
 }
 
-.project-domains-list {
+.catalog-domains-list {
     display: flex;
     flex-direction: column;
 }
 
-.project-domain-item {
+.catalog-domain-item {
     display: flex;
     flex-direction: column;
     padding: var(--space-3) var(--space-4);
@@ -1867,11 +1867,11 @@ body {
     transition: background var(--duration-fast) var(--ease-out);
 }
 
-.project-domain-item:last-child {
+.catalog-domain-item:last-child {
     border-bottom: none;
 }
 
-.project-domain-item:hover {
+.catalog-domain-item:hover {
     background: var(--color-bg-hover);
 }
 
@@ -2373,26 +2373,26 @@ body {
 }
 
 /* ========================================
-   Project Overview Page
+   Catalog Overview Page
    ======================================== */
-.projects-overview {
+.catalogs-overview {
     max-width: 840px;
     width: 100%;
     margin: 0 auto;
 }
 
-.projects-header {
+.catalogs-header {
     margin-bottom: var(--space-6);
     text-align: center;
 }
 
-.projects-subtitle {
+.catalogs-subtitle {
     font-size: var(--text-small);
     max-width: 420px;
     margin: 0 auto;
 }
 
-.projects-stats {
+.catalogs-stats {
     display: flex;
     gap: var(--space-6);
     margin-top: var(--space-6);
@@ -2419,7 +2419,7 @@ body {
     letter-spacing: var(--tracking-wider);
 }
 
-.projects-header-top {
+.catalogs-header-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2427,7 +2427,7 @@ body {
     margin-bottom: var(--space-2);
 }
 
-.btn-new-project {
+.btn-new-catalog {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -2443,70 +2443,70 @@ body {
     white-space: nowrap;
 }
 
-.btn-new-project:hover {
+.btn-new-catalog:hover {
     background: var(--color-logical-hover, #059669);
     transform: translateY(-1px);
 }
 
-.btn-new-project svg {
+.btn-new-catalog svg {
     width: var(--icon-md);
     height: var(--icon-md);
 }
 
-.projects-grid {
+.catalogs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: var(--space-4);
 }
 
-.projects-list {
+.catalogs-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
 }
 
-.project-card {
+.catalog-card {
     padding: var(--space-5);
     cursor: pointer;
 }
 
-.project-card:hover {
+.catalog-card:hover {
     transform: translateY(-1px);
 }
 
 /* Row layout for stacked list view */
-.projects-list .project-card {
+.catalogs-list .catalog-card {
     display: flex;
     align-items: center;
     gap: var(--space-5);
     padding: var(--space-4) var(--space-5);
 }
 
-.projects-list .project-card-header {
+.catalogs-list .catalog-card-header {
     flex-shrink: 0;
     width: 200px;
     margin-bottom: 0;
 }
 
-.projects-list .project-description {
+.catalogs-list .catalog-description {
     flex: 1;
     margin-bottom: 0;
     min-width: 0;
 }
 
-.projects-list .project-meta {
+.catalogs-list .catalog-meta {
     flex-shrink: 0;
     border-top: none;
     padding-top: 0;
     gap: var(--space-4);
 }
 
-.projects-list .project-activity {
+.catalogs-list .catalog-activity {
     margin-left: 0;
     white-space: nowrap;
 }
 
-.project-card-header {
+.catalog-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2514,13 +2514,13 @@ body {
     margin-bottom: var(--space-3);
 }
 
-.project-icon {
+.catalog-icon {
     font-size: var(--text-h3);
-    background: var(--project-color, var(--color-conceptual));
+    background: var(--catalog-color, var(--color-conceptual));
     color: white;
 }
 
-.project-name {
+.catalog-name {
     font-size: var(--text-small);
     font-weight: var(--font-semibold);
     color: var(--color-text-primary);
@@ -2528,13 +2528,13 @@ body {
     line-height: var(--leading-h3);
 }
 
-.project-owner {
+.catalog-owner {
     font-size: var(--text-2xs);
     color: var(--color-text-muted);
 }
 
-/* Status badge base - shared by project-status, layer-entity-status */
-.project-status,
+/* Status badge base - shared by catalog-status, layer-entity-status */
+.catalog-status,
 .layer-entity-status {
     padding: 2px var(--space-2);
     border-radius: var(--radius-full);
@@ -2542,7 +2542,7 @@ body {
     flex-shrink: 0;
 }
 
-.project-status {
+.catalog-status {
     font-size: var(--text-2xs);
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -2553,27 +2553,27 @@ body {
     text-transform: capitalize;
 }
 
-.project-status.active,
+.catalog-status.active,
 .layer-entity-status.active {
     background: var(--color-logical-bg);
     color: var(--color-logical);
 }
 
-.project-status.draft,
+.catalog-status.draft,
 .layer-entity-status.draft {
     background: var(--color-physical-bg);
     color: var(--color-physical);
 }
 
-.project-status.archived,
-.project-status.deprecated,
+.catalog-status.archived,
+.catalog-status.deprecated,
 .layer-entity-status.archived,
 .layer-entity-status.deprecated {
     background: var(--color-bg-hover);
     color: var(--color-text-muted);
 }
 
-.project-description {
+.catalog-description {
     font-size: var(--text-caption);
     color: var(--color-text-secondary);
     line-height: var(--leading-small);
@@ -2584,7 +2584,7 @@ body {
     overflow: hidden;
 }
 
-.project-meta {
+.catalog-meta {
     display: flex;
     align-items: center;
     gap: var(--space-3);
@@ -2592,7 +2592,7 @@ body {
     border-top: 1px solid var(--color-border-subtle);
 }
 
-.project-meta-item {
+.catalog-meta-item {
     display: flex;
     align-items: center;
     gap: var(--space-1);
@@ -2600,24 +2600,24 @@ body {
     color: var(--color-text-muted);
 }
 
-.project-meta-item svg {
+.catalog-meta-item svg {
     width: var(--icon-xs);
     height: var(--icon-xs);
     opacity: var(--opacity-muted);
 }
 
-.project-meta-value {
+.catalog-meta-value {
     font-weight: var(--font-semibold);
     color: var(--color-text-secondary);
 }
 
-.project-activity {
+.catalog-activity {
     margin-left: auto;
     font-size: var(--text-2xs);
     color: var(--color-text-muted);
 }
 
-/* Project page specific breadcrumb */
+/* Catalog page specific breadcrumb */
 .breadcrumb-home {
     display: flex;
     align-items: center;
@@ -2640,34 +2640,34 @@ body {
 }
 
 @media (max-width: 768px) {
-    .projects-grid {
+    .catalogs-grid {
         grid-template-columns: 1fr;
     }
 
-    .projects-header-top {
+    .catalogs-header-top {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--space-3);
     }
 
-    .projects-list .project-card {
+    .catalogs-list .catalog-card {
         flex-direction: column;
         align-items: flex-start;
         gap: var(--space-3);
     }
 
-    .projects-list .project-card-header {
+    .catalogs-list .catalog-card-header {
         width: 100%;
     }
 
-    .projects-list .project-meta {
+    .catalogs-list .catalog-meta {
         flex-wrap: wrap;
         width: 100%;
         border-top: 1px solid var(--color-border-subtle);
         padding-top: var(--space-3);
     }
 
-    .projects-stats {
+    .catalogs-stats {
         flex-wrap: wrap;
         gap: var(--space-4);
     }
@@ -2679,32 +2679,32 @@ body {
 }
 
 /* ========================================
-   Projects Overview Mode
-   Hide sidebar and search when viewing all projects
+   Catalogs Overview Mode
+   Hide sidebar and search when viewing all catalogs
    ======================================== */
-.projects-overview-mode .sidebar {
+.catalogs-overview-mode .sidebar {
     display: none;
 }
 
-.projects-overview-mode .header-right {
+.catalogs-overview-mode .header-right {
     margin-left: auto;
 }
 
-.projects-overview-mode .breadcrumb {
+.catalogs-overview-mode .breadcrumb {
     display: none;
 }
 
-.projects-overview-mode .main-layout {
+.catalogs-overview-mode .main-layout {
     max-width: 100%;
     justify-content: center;
 }
 
-.projects-overview-mode .main-content {
+.catalogs-overview-mode .main-content {
     padding: var(--space-8);
     width: 100%;
 }
 
-.projects-overview-mode .content-area {
+.catalogs-overview-mode .content-area {
     max-width: 100%;
     width: 100%;
     display: flex;
@@ -2851,7 +2851,7 @@ body {
 
 /* ===== Global Animations ===== */
 .layer-entity-item,
-.project-card,
+.catalog-card,
 .card {
     animation: fadeIn var(--duration-normal) var(--ease-out);
 }
@@ -2884,7 +2884,7 @@ html {
     }
 
     .layer-entity-item,
-    .project-card,
+    .catalog-card,
     .card,
     .loading-spinner {
         animation: none;

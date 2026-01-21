@@ -19,7 +19,7 @@
     "ownerIt": "UFCL IT",
     "created": "2024-01-10",
     "updated": "2025-06-01",
-    "tables": ["tbl-vibdbe", "tbl-vibdgr", "tbl-viobj"]
+    "schemas": ["sch-sap-refx"]
   },
   {
     "id": "sys-postgis",
@@ -44,7 +44,7 @@
     "ownerIt": "Team GIS UFCL",
     "created": "2024-01-15",
     "updated": "2025-03-20",
-    "tables": ["tbl-geo-buildings"]
+    "schemas": ["sch-postgis-geo"]
   },
   {
     "id": "sys-sap-ps",
@@ -66,6 +66,6 @@
     "ownerIt": "Dipartimento progetti UFCL",
     "created": "2024-04-01",
     "updated": "2025-02-15",
-    "tables": []
+    "schemas": []
   }
 ]

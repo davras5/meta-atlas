@@ -7,7 +7,7 @@
 | Principle | Description |
 |-----------|-------------|
 | **Interoperability** | Align with Swiss (eCH, I14Y) and international (DCAT, ISO) standards for seamless data exchange |
-| **Reusability** | Define once, use everywhere — Concepts, ValueDomains, and entities shareable across projects |
+| **Reusability** | Define once, use everywhere — Concepts, ValueDomains, and entities shareable across catalogs |
 | **API First** | Design for programmatic access; all data accessible via REST/GraphQL APIs |
 | **Open by Default** | Public metadata unless classified; support opendata.swiss publication |
 | **Multilingual** | Native DE/FR/IT/EN support for all content in Switzerland's four-language context |
@@ -51,12 +51,12 @@ This document defines the data model for the Metadata Catalog prototype. The fol
 | R-22 | Compliance | Legal basis documentation | legal_references array with law, article, description, and URL for each legal basis | ✅ Implemented |
 | R-23 | Compliance | Swiss Federal ISMS alignment | Security classification compatible with federal ISMS framework | ⚠️ Schema ready |
 | **Versioning** |||||
-| R-24 | Versioning | Project version snapshots | ProjectVersion stores complete JSONB snapshot of all entities at publication time | ✅ Implemented |
+| R-24 | Versioning | Catalog version snapshots | Version stores complete JSONB snapshot of all entities at publication time | ✅ Implemented |
 | R-25 | Versioning | Change log (audit trail) | Changelog tracks entity_type, action, changed_fields, before/after values for all changes | ✅ Implemented |
 | R-26 | Versioning | Version comparison (diff) | Schema supports diff via snapshots and changelog; UI implementation pending | ⚠️ Schema ready |
 | **Operations** |||||
-| R-27 | Operations | Multi-tenant projects | Project entity isolates data; all content entities have project_id foreign key | ✅ Implemented |
-| R-28 | Operations | User roles & permissions | ProjectUser with roles: admin (full), editor (content), viewer (read-only) | ✅ Implemented |
+| R-27 | Operations | Multi-tenant catalogs | Catalog entity isolates data; all content entities have catalog_id foreign key | ✅ Implemented |
+| R-28 | Operations | User roles & permissions | Agent with roles: admin (full), editor (content), viewer (read-only) | ✅ Implemented |
 | R-29 | Operations | Import/Export (JSON) | Static JSON files in data/ folder; structure matches database schema for migration | ✅ Implemented |
 | **Technical** |||||
 | R-30 | Technical | Multilingual support | JSONB with de (required), fr, it, en keys for all text fields (name, description) | ✅ Implemented |
@@ -171,14 +171,14 @@ dcat:Distribution (representation of Dataset)
 flowchart TB
     subgraph ORGANIZATION["ORGANIZATION LAYER"]
         direction TB
-        O_DESC["Project management and governance<br/>Audience: Project managers, administrators"]
-        Project["Project"]
-        ProjectVersion["ProjectVersion"]
+        O_DESC["Catalog management and governance<br/>Audience: Catalog managers, administrators"]
+        Catalog["Catalog"]
+        Version["Version"]
         Changelog["Changelog"]
-        ProjectUser["ProjectUser"]
-        Project -->|has_versions| ProjectVersion
-        Project -->|has_members| ProjectUser
-        Project -->|tracks_changes| Changelog
+        Agent["Agent"]
+        Catalog -->|has_versions| Version
+        Catalog -->|has_members| Agent
+        Catalog -->|tracks_changes| Changelog
     end
 
     subgraph CONCEPTUAL["CONCEPTUAL LAYER"]
@@ -219,12 +219,12 @@ flowchart TB
         Dataset -->|distributed_via| Distribution
     end
 
-    Project -->|scopes| Domain
-    Project -->|scopes| Concept
-    Project -->|scopes| LogicalEntity
-    Project -->|scopes| ValueDomain
-    Project -->|scopes| Dataset
-    Concept -->|realizes| LogicalEntity
+    Catalog -->|scopes| Domain
+    Catalog -->|scopes| Concept
+    Catalog -->|scopes| LogicalEntity
+    Catalog -->|scopes| ValueDomain
+    Catalog -->|scopes| Dataset
+    Concept -->|realized_by| LogicalEntity
     LogicalEntity -->|implements| Table
     Attribute -->|maps_to| Column
 
@@ -232,10 +232,10 @@ flowchart TB
     style CONCEPTUAL fill:#dbeafe,stroke:#2563eb
     style LOGICAL fill:#d1fae5,stroke:#059669
     style PHYSICAL fill:#ffedd5,stroke:#d97706
-    style Project fill:#f9a8d4,stroke:#db2777
-    style ProjectVersion fill:#f9a8d4,stroke:#db2777
+    style Catalog fill:#f9a8d4,stroke:#db2777
+    style Version fill:#f9a8d4,stroke:#db2777
     style Changelog fill:#f9a8d4,stroke:#db2777
-    style ProjectUser fill:#f9a8d4,stroke:#db2777
+    style Agent fill:#f9a8d4,stroke:#db2777
     style Domain fill:#93c5fd,stroke:#2563eb
     style Concept fill:#93c5fd,stroke:#2563eb
     style Dataset fill:#6ee7b7,stroke:#059669
@@ -255,18 +255,18 @@ flowchart TB
 
 ```mermaid
 erDiagram
-    Project ||--o{ ProjectVersion : "has_versions"
-    Project ||--o{ ProjectUser : "has_members"
-    Project ||--o{ Changelog : "tracks_changes"
-    Project ||--o{ Domain : "contains"
-    Project ||--o{ Concept : "contains"
-    Project ||--o{ LogicalEntity : "contains"
-    Project ||--o{ ValueDomain : "contains"
-    Project ||--o{ Dataset : "contains"
-    ProjectVersion ||--o{ Changelog : "includes"
+    Catalog ||--o{ Version : "has_versions"
+    Catalog ||--o{ Agent : "has_members"
+    Catalog ||--o{ Changelog : "tracks_changes"
+    Catalog ||--o{ Domain : "contains"
+    Catalog ||--o{ Concept : "contains"
+    Catalog ||--o{ LogicalEntity : "contains"
+    Catalog ||--o{ ValueDomain : "contains"
+    Catalog ||--o{ Dataset : "contains"
+    Version ||--o{ Changelog : "includes"
 
     Domain ||--o{ Concept : contains
-    Concept ||--o{ LogicalEntity : "realizes"
+    Concept ||--o{ LogicalEntity : "realized_by"
 
     Dataset }o--o{ LogicalEntity : describes
     LogicalEntity ||--o{ Attribute : has
@@ -285,7 +285,7 @@ erDiagram
     LogicalEntity ||--o{ Table : "implements"
     Attribute ||--o{ Column : "maps_to"
 
-    Project {
+    Catalog {
         uuid id PK
         jsonb name
         jsonb description
@@ -294,9 +294,9 @@ erDiagram
         enum status
     }
 
-    ProjectVersion {
+    Version {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         string version_number
         jsonb name
         jsonb description
@@ -308,7 +308,7 @@ erDiagram
 
     Changelog {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         uuid version_id FK
         enum change_type
         string entity_type
@@ -319,9 +319,9 @@ erDiagram
         datetime changed_at
     }
 
-    ProjectUser {
+    Agent {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         string name
         string email
         enum role
@@ -341,7 +341,7 @@ erDiagram
 
     Domain {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         jsonb name
         jsonb description
         string abbreviation
@@ -354,10 +354,11 @@ erDiagram
 
     Concept {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         uuid domain_id FK
         jsonb name
         jsonb definition
+        enum property_type
         jsonb synonyms
         jsonb legal_references
         jsonb standard_references
@@ -368,7 +369,7 @@ erDiagram
 
     LogicalEntity {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         string name
         jsonb description
         array concept_ids
@@ -404,7 +405,7 @@ erDiagram
 
     ValueDomain {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         boolean is_shared
         string name
         jsonb description
@@ -418,10 +419,11 @@ erDiagram
 
     Dataset {
         uuid id PK
-        uuid project_id FK
+        uuid catalog_id FK
         jsonb name
         jsonb description
         jsonb publisher
+        jsonb contact_point
         enum access_rights
         jsonb license
         date issued
@@ -448,6 +450,7 @@ erDiagram
         enum service_type
         string endpoint_url
         jsonb publisher
+        jsonb contact_point
         enum access_rights
         enum status
     }
@@ -502,10 +505,10 @@ erDiagram
 
 | Layer | Entity | Description | I14Y Mapping | DCAT Mapping |
 |-------|--------|-------------|--------------|--------------|
-| **Organization** | Project | Workspace container for metadata | - | dcat:Catalog |
-| **Organization** | ProjectVersion | Version snapshot of a project | - | dcat:version |
-| **Organization** | Changelog | Record of changes within a project | - | prov:Activity |
-| **Organization** | ProjectUser | User membership and role in a project | - | foaf:Agent |
+| **Organization** | Catalog | Workspace container for metadata | Katalog | dcat:Catalog |
+| **Organization** | Version | Version snapshot of a catalog | - | dcat:version |
+| **Organization** | Changelog | Record of changes within a catalog | - | prov:Activity |
+| **Organization** | Agent | User membership and role in a catalog | - | foaf:Agent |
 | **Conceptual** | Domain | Business domain grouping | - | dcat:Catalog (partial) |
 | **Conceptual** | Concept | Business term definition | Konzept | ISO 11179-1:2023 |
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
@@ -522,17 +525,17 @@ erDiagram
 
 ### 4.2 Organization Layer Entities
 
-#### 4.2.0 Project
+#### 4.2.0 Catalog
 
-A project represents a self-contained workspace or catalog that groups related metadata. Projects provide organizational boundaries for managing metadata across teams, departments, or initiatives. Each project creates isolated copies of all content (domains, concepts, entities, tables) enabling parallel development and versioning.
+A catalog represents a self-contained workspace that groups related metadata. Catalogs provide organizational boundaries for managing metadata across teams, departments, or initiatives. Each catalog creates isolated copies of all content (domains, concepts, entities, tables) enabling parallel development and versioning.
 
-**Entity: Project**
+**Entity: Catalog**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| name | MultiLang | Yes | Project name in multiple languages | dct:title |
-| description | MultiLang | Yes | Detailed project description | dct:description |
+| name | MultiLang | Yes | Catalog name in multiple languages | dct:title |
+| description | MultiLang | Yes | Detailed catalog description | dct:description |
 | owner | AgentRef | Yes | Responsible organization or team | dct:publisher |
 | status | Enum | Yes | active, draft, archived | adms:status |
 | current_version_id | UUID | No | Reference to current active version | dcat:version |
@@ -541,16 +544,16 @@ A project represents a self-contained workspace or catalog that groups related m
 | domains | UUID[] | No | Associated domain references | - |
 | entities | Integer | No | Count of logical entities | - |
 | tables | Integer | No | Count of physical tables | - |
-| users | ProjectUser[] | No | Project team members with roles | - |
+| members | Agent[] | No | Catalog team members with roles | - |
 | created | Date | Yes | Creation date | dct:created |
 | updated | Date | No | Last update date | dct:modified |
 | lastActivity | Date | No | Date of last activity | - |
 | metadata | Metadata | Yes | Audit trail (created, updated, version) | - |
 
 **Status Values:**
-- `active` - Project is actively maintained
-- `draft` - Project is being set up or configured
-- `archived` - Project is no longer active but preserved for reference
+- `active` - Catalog is actively maintained
+- `draft` - Catalog is being set up or configured
+- `archived` - Catalog is no longer active but preserved for reference
 
 **Use Cases:**
 - Separate metadata by department (HR, Finance, Real Estate)
@@ -560,16 +563,16 @@ A project represents a self-contained workspace or catalog that groups related m
 
 ---
 
-#### 4.2.1 ProjectVersion
+#### 4.2.1 Version
 
-A project version represents a **complete, immutable snapshot** of a project's metadata state at a point in time. Versions enable tracking of project evolution, comparison between releases, rollback capabilities, and release management for metadata catalogs.
+A version represents a **complete, immutable snapshot** of a catalog's metadata state at a point in time. Versions enable tracking of catalog evolution, comparison between releases, rollback capabilities, and release management for metadata catalogs.
 
-**Entity: ProjectVersion**
+**Entity: Version**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | version_number | String | Yes | Semantic version (e.g., "1.0.0", "2.1.0") | dcat:version |
 | name | MultiLang | No | Version name/title (e.g., "Initial Release") | dct:title |
 | description | MultiLang | No | Version description and release notes | dct:description |
@@ -593,7 +596,7 @@ Following semantic versioning (SemVer):
 
 **VersionSnapshot Schema:**
 
-The snapshot contains a complete copy of all project content at the time of publishing. This enables:
+The snapshot contains a complete copy of all catalog content at the time of publishing. This enables:
 - Full comparison between any two versions
 - Restoration of any historical state
 - Audit trail of what was published
@@ -661,14 +664,14 @@ To compare versions, retrieve the snapshots of both versions and diff the `conte
 
 #### 4.2.2 Changelog
 
-A changelog entry records a specific change made within a project. Changelogs provide an audit trail of modifications, enabling compliance tracking, impact analysis, and collaboration transparency.
+A changelog entry records a specific change made within a catalog. Changelogs provide an audit trail of modifications, enabling compliance tracking, impact analysis, and collaboration transparency.
 
 **Entity: Changelog**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | version_id | UUID | No | Associated version (if part of a release) | - |
 | change_type | Enum | Yes | Type of change (see below) | prov:Activity |
 | entity_type | String | Yes | Type of entity changed (domain, concept, entity, etc.) | - |
@@ -701,38 +704,38 @@ A changelog entry records a specific change made within a project. Changelogs pr
 
 ---
 
-#### 4.2.3 ProjectUser
+#### 4.2.3 Agent
 
-A project user represents a team member's membership and role within a specific project. This enables role-based access control for project management.
+An agent represents a team member's membership and role within a specific catalog. This enables role-based access control for catalog management.
 
-**Entity: ProjectUser**
+**Entity: Agent**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | user_id | UUID | No | Reference to user account (if using auth system) | - |
 | name | String | Yes | User's display name | foaf:name |
 | email | String | Yes | User's email address | foaf:mbox |
-| role | Enum | Yes | User's project role: admin, editor, viewer | - |
+| role | Enum | Yes | User's catalog role: admin, editor, viewer | - |
 | status | Enum | Yes | active, inactive, invited | adms:status |
-| joined_at | DateTime | No | When user joined the project | - |
+| joined_at | DateTime | No | When user joined the catalog | - |
 | invited_by | UUID | No | User who invited this member | - |
 | metadata | Metadata | Yes | Audit trail | - |
 
-**Project Roles:**
+**Catalog Roles:**
 
 | Role | Description | Permissions |
 |------|-------------|-------------|
-| admin | Project administrator with full control | Full access: create, read, update, delete all entities; manage users; manage versions; publish |
+| admin | Catalog administrator with full control | Full access: create, read, update, delete all entities; manage users; manage versions; publish |
 | editor | Can create and modify content | Create, read, update all entities; cannot manage users or publish versions |
-| viewer | Read-only access | Read-only access to all project content |
+| viewer | Read-only access | Read-only access to all catalog content |
 
 ---
 
 #### 4.2.4 Data Governance Roles
 
-Data governance roles are assigned at the **entity level** (Domain, Concept, LogicalEntity, Dataset) rather than at the project level. These roles define accountability and responsibility for data assets according to data governance best practices.
+Data governance roles are assigned at the **entity level** (Domain, Concept, LogicalEntity, Dataset) rather than at the catalog level. These roles define accountability and responsibility for data assets according to data governance best practices.
 
 **GovernanceAssignment Structure:**
 
@@ -788,18 +791,18 @@ Data governance roles are assigned at the **entity level** (Domain, Concept, Log
 
 ### 4.3 Conceptual Layer Entities
 
-> **Project Scoping:** All entities in the Conceptual and Logical layers are scoped to a project via `project_id`. This enables multiple projects to define their own domains, concepts, and entities independently.
+> **Catalog Scoping:** All entities in the Conceptual and Logical layers are scoped to a catalog via `catalog_id`. This enables multiple catalogs to define their own domains, concepts, and entities independently.
 
 #### 4.3.1 Domain
 
-A business domain represents a coherent area of business activity or knowledge within a project.
+A business domain represents a coherent area of business activity or knowledge within a catalog.
 
 **Entity: Domain**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | name | MultiLang | Yes | Domain name in multiple languages | dct:title |
 | description | MultiLang | Yes | Detailed domain description | dct:description |
 | abbreviation | String(10) | No | Short code (e.g., "IMMO", "PROJ") | skos:notation |
@@ -816,7 +819,7 @@ A business domain represents a coherent area of business activity or knowledge w
 - `draft` - Domain is being defined
 - `deprecated` - Domain is no longer recommended
 
-**Unique Constraint:** `(project_id, abbreviation)` - Domain abbreviations must be unique within a project.
+**Unique Constraint:** `(catalog_id, abbreviation)` - Domain abbreviations must be unique within a catalog.
 
 ---
 
@@ -831,7 +834,7 @@ A business concept represents a well-defined business term or notion within a do
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | domain_id | UUID | Yes | Parent domain reference | - |
 | name | MultiLang | Yes | Concept name (preferred label) | iso11179:name |
 | definition | MultiLang | Yes | Formal business definition | iso11179:definition |
@@ -869,7 +872,7 @@ standard_references: [{ standard: "eCH-0129", version: "5.0" }]
 
 ### 4.4 Logical Layer Entities
 
-> **Project Scoping:** All Logical Layer entities are scoped to a project. ValueDomains can optionally be shared across projects by setting `is_shared = true`.
+> **Catalog Scoping:** All Logical Layer entities are scoped to a catalog. ValueDomains can optionally be shared across catalogs by setting `is_shared = true`.
 
 #### 4.4.1 LogicalEntity
 
@@ -880,7 +883,7 @@ A technology-independent data structure that realizes one or more business conce
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | name | String(100) | Yes | Technical entity name (e.g., "Building") | dct:title |
 | description | MultiLang | Yes | Entity purpose and scope | dct:description |
 | concept_ids | UUID[] | Yes | Realized business concepts (min 1) | - |
@@ -895,7 +898,7 @@ A technology-independent data structure that realizes one or more business conce
 | valid_to | Date | No | When this definition ceased to be valid | schema:validThrough |
 | metadata | Metadata | Yes | Audit trail | - |
 
-**Unique Constraint:** `(project_id, name)` - Entity names must be unique within a project.
+**Unique Constraint:** `(catalog_id, name)` - Entity names must be unique within a catalog.
 
 **Entity Types:**
 | Type | Description | Example |
@@ -957,8 +960,8 @@ A set of permissible values for an attribute, also known as a code list or enume
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
-| is_shared | Boolean | Yes | If true, visible to all projects | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
+| is_shared | Boolean | Yes | If true, visible to all catalogs | - |
 | name | String(100) | Yes | Value domain name | iso11179:name |
 | description | MultiLang | Yes | Purpose and usage | iso11179:definition |
 | domain_type | Enum | Yes | enumeration, range, pattern, external | iso11179:propertyType |
@@ -973,9 +976,9 @@ A set of permissible values for an attribute, also known as a code list or enume
 | status | Enum | Yes | active, deprecated, draft | adms:status |
 | metadata | Metadata | Yes | Audit trail | - |
 
-**Unique Constraint:** `(project_id, name)` - Value domain names must be unique within a project.
+**Unique Constraint:** `(catalog_id, name)` - Value domain names must be unique within a catalog.
 
-**Sharing:** When `is_shared = true`, the value domain can be referenced by attributes in any project. This is useful for standard code lists (e.g., country codes, currencies) that should be consistent across the organization.
+**Sharing:** When `is_shared = true`, the value domain can be referenced by attributes in any catalog. This is useful for standard code lists (e.g., country codes, currencies) that should be consistent across the organization.
 
 **Domain Types:**
 | Type | Description | Required Fields |
@@ -1009,7 +1012,7 @@ A collection of data published or curated by an organization (DCAT-aligned).
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
-| project_id | UUID | Yes | Parent project reference | - |
+| catalog_id | UUID | Yes | Parent catalog reference | - |
 | name | MultiLang | Yes | Dataset title | dct:title |
 | description | MultiLang | Yes | Dataset description | dct:description |
 | publisher | AgentRef | Yes | Publishing organization | dct:publisher |
@@ -1032,7 +1035,7 @@ A collection of data published or curated by an organization (DCAT-aligned).
 | status | Enum | Yes | active, deprecated, draft | adms:status |
 | metadata | Metadata | Yes | Audit trail | - |
 
-**Unique Constraint:** `(project_id, name)` - Dataset names must be unique within a project.
+**Unique Constraint:** `(catalog_id, name)` - Dataset names must be unique within a catalog.
 
 **Access Rights:**
 | Value | Description |
@@ -1084,10 +1087,10 @@ A relationship defines how two logical entities are connected, capturing cardina
 
 ### 4.5 Physical Layer Entities
 
-> **Organization-Wide Scope:** Physical Layer entities (System, Schema, Table, Column) represent actual infrastructure and are **organization-wide**, not project-scoped. Multiple projects can reference the same physical tables. The project-specific documentation is captured via:
-> - LogicalEntity's `project_id` scopes the logical model
-> - The mapping from LogicalEntity to Table(s) via `physical_table_ids` is inherently project-scoped
-> - This design enables consistent physical layer documentation while allowing different logical interpretations per project.
+> **Organization-Wide Scope:** Physical Layer entities (System, Schema, Table, Column) represent actual infrastructure and are **organization-wide**, not catalog-scoped. Multiple catalogs can reference the same physical tables. The catalog-specific documentation is captured via:
+> - LogicalEntity's `catalog_id` scopes the logical model
+> - The mapping from LogicalEntity to Table(s) via `physical_table_ids` is inherently catalog-scoped
+> - This design enables consistent physical layer documentation while allowing different logical interpretations per catalog.
 
 #### 4.5.1 System
 
@@ -1446,7 +1449,7 @@ Per Articles 11-15 of the ISG, Switzerland defines **three classification levels
 
 | Mapping | From | To | Cardinality | Description |
 |---------|------|-----|-------------|-------------|
-| realizes | Concept | LogicalEntity | 1:n | Concept realized by entities |
+| realized_by | Concept | LogicalEntity | 1:n | Concept realized by logical entities |
 | implements | LogicalEntity | Table | 1:n | Entity implemented by tables |
 | maps_to | Attribute | Column | 1:n | Attribute mapped to columns |
 | uses | Attribute | ValueDomain | n:1 | Attribute uses value domain |
@@ -1481,7 +1484,7 @@ flowchart LR
         P2C1["egid<br/>(Column)"]
     end
 
-    C1 -->|realizes| L1
+    C1 -->|realized_by| L1
     L1 --> L1A
     L1 --> L1B
 
@@ -1521,7 +1524,7 @@ For explicit cross-layer mappings, a separate mapping collection is maintained:
       "source_id": "c001",
       "target_type": "logical_entity",
       "target_id": "le001",
-      "mapping_type": "realizes",
+      "mapping_type": "realized_by",
       "confidence": "confirmed",
       "notes": "Primary realization",
       "metadata": { ... }
@@ -1589,8 +1592,8 @@ Sample data files demonstrating the data model are located in the `data/` folder
 
 | File | Description |
 |------|-------------|
-| `projects.json` | Project definitions |
-| `project-versions.json` | Version snapshots |
+| `catalogs.json` | Catalog definitions |
+| `versions.json` | Version snapshots |
 | `changelogs.json` | Change history |
 | `domains.json` | Business domains |
 | `concepts.json` | Business concepts |
@@ -1632,13 +1635,14 @@ The following eCH standards define the conceptual framework for data architectur
 
 ---
 
-*Document Version: 2.1*
+*Document Version: 2.2*
 *Created: January 2026*
 *Last Updated: January 2026*
 *Status: Draft for Prototype Development*
 
 ### Changelog
+- **v2.2** (January 2026): Entity naming alignment — renamed Project → Catalog, ProjectVersion → Version, ProjectUser → Agent for DCAT and foaf:Agent standard compliance; updated all foreign key references (project_id → catalog_id) and related documentation
 - **v2.1** (January 2026): Standards alignment validation — corrected ISG security classifications to three levels (INTERN, VERTRAULICH, GEHEIM); updated Concept mapping from skos:Concept to ISO 11179-1:2023; clarified I14Y Konzepte as standalone reusable entities; added DCAT-AP CH 2.0 mandatory properties to Dataset, Distribution, DataService; clarified LINDAS vs I14Y complementary roles
 - **v2.0** (January 2026): Restructured document, moved SQL to SCHEMA.sql, simplified structure
-- **v1.1** (January 2026): Added Organization Layer entities (ProjectVersion, Changelog, ProjectUser)
+- **v1.1** (January 2026): Added Organization Layer entities (Version, Changelog, Agent)
 

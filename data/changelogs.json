@@ -1,7 +1,7 @@
 [
   {
     "id": "log-001",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.0.0",
     "changeType": "structure",
     "entityType": "domain",
@@ -13,13 +13,13 @@
     "summaryFr": "Nouveau domaine 'Gestion immobilière' créé",
     "summaryIt": "Nuovo dominio 'Gestione immobiliare' creato",
     "details": { "abbreviation": "IMMO", "conceptsCount": 3 },
-    "reason": "Initiale Projektstruktur",
+    "reason": "Initiale Katalogstruktur",
     "changedAt": "2024-02-01T10:00:00Z",
     "changedBy": { "name": "Anna Müller", "email": "anna.mueller@admin.ch" }
   },
   {
     "id": "log-002",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.0.0",
     "changeType": "structure",
     "entityType": "concept",
@@ -37,7 +37,7 @@
   },
   {
     "id": "log-003",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.0.0",
     "changeType": "structure",
     "entityType": "entity",
@@ -55,7 +55,7 @@
   },
   {
     "id": "log-004",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.1.0",
     "changeType": "structure",
     "entityType": "concept",
@@ -73,7 +73,7 @@
   },
   {
     "id": "log-005",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.1.0",
     "changeType": "structure",
     "entityType": "entity",
@@ -91,7 +91,7 @@
   },
   {
     "id": "log-006",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.2.0",
     "changeType": "structure",
     "entityType": "attribute",
@@ -109,7 +109,7 @@
   },
   {
     "id": "log-007",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-1.2.0",
     "changeType": "content",
     "entityType": "value_domain",
@@ -127,7 +127,7 @@
   },
   {
     "id": "log-008",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "versionId": "ver-bundesimmobilien-2.0.0",
     "changeType": "structure",
     "entityType": "domain",
@@ -145,7 +145,7 @@
   },
   {
     "id": "log-009",
-    "projectId": "proj-bundesimmobilien",
+    "catalogId": "cat-bundesimmobilien",
     "changeType": "status",
     "entityType": "concept",
     "entityId": "con-gebaeude",
@@ -163,7 +163,7 @@
   },
   {
     "id": "log-010",
-    "projectId": "proj-geodaten",
+    "catalogId": "cat-geodaten",
     "versionId": "ver-geodaten-1.0.0",
     "changeType": "structure",
     "entityType": "domain",
@@ -181,7 +181,7 @@
   },
   {
     "id": "log-011",
-    "projectId": "proj-geodaten",
+    "catalogId": "cat-geodaten",
     "versionId": "ver-geodaten-2.0.0",
     "changeType": "content",
     "entityType": "entity",
@@ -200,7 +200,7 @@
   },
   {
     "id": "log-012",
-    "projectId": "proj-bauprojekte",
+    "catalogId": "cat-bauprojekte",
     "versionId": "ver-bauprojekte-1.1.0",
     "changeType": "structure",
     "entityType": "entity",
@@ -218,7 +218,7 @@
   },
   {
     "id": "log-013",
-    "projectId": "proj-finanzen",
+    "catalogId": "cat-finanzen",
     "versionId": "ver-finanzen-1.0.0",
     "changeType": "compliance",
     "entityType": "entity",

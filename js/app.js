@@ -97,33 +97,33 @@ function toggleClass(elementOrId, className, force) {
 // Data Loading
 // ========================================
 const data = {
-    projects: [],
+    catalogs: [],
     domains: [],
     concepts: [],
     entities: [],
     systems: [],
-    tables: [],
+    schemas: [],
     valueDomains: []
 };
 
 async function loadData() {
     try {
-        const [projects, domains, concepts, entities, systems, tables, valueDomains] = await Promise.all([
-            fetch('data/projects.json').then(r => r.json()),
+        const [catalogs, domains, concepts, entities, systems, schemas, valueDomains] = await Promise.all([
+            fetch('data/catalogs.json').then(r => r.json()),
             fetch('data/domains.json').then(r => r.json()),
             fetch('data/concepts.json').then(r => r.json()),
             fetch('data/entities.json').then(r => r.json()),
             fetch('data/systems.json').then(r => r.json()),
-            fetch('data/tables.json').then(r => r.json()),
+            fetch('data/schemas.json').then(r => r.json()),
             fetch('data/value-domains.json').then(r => r.json())
         ]);
 
-        data.projects = projects;
+        data.catalogs = catalogs;
         data.domains = domains;
         data.concepts = concepts;
         data.entities = entities;
         data.systems = systems;
-        data.tables = tables;
+        data.schemas = schemas;
         data.valueDomains = valueDomains;
 
         return true;
@@ -137,10 +137,10 @@ async function loadData() {
 // State Management
 // ========================================
 let state = {
-    currentProject: null,
+    currentCatalog: null,
     currentLayer: 'conceptual',
     currentView: 'wiki',
-    projectView: 'details',
+    catalogView: 'details',
     selectedItem: null,
     selectedAttribute: null,
     expandedNodes: new Set(['dom-immo', 'sys-sap']),
@@ -149,7 +149,7 @@ let state = {
     sidebarCollapsed: false,
     searchQuery: '',
     searchResults: [],
-    showProjectsOverview: true,
+    showCatalogsOverview: true,
     groupBy: 'layer',
     treeSearchQuery: '',
     treeSort: 'name-asc',
@@ -187,22 +187,22 @@ function handleRoute() {
     const { parts, params } = parseRoute();
 
     if (parts.length === 0) {
-        // Default route - show projects overview
+        // Default route - show catalogs overview
         state.currentLayer = 'conceptual';
         state.selectedItem = null;
-        state.currentProject = null;
-        state.showProjectsOverview = true;
+        state.currentCatalog = null;
+        state.showCatalogsOverview = true;
     } else if (parts.length === 1) {
         // Layer route: /conceptual, /logical, /physical
         if (['conceptual', 'logical', 'physical'].includes(parts[0])) {
             state.currentLayer = parts[0];
             state.selectedItem = null;
-            state.showProjectsOverview = false;
+            state.showCatalogsOverview = false;
         }
     } else if (parts.length >= 2) {
-        // Entity route: /conceptual/domain/dom-immo or /project/proj-id
+        // Entity route: /conceptual/domain/dom-immo or /catalog/proj-id
         const [layer, type, id] = parts;
-        state.showProjectsOverview = false;
+        state.showCatalogsOverview = false;
         if (['conceptual', 'logical', 'physical'].includes(layer)) {
             state.currentLayer = layer;
             if (id) {
@@ -212,11 +212,11 @@ function handleRoute() {
                     expandParents(item);
                 }
             }
-        } else if (layer === 'project' && type) {
-            const project = data.projects.find(p => p.id === type);
-            if (project) {
-                state.currentProject = project;
-                state.selectedItem = project;
+        } else if (layer === 'catalog' && type) {
+            const catalog = data.catalogs.find(c => c.id === type);
+            if (catalog) {
+                state.currentCatalog = catalog;
+                state.selectedItem = catalog;
             }
         }
     }
@@ -240,8 +240,8 @@ function expandParents(item) {
 // Utility Functions
 // ========================================
 function findItemById(id) {
-    for (const project of data.projects) {
-        if (project.id === id) return project;
+    for (const catalog of data.catalogs) {
+        if (catalog.id === id) return catalog;
     }
     for (const domain of data.domains) {
         if (domain.id === id) return domain;
@@ -255,8 +255,8 @@ function findItemById(id) {
     for (const system of data.systems) {
         if (system.id === id) return system;
     }
-    for (const table of data.tables) {
-        if (table.id === id) return table;
+    for (const schema of data.schemas) {
+        if (schema.id === id) return schema;
     }
     return null;
 }
@@ -265,8 +265,8 @@ function getConceptsForDomain(domainId) {
     return data.concepts.filter(c => c.domain === domainId);
 }
 
-function getTablesForSystem(systemId) {
-    return data.tables.filter(t => t.system === systemId);
+function getSchemasForSystem(systemId) {
+    return data.schemas.filter(s => s.system === systemId);
 }
 
 function getParentChain(item) {
@@ -277,7 +277,7 @@ function getParentChain(item) {
             if (domain) chain.push(domain);
         }
     } else if (item.layer === 'physical') {
-        if (item.type === 'table') {
+        if (item.type === 'schema') {
             const system = data.systems.find(sys => sys.id === item.system);
             if (system) chain.push(system);
         }
@@ -287,12 +287,12 @@ function getParentChain(item) {
 
 function getTypeLabel(type) {
     const labels = {
-        project: 'Projekt',
+        catalog: 'Katalog',
         domain: 'Domäne',
         concept: 'Konzept',
         entity: 'Logische Entität',
         system: 'System',
-        table: 'Tabelle'
+        schema: 'Schema'
     };
     return labels[type] || type;
 }
@@ -318,7 +318,7 @@ function getStatusLabel(status) {
 
 function getRoleLabel(role) {
     const labels = {
-        owner: 'Projektverantwortliche',
+        owner: 'Katalogverantwortliche',
         steward: 'Data Steward',
         engineer: 'Data Engineer',
         analyst: 'Business Analyst',
@@ -333,7 +333,7 @@ function getRoleDescription(role) {
         steward: 'Kann Metadateneinträge erstellen, bearbeiten und genehmigen',
         engineer: 'Kann physische Schicht-Entitäten und Zuordnungen verwalten',
         analyst: 'Kann konzeptuelle Schicht-Einträge erstellen und bearbeiten',
-        viewer: 'Lesezugriff auf alle Projektdaten'
+        viewer: 'Lesezugriff auf alle Katalogdaten'
     };
     return descriptions[role] || '';
 }
@@ -345,12 +345,12 @@ function getUserAvatar(name) {
 
 function getTypeIcon(type) {
     const iconMap = {
-        project: 'P',
+        catalog: 'K',
         domain: 'D',
         concept: 'C',
         entity: 'E',
         system: 'S',
-        table: 'T'
+        schema: 'S'
     };
     return iconMap[type] || '?';
 }
@@ -361,7 +361,7 @@ function getTreeIcon(type) {
         concept: icons.lightbulb,
         entity: icons.cube,
         system: icons.server,
-        table: icons.table
+        schema: icons.database
     };
     return iconMap[type] || '';
 }
@@ -397,12 +397,12 @@ function handleSearch(query) {
 
 function getAllItems() {
     return [
-        ...data.projects,
+        ...data.catalogs,
         ...data.domains,
         ...data.concepts,
         ...data.entities,
         ...data.systems,
-        ...data.tables
+        ...data.schemas
     ];
 }
 
@@ -421,7 +421,7 @@ function renderApp() {
     app.innerHTML = `
         <!-- Header -->
         <header class="header" role="banner">
-            <a href="#/" class="logo" onclick="goToProjectsOverview(); return false;">
+            <a href="#/" class="logo" onclick="goToCatalogsOverview(); return false;">
                 <div class="logo-icon" aria-hidden="true">${icons.layers}</div>
                 <span>Meta-Atlas</span>
             </a>
@@ -619,12 +619,12 @@ function renderTree() {
     const filteredEntities = sortItems(filterItems(data.entities, query), sortType);
     const filteredSystems = sortItems(filterItems(data.systems, query), sortType);
 
-    // Also filter concepts and tables if searching
+    // Also filter concepts and schemas if searching
     const hasConceptualMatches = filteredDomains.length > 0 ||
         (query && data.concepts.some(c => c.name.toLowerCase().includes(query)));
     const hasLogicalMatches = filteredEntities.length > 0;
     const hasPhysicalMatches = filteredSystems.length > 0 ||
-        (query && data.tables.some(t => t.name.toLowerCase().includes(query)));
+        (query && data.schemas.some(s => s.name.toLowerCase().includes(query)));
 
     // Conceptual Layer Section
     const isConceptualExpanded = state.expandedLayers.has('conceptual');
@@ -681,13 +681,13 @@ function renderTree() {
                 <div class="layer-section-content ${!isPhysicalExpanded ? 'collapsed' : ''}">
         `;
         for (const system of filteredSystems) {
-            let tables = getTablesForSystem(system.id);
+            let schemas = getSchemasForSystem(system.id);
             if (query) {
-                tables = sortItems(filterItems(tables, query), sortType);
+                schemas = sortItems(filterItems(schemas, query), sortType);
             } else {
-                tables = sortItems(tables, sortType);
+                schemas = sortItems(schemas, sortType);
             }
-            html += renderTreeItemWithTables(system, tables);
+            html += renderTreeItemWithSchemas(system, schemas);
         }
         html += `</div></div>`;
     }
@@ -757,17 +757,17 @@ function renderTreeItem(item, children) {
     `;
 }
 
-function renderTreeItemWithTables(system, tables) {
+function renderTreeItemWithSchemas(system, schemas) {
     const isExpanded = state.expandedNodes.has(system.id);
     const isSelected = state.selectedItem?.id === system.id;
-    const hasChildren = tables && tables.length > 0;
+    const hasChildren = schemas && schemas.length > 0;
 
-    // Calculate total column count across all tables
-    const totalColumns = tables.reduce((sum, table) => sum + (table.columns?.length || 0), 0);
+    // Calculate total column count across all schemas
+    const totalColumns = schemas.reduce((sum, schema) => sum + (schema.columns?.length || 0), 0);
 
-    let tablesHtml = '';
-    for (const table of tables) {
-        tablesHtml += renderTreeTableWithColumns(table);
+    let schemasHtml = '';
+    for (const schema of schemas) {
+        schemasHtml += renderTreeSchemaWithColumns(schema);
     }
 
     return `
@@ -786,7 +786,7 @@ function renderTreeItemWithTables(system, tables) {
                 ${totalColumns > 0 ? `<span class="tree-count">${totalColumns}</span>` : ''}
             </div>
             <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(system.id)}">
-                ${tablesHtml}
+                ${schemasHtml}
             </div>
         </div>
     `;
@@ -864,50 +864,50 @@ function renderTreeAttribute(attr, entityId) {
     `;
 }
 
-function renderTreeTableWithColumns(table) {
-    const isExpanded = state.expandedNodes.has(table.id);
-    const isSelected = state.selectedItem?.id === table.id;
-    const columns = table.columns || [];
+function renderTreeSchemaWithColumns(schema) {
+    const isExpanded = state.expandedNodes.has(schema.id);
+    const isSelected = state.selectedItem?.id === schema.id;
+    const columns = schema.columns || [];
     const hasChildren = columns.length > 0;
 
     let columnsHtml = '';
     if (hasChildren) {
         for (const col of columns) {
-            columnsHtml += renderTreeColumn(col, table.id);
+            columnsHtml += renderTreeColumn(col, schema.id);
         }
     }
 
     return `
-        <div class="tree-item" data-id="${escapeHtml(table.id)}">
-            <div class="tree-node ${escapeHtml(table.layer)} ${isSelected ? 'selected ' + escapeHtml(table.layer) : ''}"
-                 data-id="${escapeHtml(table.id)}"
-                 data-layer="${escapeHtml(table.layer)}"
+        <div class="tree-item" data-id="${escapeHtml(schema.id)}">
+            <div class="tree-node ${escapeHtml(schema.layer)} ${isSelected ? 'selected ' + escapeHtml(schema.layer) : ''}"
+                 data-id="${escapeHtml(schema.id)}"
+                 data-layer="${escapeHtml(schema.layer)}"
                  role="treeitem"
                  aria-expanded="${isExpanded}"
                  aria-selected="${isSelected}">
                 <span class="tree-toggle ${isExpanded ? 'expanded' : ''}" aria-hidden="true">
                     ${hasChildren ? icons.chevronRight : ''}
                 </span>
-                <span class="tree-icon">${getTreeIcon(table.type)}</span>
-                <span class="tree-label">${escapeHtml(table.name)}</span>
+                <span class="tree-icon">${getTreeIcon(schema.type)}</span>
+                <span class="tree-label">${escapeHtml(schema.name)}</span>
                 ${hasChildren ? `<span class="tree-count">${columns.length}</span>` : ''}
             </div>
-            <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(table.id)}">
+            <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(schema.id)}">
                 ${columnsHtml}
             </div>
         </div>
     `;
 }
 
-function renderTreeColumn(col, tableId) {
-    const colId = `${tableId}-col-${col.name}`;
+function renderTreeColumn(col, schemaId) {
+    const colId = `${schemaId}-col-${col.name}`;
     const isSelected = state.selectedAttribute?.attr?.name === col.name &&
-                       state.selectedAttribute?.parentItem?.id === tableId;
+                       state.selectedAttribute?.parentItem?.id === schemaId;
     return `
-        <div class="tree-item tree-column" data-id="${escapeHtml(colId)}" data-table="${escapeHtml(tableId)}" data-col-name="${escapeHtml(col.name)}">
+        <div class="tree-item tree-column" data-id="${escapeHtml(colId)}" data-schema="${escapeHtml(schemaId)}" data-col-name="${escapeHtml(col.name)}">
             <div class="tree-node column-node ${isSelected ? 'selected' : ''}"
                  data-id="${escapeHtml(colId)}"
-                 data-table="${escapeHtml(tableId)}"
+                 data-schema="${escapeHtml(schemaId)}"
                  data-col-name="${escapeHtml(col.name)}"
                  role="treeitem"
                  aria-selected="${isSelected}">
@@ -925,8 +925,8 @@ function renderBreadcrumb(item) {
 
     let html = '';
 
-    // Always show "Alle Projekte" as the first breadcrumb item
-    html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} Alle Projekte</span>`;
+    // Always show "Alle Kataloge" as the first breadcrumb item
+    html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} Alle Kataloge</span>`;
 
     if (!item) {
         breadcrumb.innerHTML = html;
@@ -934,17 +934,17 @@ function renderBreadcrumb(item) {
         return;
     }
 
-    // Add separator after "Alle Projekte"
+    // Add separator after "Alle Kataloge"
     html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
 
-    // If we have a current project and the item is not the project itself, show the project
-    if (state.currentProject && item.type !== 'project') {
-        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentProject.id)}" tabindex="0">${escapeHtml(state.currentProject.name)}</span>`;
+    // If we have a current catalog and the item is not the catalog itself, show the catalog
+    if (state.currentCatalog && item.type !== 'catalog') {
+        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentCatalog.id)}" tabindex="0">${escapeHtml(state.currentCatalog.name)}</span>`;
         html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
     }
 
-    // If item is a project, just show it as current
-    if (item.type === 'project') {
+    // If item is a catalog, just show it as current
+    if (item.type === 'catalog') {
         html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(item.name)}</span>`;
         breadcrumb.innerHTML = html;
         // Event delegation handles breadcrumb listeners
@@ -972,11 +972,11 @@ function renderBreadcrumb(item) {
 function attachBreadcrumbListeners(breadcrumb) {
     // Home button listener
     breadcrumb.querySelectorAll('.breadcrumb-home').forEach(el => {
-        el.addEventListener('click', () => goToProjectsOverview());
+        el.addEventListener('click', () => goToCatalogsOverview());
         el.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                goToProjectsOverview();
+                goToCatalogsOverview();
             }
         });
     });
@@ -1002,24 +1002,24 @@ function attachBreadcrumbListeners(breadcrumb) {
     });
 }
 
-function goToProjectsOverview() {
-    state.currentProject = null;
+function goToCatalogsOverview() {
+    state.currentCatalog = null;
     state.selectedItem = null;
-    state.showProjectsOverview = true;
+    state.showCatalogsOverview = true;
     updateLayoutForView();
     navigateTo('/');
 }
 
 function updateLayoutForView() {
     const appContainer = document.querySelector('.app-container');
-    if (state.showProjectsOverview) {
-        appContainer?.classList.add('projects-overview-mode');
+    if (state.showCatalogsOverview) {
+        appContainer?.classList.add('catalogs-overview-mode');
     } else {
-        appContainer?.classList.remove('projects-overview-mode');
+        appContainer?.classList.remove('catalogs-overview-mode');
     }
 }
 
-function renderProjectsOverview() {
+function renderCatalogsOverview() {
     try {
         const contentArea = getElement('contentArea');
         if (!contentArea) return;
@@ -1028,73 +1028,73 @@ function renderProjectsOverview() {
         if (!container) return;
 
         container.innerHTML = `
-            <div class="projects-overview">
-                <div class="projects-header">
-                    <div class="projects-header-top">
-                        <h1 class="projects-title">Alle Projekte</h1>
-                        <button class="btn-new-project" id="newProjectBtn">
+            <div class="catalogs-overview">
+                <div class="catalogs-header">
+                    <div class="catalogs-header-top">
+                        <h1 class="catalogs-title">Alle Kataloge</h1>
+                        <button class="btn-new-catalog" id="newCatalogBtn">
                             ${icons.plus}
-                            <span>Neues Projekt</span>
+                            <span>Neuer Katalog</span>
                         </button>
                     </div>
                 </div>
-                <div class="projects-list">
-                    ${data.projects.map(project => renderProjectCard(project)).join('')}
+                <div class="catalogs-list">
+                    ${data.catalogs.map(catalog => renderCatalogCard(catalog)).join('')}
                 </div>
             </div>
         `;
-        // Event delegation handles project card listeners
+        // Event delegation handles catalog card listeners
     } catch (error) {
-        console.error('Error rendering projects overview:', error);
+        console.error('Error rendering catalogs overview:', error);
     }
 }
 
-function renderProjectCard(project) {
+function renderCatalogCard(catalog) {
     // Calculate entity count from domains
-    const projectEntities = data.entities.filter(e => project.domains?.includes(e.domain));
-    const entityCount = projectEntities.length;
+    const catalogEntities = data.entities.filter(e => catalog.domains?.includes(e.domain));
+    const entityCount = catalogEntities.length;
 
     // Calculate table count from entities' physicalTables
     const tableIds = new Set();
-    projectEntities.forEach(e => {
+    catalogEntities.forEach(e => {
         (e.physicalTables || []).forEach(tId => tableIds.add(tId));
     });
     const tableCount = tableIds.size;
 
     return `
-        <div class="project-card" data-id="${escapeHtml(project.id)}" style="--project-color: ${escapeHtml(project.color || '#3B82F6')}">
-            <div class="project-card-header">
-                <div class="project-info">
-                    <div class="project-name">${escapeHtml(project.name)}</div>
+        <div class="catalog-card" data-id="${escapeHtml(catalog.id)}" style="--catalog-color: ${escapeHtml(catalog.color || '#3B82F6')}">
+            <div class="catalog-card-header">
+                <div class="catalog-info">
+                    <div class="catalog-name">${escapeHtml(catalog.name)}</div>
                 </div>
-                <span class="project-status ${escapeHtml(project.status)}">${getStatusLabel(project.status)}</span>
+                <span class="catalog-status ${escapeHtml(catalog.status)}">${getStatusLabel(catalog.status)}</span>
             </div>
-            <p class="project-description">${escapeHtml(project.description)}</p>
-            <div class="project-meta">
-                <div class="project-meta-item">
+            <p class="catalog-description">${escapeHtml(catalog.description)}</p>
+            <div class="catalog-meta">
+                <div class="catalog-meta-item">
                     ${icons.box}
-                    <span class="project-meta-value">${entityCount}</span> Entitäten
+                    <span class="catalog-meta-value">${entityCount}</span> Entitäten
                 </div>
-                <div class="project-meta-item">
-                    ${icons.table}
-                    <span class="project-meta-value">${tableCount}</span> Tabellen
+                <div class="catalog-meta-item">
+                    ${icons.database}
+                    <span class="catalog-meta-value">${tableCount}</span> Schemas
                 </div>
-                <div class="project-activity">
-                    Letzte Aktivität : ${escapeHtml(project.lastActivity || project.updated || project.created)}
+                <div class="catalog-activity">
+                    Letzte Aktivität : ${escapeHtml(catalog.lastActivity || catalog.updated || catalog.created)}
                 </div>
             </div>
         </div>
     `;
 }
 
-function selectProject(projectId) {
-    const project = data.projects.find(p => p.id === projectId);
-    if (project) {
-        state.currentProject = project;
-        state.selectedItem = project;
-        state.showProjectsOverview = false;
+function selectCatalog(catalogId) {
+    const catalog = data.catalogs.find(c => c.id === catalogId);
+    if (catalog) {
+        state.currentCatalog = catalog;
+        state.selectedItem = catalog;
+        state.showCatalogsOverview = false;
         updateLayoutForView();
-        navigateTo(`/project/${project.id}`);
+        navigateTo(`/catalog/${catalog.id}`);
     }
 }
 
@@ -1127,13 +1127,13 @@ function renderLayerOverview(layer) {
         },
         physical: {
             title: 'Physische Schicht',
-            subtitle: 'Datenbanksysteme und Tabellen, die Ihre Daten speichern.',
+            subtitle: 'Datenbanksysteme und Schemas, die Ihre Daten speichern.',
             color: 'var(--color-physical)',
-            items: [...data.systems, ...data.tables],
+            items: [...data.systems, ...data.schemas],
             kpis: [
                 { label: 'Systeme', value: data.systems.length },
-                { label: 'Tabellen', value: data.tables.length },
-                { label: 'Spalten', value: data.tables.reduce((sum, t) => sum + (t.columns?.length || 0), 0) }
+                { label: 'Schemas', value: data.schemas.length },
+                { label: 'Spalten', value: data.schemas.reduce((sum, s) => sum + (s.columns?.length || 0), 0) }
             ]
         }
     };
@@ -1184,13 +1184,13 @@ function renderStatisticsCard(item) {
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content">
-                <div class="project-stats-grid">
+                <div class="catalog-stats-grid">
                     ${kpis.map(kpi => `
-                        <div class="project-stat-item">
-                            <span class="project-stat-icon">${kpi.icon}</span>
-                            <div class="project-stat-content">
-                                <span class="project-stat-value">${kpi.value}</span>
-                                <span class="project-stat-label">${kpi.label}</span>
+                        <div class="catalog-stat-item">
+                            <span class="catalog-stat-icon">${kpi.icon}</span>
+                            <div class="catalog-stat-content">
+                                <span class="catalog-stat-value">${kpi.value}</span>
+                                <span class="catalog-stat-label">${kpi.label}</span>
                             </div>
                         </div>
                     `).join('')}
@@ -1214,17 +1214,16 @@ function getEntityKPIs(item) {
                 { label: 'Phys. Tabellen', value: physicalTables.length, icon: icons.table }
             ];
         case 'system':
-            const tablesInSystem = data.tables.filter(t => t.system === item.id);
-            const columnsInSystem = tablesInSystem.reduce((sum, t) => sum + (t.columns?.length || 0), 0);
+            const schemasInSystem = data.schemas.filter(s => s.system === item.id);
+            const columnsInSystem = schemasInSystem.reduce((sum, s) => sum + (s.columns?.length || 0), 0);
             return [
-                { label: 'Tabellen', value: tablesInSystem.length, icon: icons.table },
+                { label: 'Schemas', value: schemasInSystem.length, icon: icons.database },
                 { label: 'Spalten', value: columnsInSystem, icon: icons.hash }
             ];
-        case 'table':
+        case 'schema':
             const columns = item.columns || [];
             return [
-                { label: 'Spalten', value: columns.length, icon: icons.hash },
-                { label: 'Zeilen', value: item.rowCount?.toLocaleString() || 'â€”', icon: icons.database }
+                { label: 'Spalten', value: columns.length, icon: icons.hash }
             ];
         default:
             return [];
@@ -1236,23 +1235,23 @@ function renderContent() {
         const contentArea = getElement('contentArea');
         if (!contentArea) return;
 
-        // Show projects overview when on root route
-        if (state.showProjectsOverview) {
+        // Show catalogs overview when on root route
+        if (state.showCatalogsOverview) {
             renderBreadcrumb(null);
-            renderProjectsOverview();
+            renderCatalogsOverview();
             return;
         }
 
     // Show layer overview when layer is selected but no specific item
-    if (!state.selectedItem && !state.currentProject && state.currentLayer) {
+    if (!state.selectedItem && !state.currentCatalog && state.currentLayer) {
         renderBreadcrumb(null);
         renderLayerOverview(state.currentLayer);
         return;
     }
 
-    // If we have a project selected but no specific item, show the project detail
-    if (!state.selectedItem && state.currentProject) {
-        state.selectedItem = state.currentProject;
+    // If we have a catalog selected but no specific item, show the catalog detail
+    if (!state.selectedItem && state.currentCatalog) {
+        state.selectedItem = state.currentCatalog;
     }
 
     const item = state.selectedItem;
@@ -1273,8 +1272,8 @@ function renderContent() {
 
     const container = document.getElementById('contentBody');
 
-    // Project-specific view with Details, Users, Settings tabs
-    if (item.type === 'project') {
+    // Catalog-specific view with Details, Users, Settings tabs
+    if (item.type === 'catalog') {
         container.innerHTML = `
             <div class="entity-header">
                 <h1 class="entity-title">${escapeHtml(item.name)}</h1>
@@ -1282,16 +1281,16 @@ function renderContent() {
             </div>
 
             <div class="view-tabs" role="tablist">
-                <button class="view-tab ${state.projectView === 'details' ? 'active' : ''}" data-project-view="details" role="tab" aria-selected="${state.projectView === 'details'}">Details</button>
-                <button class="view-tab ${state.projectView === 'users' ? 'active' : ''}" data-project-view="users" role="tab" aria-selected="${state.projectView === 'users'}">Benutzer</button>
-                <button class="view-tab ${state.projectView === 'settings' ? 'active' : ''}" data-project-view="settings" role="tab" aria-selected="${state.projectView === 'settings'}">Einstellungen</button>
+                <button class="view-tab ${state.catalogView === 'details' ? 'active' : ''}" data-catalog-view="details" role="tab" aria-selected="${state.catalogView === 'details'}">Details</button>
+                <button class="view-tab ${state.catalogView === 'users' ? 'active' : ''}" data-catalog-view="users" role="tab" aria-selected="${state.catalogView === 'users'}">Benutzer</button>
+                <button class="view-tab ${state.catalogView === 'settings' ? 'active' : ''}" data-catalog-view="settings" role="tab" aria-selected="${state.catalogView === 'settings'}">Einstellungen</button>
             </div>
 
             <div class="view-content" role="tabpanel">
-                ${renderProjectTabContent(item)}
+                ${renderCatalogTabContent(item)}
             </div>
         `;
-        // Event delegation handles project tab listeners
+        // Event delegation handles catalog tab listeners
         return;
     }
 
@@ -1429,17 +1428,17 @@ function renderWikiView(item) {
         `;
     }
 
-    // Tables Panel (for systems only)
+    // Schemas Panel (for systems only)
     if (item.type === 'system') {
-        const systemTables = data.tables.filter(t => t.system === item.id);
+        const systemSchemas = data.schemas.filter(s => s.system === item.id);
         html += `
             <div class="card">
-                <div class="card-header" data-card="tables" aria-expanded="true">
-                    <span class="card-title">Tabellen (${systemTables.length})</span>
+                <div class="card-header" data-card="schemas" aria-expanded="true">
+                    <span class="card-title">Schemas (${systemSchemas.length})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
                 <div class="card-content" style="padding: 0;">
-                    ${systemTables.length > 0 ? `
+                    ${systemSchemas.length > 0 ? `
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -1449,16 +1448,16 @@ function renderWikiView(item) {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${systemTables.map(table => `
-                                    <tr class="clickable-row" data-id="${escapeHtml(table.id)}">
-                                        <td>${escapeHtml(table.name)}</td>
-                                        <td>${escapeHtml(table.description || '—')}</td>
-                                        <td>${table.columns?.length || 0}</td>
+                                ${systemSchemas.map(schema => `
+                                    <tr class="clickable-row" data-id="${escapeHtml(schema.id)}">
+                                        <td>${escapeHtml(schema.name)}</td>
+                                        <td>${escapeHtml(schema.description || '—')}</td>
+                                        <td>${schema.columns?.length || 0}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                         </table>
-                    ` : '<div class="empty-list-message">Keine Tabellen in diesem System</div>'}
+                    ` : '<div class="empty-list-message">Keine Schemas in diesem System</div>'}
                 </div>
             </div>
         `;
@@ -1735,27 +1734,27 @@ function renderMappingCard(item) {
     `;
 }
 
-// Project Tab Content Rendering
-function renderProjectTabContent(project) {
-    switch (state.projectView) {
+// Catalog Tab Content Rendering
+function renderCatalogTabContent(catalog) {
+    switch (state.catalogView) {
         case 'details':
-            return renderProjectDetailsTab(project);
+            return renderCatalogDetailsTab(catalog);
         case 'users':
-            return renderProjectUsersTab(project);
+            return renderCatalogMembersTab(catalog);
         case 'settings':
-            return renderProjectSettingsTab(project);
+            return renderCatalogSettingsTab(catalog);
         default:
-            return renderProjectDetailsTab(project);
+            return renderCatalogDetailsTab(catalog);
     }
 }
 
-function renderProjectDetailsTab(project) {
-    // Count entities in this project
-    const projectDomains = data.domains.filter(d => project.domains?.includes(d.id));
-    const projectConcepts = data.concepts.filter(c => projectDomains.some(d => c.domain === d.id));
-    const projectEntities = data.entities.filter(e => projectDomains.some(d => e.domain === d.id));
-    const projectSystems = data.systems || [];
-    const projectTables = data.tables || [];
+function renderCatalogDetailsTab(catalog) {
+    // Count entities in this catalog
+    const catalogDomains = data.domains.filter(d => catalog.domains?.includes(d.id));
+    const catalogConcepts = data.concepts.filter(c => catalogDomains.some(d => c.domain === d.id));
+    const catalogEntities = data.entities.filter(e => catalogDomains.some(d => e.domain === d.id));
+    const catalogSystems = data.systems || [];
+    const catalogSchemas = data.schemas || [];
 
     return `
         <div class="card">
@@ -1764,40 +1763,40 @@ function renderProjectDetailsTab(project) {
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content">
-                <div class="project-stats-grid">
-                    <div class="project-stat-item">
-                        <span class="project-stat-icon">${icons.folder}</span>
-                        <div class="project-stat-content">
-                            <span class="project-stat-value">${projectDomains.length}</span>
-                            <span class="project-stat-label">Domänen</span>
+                <div class="catalog-stats-grid">
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.folder}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogDomains.length}</span>
+                            <span class="catalog-stat-label">Domänen</span>
                         </div>
                     </div>
-                    <div class="project-stat-item">
-                        <span class="project-stat-icon">${icons.lightbulb}</span>
-                        <div class="project-stat-content">
-                            <span class="project-stat-value">${projectConcepts.length}</span>
-                            <span class="project-stat-label">Konzepte</span>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.lightbulb}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogConcepts.length}</span>
+                            <span class="catalog-stat-label">Konzepte</span>
                         </div>
                     </div>
-                    <div class="project-stat-item">
-                        <span class="project-stat-icon">${icons.cube}</span>
-                        <div class="project-stat-content">
-                            <span class="project-stat-value">${projectEntities.length}</span>
-                            <span class="project-stat-label">Entitäten</span>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.cube}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogEntities.length}</span>
+                            <span class="catalog-stat-label">Entitäten</span>
                         </div>
                     </div>
-                    <div class="project-stat-item">
-                        <span class="project-stat-icon">${icons.server}</span>
-                        <div class="project-stat-content">
-                            <span class="project-stat-value">${projectSystems.length}</span>
-                            <span class="project-stat-label">Systeme</span>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.server}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogSystems.length}</span>
+                            <span class="catalog-stat-label">Systeme</span>
                         </div>
                     </div>
-                    <div class="project-stat-item">
-                        <span class="project-stat-icon">${icons.table}</span>
-                        <div class="project-stat-content">
-                            <span class="project-stat-value">${projectTables.length}</span>
-                            <span class="project-stat-label">Tabellen</span>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.database}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogSchemas.length}</span>
+                            <span class="catalog-stat-label">Schemas</span>
                         </div>
                     </div>
                 </div>
@@ -1806,82 +1805,53 @@ function renderProjectDetailsTab(project) {
 
         <div class="card">
             <div class="card-header" data-card="overview" aria-expanded="true">
-                <span class="card-title">Projektübersicht</span>
+                <span class="card-title">Katalogübersicht</span>
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content">
                 <div class="meta-grid">
                     <span class="meta-label">Name (DE) :</span>
-                    <span class="meta-value">${escapeHtml(project.nameDE || project.name)}</span>
+                    <span class="meta-value">${escapeHtml(catalog.nameDE || catalog.name)}</span>
                     <span class="meta-label">Beschreibung :</span>
-                    <span class="meta-value">${escapeHtml(project.description || '—')}</span>
+                    <span class="meta-value">${escapeHtml(catalog.description || '—')}</span>
                     <span class="meta-label">Verantwortlich :</span>
-                    <span class="meta-value">${escapeHtml(project.owner || '—')}</span>
+                    <span class="meta-value">${escapeHtml(catalog.owner || '—')}</span>
                     <span class="meta-label">Erstellt :</span>
-                    <span class="meta-value">${escapeHtml(project.created || '—')}</span>
+                    <span class="meta-value">${escapeHtml(catalog.created || '—')}</span>
                     <span class="meta-label">Status :</span>
                     <span class="meta-value">
                         <span class="status-indicator">
-                            <span class="status-dot ${escapeHtml(project.status)}" aria-hidden="true"></span>
-                            ${getStatusLabel(project.status) || 'Unbekannt'}
+                            <span class="status-dot ${escapeHtml(catalog.status)}" aria-hidden="true"></span>
+                            ${getStatusLabel(catalog.status) || 'Unbekannt'}
                         </span>
                     </span>
                 </div>
             </div>
         </div>
-
-        <div class="card">
-            <div class="card-header" data-card="domains" aria-expanded="true">
-                <span class="card-title">Domänen (${projectDomains.length})</span>
-                <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
-            </div>
-            <div class="card-content" style="padding: 0;">
-                ${projectDomains.length > 0 ? `
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Beschreibung</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${projectDomains.map(domain => `
-                                <tr class="clickable-row" data-id="${escapeHtml(domain.id)}">
-                                    <td>${escapeHtml(domain.name)}</td>
-                                    <td>${escapeHtml(domain.description || '—')}</td>
-                                    <td><span class="tag">${getStatusLabel(domain.status || 'active')}</span></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                ` : '<div class="empty-list-message">Keine Domänen diesem Projekt zugewiesen</div>'}
-            </div>
-        </div>
     `;
 }
 
-function renderProjectUsersTab(project) {
-    const users = project.users || [];
+function renderCatalogMembersTab(catalog) {
+    const members = catalog.members || [];
     const roles = ['owner', 'steward', 'engineer', 'analyst', 'viewer'];
 
     return `
         <div class="card">
             <div class="card-header" data-card="team" aria-expanded="true">
-                <span class="card-title">Teammitglieder (${users.length})</span>
+                <span class="card-title">Teammitglieder (${members.length})</span>
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content" style="padding: 0;">
-                ${users.length > 0 ? `
-                    <div class="users-list">
-                        ${users.map(user => `
-                            <div class="user-item">
-                                <div class="user-avatar">${getUserAvatar(user.name)}</div>
-                                <div class="user-info">
-                                    <span class="user-name">${escapeHtml(user.name)}</span>
-                                    <span class="user-email text-secondary">${escapeHtml(user.email)}</span>
+                ${members.length > 0 ? `
+                    <div class="members-list">
+                        ${members.map(member => `
+                            <div class="member-item">
+                                <div class="member-avatar">${getUserAvatar(member.name)}</div>
+                                <div class="member-info">
+                                    <span class="member-name">${escapeHtml(member.name)}</span>
+                                    <span class="member-email text-secondary">${escapeHtml(member.email)}</span>
                                 </div>
-                                <span class="user-role badge badge-outline">${getRoleLabel(user.role)}</span>
+                                <span class="member-role badge badge-outline">${getRoleLabel(member.role)}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -1908,7 +1878,7 @@ function renderProjectUsersTab(project) {
     `;
 }
 
-function renderProjectSettingsTab(project) {
+function renderCatalogSettingsTab(catalog) {
     return `
         <div class="card">
             <div class="card-header" data-card="general" aria-expanded="true">
@@ -1918,12 +1888,12 @@ function renderProjectSettingsTab(project) {
             <div class="card-content">
                 <div class="settings-form">
                     <div class="setting-row">
-                        <label class="setting-label">Projektname :</label>
-                        <input type="text" class="setting-input" value="${escapeHtml(project.name)}" readonly />
+                        <label class="setting-label">Katalogname :</label>
+                        <input type="text" class="setting-input" value="${escapeHtml(catalog.name)}" readonly />
                     </div>
                     <div class="setting-row">
-                        <label class="setting-label">Projekt-ID :</label>
-                        <input type="text" class="setting-input" value="${escapeHtml(project.id)}" readonly />
+                        <label class="setting-label">Katalog-ID :</label>
+                        <input type="text" class="setting-input" value="${escapeHtml(catalog.id)}" readonly />
                     </div>
                     <div class="setting-row">
                         <label class="setting-label">Standardsprache :</label>
@@ -1996,15 +1966,15 @@ function renderProjectSettingsTab(project) {
                 <div class="danger-zone">
                     <div class="danger-item">
                         <div class="danger-info">
-                            <span class="danger-title">Projekt archivieren</span>
-                            <span class="danger-desc text-secondary">Dieses Projekt archivieren. Kann später wiederhergestellt werden.</span>
+                            <span class="danger-title">Katalog archivieren</span>
+                            <span class="danger-desc text-secondary">Dieses Katalog archivieren. Kann später wiederhergestellt werden.</span>
                         </div>
                         <button class="btn btn-outline-danger" disabled>Archivieren</button>
                     </div>
                     <div class="danger-item">
                         <div class="danger-info">
-                            <span class="danger-title">Projekt löschen</span>
-                            <span class="danger-desc text-secondary">Dieses Projekt und alle Daten dauerhaft löschen.</span>
+                            <span class="danger-title">Katalog löschen</span>
+                            <span class="danger-desc text-secondary">Diesen Katalog und alle Daten dauerhaft löschen.</span>
                         </div>
                         <button class="btn btn-danger" disabled>Löschen</button>
                     </div>
@@ -2014,10 +1984,10 @@ function renderProjectSettingsTab(project) {
     `;
 }
 
-function attachProjectTabListeners() {
-    document.querySelectorAll('[data-project-view]').forEach(tab => {
+function attachCatalogTabListeners() {
+    document.querySelectorAll('[data-catalog-view]').forEach(tab => {
         tab.addEventListener('click', () => {
-            state.projectView = tab.dataset.projectView;
+            state.catalogView = tab.dataset.catalogView;
             renderContent();
         });
     });
@@ -2034,7 +2004,7 @@ function attachProjectTabListeners() {
     });
 
     // Domain item click handler
-    document.querySelectorAll('.project-domain-item[data-id]').forEach(item => {
+    document.querySelectorAll('.catalog-domain-item[data-id]').forEach(item => {
         item.addEventListener('click', () => {
             const domain = findItemById(item.dataset.id);
             if (domain) {
@@ -2231,7 +2201,7 @@ function generateMermaidDiagram(item) {
         case 'physical':
             return item.type === 'system'
                 ? generateSystemDiagram(item)
-                : generateTableDiagram(item);
+                : generateSchemaDiagram(item);
         default:
             return 'graph TD\n    A[Kein Diagramm verfügbar]';
     }
@@ -2351,23 +2321,23 @@ function generateEntityDiagram(entity) {
     }
     code += '    }\n';
 
-    // Show physical table mappings with all columns (physical - will be colored orange)
-    if (entity.physicalTables && entity.physicalTables.length > 0) {
-        entity.physicalTables.forEach(tableId => {
-            const table = data.tables.find(t => t.id === tableId);
-            if (table) {
-                const system = data.systems.find(s => s.id === table.system);
+    // Show physical schema mappings with all columns (physical - will be colored orange)
+    if (entity.physicalSchemas && entity.physicalSchemas.length > 0) {
+        entity.physicalSchemas.forEach(schemaId => {
+            const schema = data.schemas.find(s => s.id === schemaId);
+            if (schema) {
+                const system = data.systems.find(s => s.id === schema.system);
                 const systemLabel = system ? system.name : '';
 
-                code += `    ${sanitizeMermaidId(table.name)} {\n`;
-                if (table.columns) {
-                    table.columns.forEach(col => {
+                code += `    ${sanitizeMermaidId(schema.name)} {\n`;
+                if (schema.columns) {
+                    schema.columns.forEach(col => {
                         const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
                         code += `        ${escapeHtml(col.type.split('(')[0])} ${escapeHtml(col.name)} ${keyMark}\n`;
                     });
                 }
                 code += '    }\n';
-                code += `    ${sanitizeMermaidId(entity.name)} ||--|| ${sanitizeMermaidId(table.name)} : "${escapeHtml(systemLabel)}"\n`;
+                code += `    ${sanitizeMermaidId(entity.name)} ||--|| ${sanitizeMermaidId(schema.name)} : "${escapeHtml(systemLabel)}"\n`;
             }
         });
     }
@@ -2376,20 +2346,20 @@ function generateEntityDiagram(entity) {
 }
 
 function generateSystemDiagram(system) {
-    // Get all tables for this system
-    const tables = data.tables.filter(t => t.system === system.id);
+    // Get all schemas for this system
+    const schemas = data.schemas.filter(s => s.system === system.id);
 
-    if (tables.length === 0) {
-        return `graph TD\n    S["${escapeHtml(system.name)}"]:::system\n    S --> N[Keine Tabellen]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419`;
+    if (schemas.length === 0) {
+        return `graph TD\n    S["${escapeHtml(system.name)}"]:::system\n    S --> N[Keine Schemas]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419`;
     }
 
     let code = 'erDiagram\n';
 
-    // Render each table with its columns (all physical - will be colored orange)
-    tables.forEach(table => {
-        code += `    ${sanitizeMermaidId(table.name)} {\n`;
-        if (table.columns) {
-            table.columns.forEach(col => {
+    // Render each schema with its columns (all physical - will be colored orange)
+    schemas.forEach(schema => {
+        code += `    ${sanitizeMermaidId(schema.name)} {\n`;
+        if (schema.columns) {
+            schema.columns.forEach(col => {
                 const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
                 const colType = col.type.split('(')[0]; // Remove size from type
                 code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)} ${keyMark}\n`;
@@ -2398,29 +2368,29 @@ function generateSystemDiagram(system) {
         code += '    }\n';
     });
 
-    // Add relationships between tables based on FK columns
-    tables.forEach(table => {
-        if (table.columns) {
-            table.columns.forEach(col => {
+    // Add relationships between schemas based on FK columns
+    schemas.forEach(schema => {
+        if (schema.columns) {
+            schema.columns.forEach(col => {
                 if (col.key === 'FK' && col.references) {
                     // If column has explicit reference, use it
-                    const refTable = tables.find(t => t.id === col.references || t.name === col.references);
-                    if (refTable) {
-                        code += `    ${sanitizeMermaidId(refTable.name)} ||--o{ ${sanitizeMermaidId(table.name)} : ""\n`;
+                    const refSchema = schemas.find(s => s.id === col.references || s.name === col.references);
+                    if (refSchema) {
+                        code += `    ${sanitizeMermaidId(refSchema.name)} ||--o{ ${sanitizeMermaidId(schema.name)} : ""\n`;
                     }
                 } else if (col.key === 'FK') {
                     // Try to infer relationship from column name
-                    tables.forEach(otherTable => {
-                        if (otherTable.id !== table.id) {
+                    schemas.forEach(otherSchema => {
+                        if (otherSchema.id !== schema.id) {
                             // Check if any PK column matches the FK column pattern
-                            const hasPKMatch = (otherTable.columns || []).some(otherCol =>
+                            const hasPKMatch = (otherSchema.columns || []).some(otherCol =>
                                 otherCol.key === 'PK' && (
                                     col.name.toLowerCase().includes(otherCol.name.toLowerCase()) ||
-                                    col.description?.toLowerCase().includes(otherTable.name.toLowerCase())
+                                    col.description?.toLowerCase().includes(otherSchema.name.toLowerCase())
                                 )
                             );
                             if (hasPKMatch) {
-                                code += `    ${sanitizeMermaidId(otherTable.name)} ||--o{ ${sanitizeMermaidId(table.name)} : ""\n`;
+                                code += `    ${sanitizeMermaidId(otherSchema.name)} ||--o{ ${sanitizeMermaidId(schema.name)} : ""\n`;
                             }
                         }
                     });
@@ -2432,34 +2402,20 @@ function generateSystemDiagram(system) {
     return code;
 }
 
-function generateTableDiagram(table) {
-    const logicalEntity = data.entities.find(e => e.id === table.logicalEntity);
-
+function generateSchemaDiagram(schema) {
     let code = 'erDiagram\n';
 
-    // Table with columns (physical - will be colored orange)
-    code += `    ${sanitizeMermaidId(table.name)} {\n`;
-    if (table.columns) {
-        table.columns.forEach(col => {
+    // Schema with columns (physical - will be colored orange)
+    code += `    ${sanitizeMermaidId(schema.name)} {\n`;
+    if (schema.columns) {
+        schema.columns.forEach(col => {
             const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
             const colType = col.type.split('(')[0]; // Remove size from type
-            code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)} ${keyMark}\n`;
+            const tableInfo = col.table ? ` [${col.table}]` : '';
+            code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)}${tableInfo} ${keyMark}\n`;
         });
     }
     code += '    }\n';
-
-    // Logical entity mapping (logical - will be colored green)
-    if (logicalEntity) {
-        code += `    ${sanitizeMermaidId(logicalEntity.name)} {\n`;
-        if (logicalEntity.attributes) {
-            logicalEntity.attributes.forEach(attr => {
-                const keyMark = attr.key === 'PK' ? 'PK' : (attr.key === 'FK' ? 'FK' : '');
-                code += `        ${escapeHtml(attr.type)} ${escapeHtml(attr.name)} ${keyMark}\n`;
-            });
-        }
-        code += '    }\n';
-        code += `    ${sanitizeMermaidId(table.name)} ||--|| ${sanitizeMermaidId(logicalEntity.name)} : "implements"\n`;
-    }
 
     return code;
 }
@@ -2565,12 +2521,12 @@ function renderAttributeBreadcrumb(attr, parentItem) {
     if (!breadcrumb) return;
 
     let html = '';
-    html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} Alle Projekte</span>`;
+    html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} Alle Kataloge</span>`;
     html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
 
-    // Add project name if available
-    if (state.currentProject) {
-        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentProject.id)}" tabindex="0">${escapeHtml(state.currentProject.name)}</span>`;
+    // Add catalog name if available
+    if (state.currentCatalog) {
+        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentCatalog.id)}" tabindex="0">${escapeHtml(state.currentCatalog.name)}</span>`;
         html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
     }
 
@@ -2654,10 +2610,10 @@ function attachTreeListeners() {
 
             // Handle column clicks - show column detail
             if (node.classList.contains('column-node')) {
-                const tableId = node.dataset.table;
+                const schemaId = node.dataset.schema;
                 const colName = node.dataset.colName;
-                if (tableId && colName) {
-                    const parentItem = findItemById(tableId);
+                if (schemaId && colName) {
+                    const parentItem = findItemById(schemaId);
                     if (parentItem) {
                         const cols = parentItem.columns || [];
                         const col = cols.find(c => c.name === colName);
@@ -2697,10 +2653,10 @@ function attachTreeListeners() {
                 }
                 // Handle column keydown - show column detail
                 if (node.classList.contains('column-node')) {
-                    const tableId = node.dataset.table;
+                    const schemaId = node.dataset.schema;
                     const colName = node.dataset.colName;
-                    if (tableId && colName) {
-                        const parentItem = findItemById(tableId);
+                    if (schemaId && colName) {
+                        const parentItem = findItemById(schemaId);
                         if (parentItem) {
                             const cols = parentItem.columns || [];
                             const col = cols.find(c => c.name === colName);
@@ -2857,7 +2813,7 @@ function setupDelegatedEvents() {
         // Breadcrumb home click
         const breadcrumbHome = target.closest('.breadcrumb-home');
         if (breadcrumbHome) {
-            goToProjectsOverview();
+            goToCatalogsOverview();
             return;
         }
 
@@ -2873,10 +2829,10 @@ function setupDelegatedEvents() {
             return;
         }
 
-        // Project card clicks
-        const projectCard = target.closest('.project-card');
-        if (projectCard) {
-            selectProject(projectCard.dataset.id);
+        // Catalog card clicks
+        const catalogCard = target.closest('.catalog-card');
+        if (catalogCard) {
+            selectCatalog(catalogCard.dataset.id);
             return;
         }
 
@@ -2919,8 +2875,8 @@ function setupDelegatedEvents() {
                 state.currentView = viewTab.dataset.view;
                 updateUrlWithTab(state.currentView);
                 renderContent();
-            } else if (viewTab.dataset.projectView) {
-                state.projectView = viewTab.dataset.projectView;
+            } else if (viewTab.dataset.catalogView) {
+                state.catalogView = viewTab.dataset.catalogView;
                 renderContent();
             }
             return;
@@ -2974,7 +2930,7 @@ function setupDelegatedEvents() {
         const breadcrumbHome = target.closest('.breadcrumb-home');
         if (breadcrumbHome && (e.key === 'Enter' || e.key === ' ')) {
             e.preventDefault();
-            goToProjectsOverview();
+            goToCatalogsOverview();
             return;
         }
 
@@ -3024,10 +2980,10 @@ function handleTreeNodeClick(e, node) {
 
     // Handle column clicks
     if (node.classList.contains('column-node')) {
-        const tableId = node.dataset.table;
+        const schemaId = node.dataset.schema;
         const colName = node.dataset.colName;
-        if (tableId && colName) {
-            const parentItem = findItemById(tableId);
+        if (schemaId && colName) {
+            const parentItem = findItemById(schemaId);
             if (parentItem) {
                 const cols = parentItem.columns || [];
                 const col = cols.find(c => c.name === colName);
@@ -3071,10 +3027,10 @@ function handleTreeNodeKeydown(e, node) {
 
         // Handle column keydown
         if (node.classList.contains('column-node')) {
-            const tableId = node.dataset.table;
+            const schemaId = node.dataset.schema;
             const colName = node.dataset.colName;
-            if (tableId && colName) {
-                const parentItem = findItemById(tableId);
+            if (schemaId && colName) {
+                const parentItem = findItemById(schemaId);
                 if (parentItem) {
                     const cols = parentItem.columns || [];
                     const col = cols.find(c => c.name === colName);
@@ -3314,9 +3270,9 @@ async function init() {
     window.addEventListener('hashchange', handleRoute);
     handleRoute();
 
-    // If no specific route, show projects overview (landing page)
-    if (!state.selectedItem && !state.currentProject) {
-        renderProjectsOverview();
+    // If no specific route, show catalogs overview (landing page)
+    if (!state.selectedItem && !state.currentCatalog) {
+        renderCatalogsOverview();
     }
 }
 
