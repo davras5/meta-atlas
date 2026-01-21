@@ -1609,14 +1609,24 @@
                     </div>
                     <div class="card-content" style="padding: 0;">
                         ${projectDomains.length > 0 ? `
-                            <div class="project-domains-list">
-                                ${projectDomains.map(d => `
-                                    <div class="project-domain-item" data-id="${d.id}">
-                                        <span class="domain-name">${d.name}</span>
-                                        <span class="domain-desc text-secondary">${d.description || ''}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Beschreibung</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${projectDomains.map(domain => `
+                                        <tr class="clickable-row" data-id="${domain.id}">
+                                            <td><strong>${domain.name}</strong></td>
+                                            <td>${domain.description || '—'}</td>
+                                            <td><span class="badge badge-outline">${getStatusLabel(domain.status || 'active')}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         ` : '<div class="empty-list-message">Keine Domänen diesem Projekt zugewiesen</div>'}
                     </div>
                 </div>
