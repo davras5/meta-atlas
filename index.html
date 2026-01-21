@@ -53,7 +53,8 @@
             collapseAll: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5-5 5 5"/><path d="m7 9 5 5 5-5"/></svg>',
             sortAsc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M11 12h4"/><path d="M11 16h7"/><path d="M11 20h10"/></svg>',
             sortDesc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/></svg>',
-            x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+            x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+            plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>'
         };
 
         // ========================================
@@ -921,10 +922,16 @@
             container.innerHTML = `
                 <div class="projects-overview">
                     <div class="projects-header">
-                        <h1 class="projects-title">Alle Projekte</h1>
+                        <div class="projects-header-top">
+                            <h1 class="projects-title">Alle Projekte</h1>
+                            <button class="btn-new-project" id="newProjectBtn">
+                                ${icons.plus}
+                                <span>Neues Projekt</span>
+                            </button>
+                        </div>
                         <p class="projects-subtitle">Erkunden Sie Metadatenkataloge Ihrer Organisation. Jedes Projekt enthält Domänen, Entitäten und physische Implementierungen.</p>
                     </div>
-                    <div class="projects-grid">
+                    <div class="projects-list">
                         ${data.projects.map(project => renderProjectCard(project)).join('')}
                     </div>
                 </div>
