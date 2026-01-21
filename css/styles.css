@@ -1609,6 +1609,29 @@ body {
     line-height: var(--leading-body);
 }
 
+.meta-value a.external-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.meta-value a.external-link:hover {
+    text-decoration: underline;
+}
+
+.link-icon {
+    display: inline-flex;
+    width: 14px;
+    height: 14px;
+}
+
+.link-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
 /* ===== Tags ===== */
 .tag {
     display: inline-block;

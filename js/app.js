@@ -666,7 +666,7 @@ function renderTree() {
     }
 
     // Show empty state if no results
-    if (!showConceptual && !showLogical && !showPhysical) {
+    if (!showLogical && !showPhysical) {
         html = `
             <div class="tree-empty-state">
                 <span class="tree-empty-icon">${icons.search}</span>
@@ -1342,7 +1342,7 @@ function renderWikiView(item) {
                     ` : ''}
                     ${item.termdatUrl ? `
                         <span class="meta-label">TERMDAT :</span>
-                        <span class="meta-value"><a href="${escapeHtml(item.termdatUrl)}" target="_blank" rel="noopener noreferrer" class="external-link">${icons.externalLink} Glossareintrag öffnen</a></span>
+                        <span class="meta-value"><a href="${escapeHtml(item.termdatUrl)}" target="_blank" rel="noopener noreferrer" class="external-link"><span class="link-icon">${icons.externalLink}</span> Glossareintrag öffnen</a></span>
                     ` : ''}
                     ${item.owner ? `
                         <span class="meta-label">Verantwortlich :</span>
@@ -2246,18 +2246,6 @@ function generateDomainDiagram(domain) {
             }
         });
     });
-
-    return code;
-                )
-            )
-        );
-
-        if (hasRelation) {
-            code += `    C <-.-> S${idx}\n`;
-        }
-    });
-
-    code += '    classDef current fill:#4F8EF7,stroke:#fff,color:#fff,stroke-width:3px\n';
 
     return code;
 }
