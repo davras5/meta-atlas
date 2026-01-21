@@ -11,10 +11,10 @@
     "descriptionEn": "Logical entity for federal building data",
     "descriptionFr": "Entité logique pour les données de bâtiments fédéraux",
     "descriptionIt": "Entità logica per i dati degli edifici federali",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/71304",
     "status": "active",
-    "concept": "con-gebaeude",
     "domain": "dom-immo",
-    "physicalTables": ["tbl-vibdbe", "tbl-geo-buildings"],
+    "physicalSchemas": ["sch-sap-refx", "sch-postgis-geo"],
     "created": "2024-01-20",
     "updated": "2025-01-10",
     "attributes": [
@@ -125,10 +125,10 @@
     "descriptionEn": "Logical entity for plot data",
     "descriptionFr": "Entité logique pour les données de bien-fonds",
     "descriptionIt": "Entità logica per i dati dei fondi",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/55892",
     "status": "active",
-    "concept": "con-grundstueck",
     "domain": "dom-immo",
-    "physicalTables": ["tbl-vibdgr"],
+    "physicalSchemas": ["sch-sap-refx"],
     "created": "2024-01-20",
     "updated": "2024-08-15",
     "attributes": [
@@ -187,10 +187,10 @@
     "descriptionEn": "Logical entity for rental units",
     "descriptionFr": "Entité logique pour les objets locatifs",
     "descriptionIt": "Entità logica per le unità in affitto",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/169458",
     "status": "active",
-    "concept": "con-mietobjekt",
     "domain": "dom-immo",
-    "physicalTables": ["tbl-viobj"],
+    "physicalSchemas": ["sch-sap-refx"],
     "created": "2024-02-05",
     "updated": "2024-06-20",
     "attributes": [
@@ -254,6 +254,291 @@
         "descriptionEn": "Monthly rent CHF",
         "descriptionFr": "Loyer mensuel CHF",
         "descriptionIt": "Affitto mensile CHF"
+      }
+    ]
+  },
+  {
+    "id": "ent-project",
+    "type": "entity",
+    "layer": "logical",
+    "name": "Project",
+    "nameDE": "Bauprojekt",
+    "nameFr": "Projet de construction",
+    "nameIt": "Progetto di costruzione",
+    "description": "Logische Entität für Bauprojekte",
+    "descriptionEn": "Logical entity for construction projects",
+    "descriptionFr": "Entité logique pour les projets de construction",
+    "descriptionIt": "Entità logica per i progetti di costruzione",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/84721",
+    "status": "active",
+    "domain": "dom-project",
+    "physicalSchemas": ["sch-sap-ps"],
+    "created": "2024-04-01",
+    "updated": "2025-01-15",
+    "attributes": [
+      {
+        "name": "project_id",
+        "type": "String",
+        "nullable": false,
+        "key": "PK",
+        "description": "Projekt-ID",
+        "descriptionEn": "Project ID",
+        "descriptionFr": "ID du projet",
+        "descriptionIt": "ID del progetto"
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "nullable": false,
+        "key": "",
+        "description": "Projektname",
+        "descriptionEn": "Project name",
+        "descriptionFr": "Nom du projet",
+        "descriptionIt": "Nome del progetto"
+      },
+      {
+        "name": "building_egid",
+        "type": "Integer",
+        "nullable": true,
+        "key": "FK",
+        "description": "Referenz zum Gebäude",
+        "descriptionEn": "Reference to building",
+        "descriptionFr": "Référence au bâtiment",
+        "descriptionIt": "Riferimento all'edificio"
+      },
+      {
+        "name": "phase",
+        "type": "Reference",
+        "nullable": false,
+        "key": "",
+        "valueDomain": "vd-project-phase",
+        "description": "Projektphase",
+        "descriptionEn": "Project phase",
+        "descriptionFr": "Phase du projet",
+        "descriptionIt": "Fase del progetto"
+      },
+      {
+        "name": "budget_chf",
+        "type": "Decimal",
+        "nullable": true,
+        "key": "",
+        "description": "Budget in CHF",
+        "descriptionEn": "Budget in CHF",
+        "descriptionFr": "Budget en CHF",
+        "descriptionIt": "Budget in CHF"
+      },
+      {
+        "name": "start_date",
+        "type": "Date",
+        "nullable": true,
+        "key": "",
+        "description": "Startdatum",
+        "descriptionEn": "Start date",
+        "descriptionFr": "Date de début",
+        "descriptionIt": "Data di inizio"
+      },
+      {
+        "name": "end_date",
+        "type": "Date",
+        "nullable": true,
+        "key": "",
+        "description": "Enddatum",
+        "descriptionEn": "End date",
+        "descriptionFr": "Date de fin",
+        "descriptionIt": "Data di fine"
+      }
+    ]
+  },
+  {
+    "id": "ent-cost-center",
+    "type": "entity",
+    "layer": "logical",
+    "name": "CostCenter",
+    "nameDE": "Kostenstelle",
+    "nameFr": "Centre de coûts",
+    "nameIt": "Centro di costo",
+    "description": "Logische Entität für Kostenstellen",
+    "descriptionEn": "Logical entity for cost centers",
+    "descriptionFr": "Entité logique pour les centres de coûts",
+    "descriptionIt": "Entità logica per i centri di costo",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/50285",
+    "status": "active",
+    "domain": "dom-project",
+    "physicalSchemas": ["sch-sap-ps"],
+    "created": "2024-04-15",
+    "updated": "2024-07-20",
+    "attributes": [
+      {
+        "name": "cost_center_id",
+        "type": "String",
+        "nullable": false,
+        "key": "PK",
+        "description": "Kostenstellen-ID",
+        "descriptionEn": "Cost center ID",
+        "descriptionFr": "ID du centre de coûts",
+        "descriptionIt": "ID del centro di costo"
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "nullable": false,
+        "key": "",
+        "description": "Bezeichnung",
+        "descriptionEn": "Name",
+        "descriptionFr": "Désignation",
+        "descriptionIt": "Denominazione"
+      },
+      {
+        "name": "responsible_person",
+        "type": "String",
+        "nullable": true,
+        "key": "",
+        "description": "Verantwortliche Person",
+        "descriptionEn": "Responsible person",
+        "descriptionFr": "Personne responsable",
+        "descriptionIt": "Persona responsabile"
+      },
+      {
+        "name": "budget_year",
+        "type": "Integer",
+        "nullable": false,
+        "key": "",
+        "description": "Budgetjahr",
+        "descriptionEn": "Budget year",
+        "descriptionFr": "Année budgétaire",
+        "descriptionIt": "Anno di bilancio"
+      }
+    ]
+  },
+  {
+    "id": "ent-location",
+    "type": "entity",
+    "layer": "logical",
+    "name": "Location",
+    "nameDE": "Standort",
+    "nameFr": "Emplacement",
+    "nameIt": "Posizione",
+    "description": "Logische Entität für geografische Standorte",
+    "descriptionEn": "Logical entity for geographic locations",
+    "descriptionFr": "Entité logique pour les emplacements géographiques",
+    "descriptionIt": "Entità logica per le posizioni geografiche",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/168735",
+    "status": "active",
+    "domain": "dom-geo",
+    "physicalSchemas": ["sch-postgis-geo"],
+    "created": "2024-03-15",
+    "updated": "2025-01-05",
+    "attributes": [
+      {
+        "name": "location_id",
+        "type": "Integer",
+        "nullable": false,
+        "key": "PK",
+        "description": "Standort-ID",
+        "descriptionEn": "Location ID",
+        "descriptionFr": "ID de l'emplacement",
+        "descriptionIt": "ID della posizione"
+      },
+      {
+        "name": "coord_e",
+        "type": "Decimal",
+        "nullable": false,
+        "key": "",
+        "description": "Koordinate Ost (E)",
+        "descriptionEn": "Easting coordinate (E)",
+        "descriptionFr": "Coordonnée Est (E)",
+        "descriptionIt": "Coordinata Est (E)"
+      },
+      {
+        "name": "coord_n",
+        "type": "Decimal",
+        "nullable": false,
+        "key": "",
+        "description": "Koordinate Nord (N)",
+        "descriptionEn": "Northing coordinate (N)",
+        "descriptionFr": "Coordonnée Nord (N)",
+        "descriptionIt": "Coordinata Nord (N)"
+      },
+      {
+        "name": "elevation",
+        "type": "Decimal",
+        "nullable": true,
+        "key": "",
+        "description": "Höhe über Meer (m)",
+        "descriptionEn": "Elevation above sea level (m)",
+        "descriptionFr": "Altitude (m)",
+        "descriptionIt": "Altitudine (m)"
+      }
+    ]
+  },
+  {
+    "id": "ent-address",
+    "type": "entity",
+    "layer": "logical",
+    "name": "Address",
+    "nameDE": "Adresse",
+    "nameFr": "Adresse",
+    "nameIt": "Indirizzo",
+    "description": "Logische Entität für postalische Adressen",
+    "descriptionEn": "Logical entity for postal addresses",
+    "descriptionFr": "Entité logique pour les adresses postales",
+    "descriptionIt": "Entità logica per gli indirizzi postali",
+    "termdatUrl": "https://www.termdat.bk.admin.ch/entry/52116",
+    "status": "active",
+    "domain": "dom-geo",
+    "physicalSchemas": ["sch-postgis-geo"],
+    "created": "2024-03-20",
+    "updated": "2025-01-05",
+    "attributes": [
+      {
+        "name": "address_id",
+        "type": "Integer",
+        "nullable": false,
+        "key": "PK",
+        "description": "Adress-ID",
+        "descriptionEn": "Address ID",
+        "descriptionFr": "ID de l'adresse",
+        "descriptionIt": "ID dell'indirizzo"
+      },
+      {
+        "name": "street",
+        "type": "String",
+        "nullable": false,
+        "key": "",
+        "description": "Strasse",
+        "descriptionEn": "Street",
+        "descriptionFr": "Rue",
+        "descriptionIt": "Via"
+      },
+      {
+        "name": "house_number",
+        "type": "String",
+        "nullable": true,
+        "key": "",
+        "description": "Hausnummer",
+        "descriptionEn": "House number",
+        "descriptionFr": "Numéro de maison",
+        "descriptionIt": "Numero civico"
+      },
+      {
+        "name": "postal_code",
+        "type": "String",
+        "nullable": false,
+        "key": "",
+        "description": "Postleitzahl",
+        "descriptionEn": "Postal code",
+        "descriptionFr": "Code postal",
+        "descriptionIt": "Codice postale"
+      },
+      {
+        "name": "city",
+        "type": "String",
+        "nullable": false,
+        "key": "",
+        "description": "Ort",
+        "descriptionEn": "City",
+        "descriptionFr": "Localité",
+        "descriptionIt": "Località"
       }
     ]
   }

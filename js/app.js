@@ -34,7 +34,11 @@ const icons = {
     logIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>',
     github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>',
     code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>'
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>',
+    tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>',
+    history: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>',
+    externalLink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>'
 };
 
 // ========================================
@@ -99,7 +103,6 @@ function toggleClass(elementOrId, className, force) {
 const data = {
     catalogs: [],
     domains: [],
-    concepts: [],
     entities: [],
     systems: [],
     schemas: [],
@@ -108,10 +111,9 @@ const data = {
 
 async function loadData() {
     try {
-        const [catalogs, domains, concepts, entities, systems, schemas, valueDomains] = await Promise.all([
+        const [catalogs, domains, entities, systems, schemas, valueDomains] = await Promise.all([
             fetch('data/catalogs.json').then(r => r.json()),
             fetch('data/domains.json').then(r => r.json()),
-            fetch('data/concepts.json').then(r => r.json()),
             fetch('data/entities.json').then(r => r.json()),
             fetch('data/systems.json').then(r => r.json()),
             fetch('data/schemas.json').then(r => r.json()),
@@ -120,7 +122,6 @@ async function loadData() {
 
         data.catalogs = catalogs;
         data.domains = domains;
-        data.concepts = concepts;
         data.entities = entities;
         data.systems = systems;
         data.schemas = schemas;
@@ -138,13 +139,13 @@ async function loadData() {
 // ========================================
 let state = {
     currentCatalog: null,
-    currentLayer: 'conceptual',
+    currentLayer: 'logical',
     currentView: 'wiki',
     catalogView: 'details',
     selectedItem: null,
     selectedAttribute: null,
     expandedNodes: new Set(['dom-immo', 'sys-sap']),
-    expandedLayers: new Set(['conceptual', 'logical', 'physical']),
+    expandedLayers: new Set(['logical', 'physical']),
     theme: 'light',
     sidebarCollapsed: false,
     searchQuery: '',
@@ -188,22 +189,22 @@ function handleRoute() {
 
     if (parts.length === 0) {
         // Default route - show catalogs overview
-        state.currentLayer = 'conceptual';
+        state.currentLayer = 'logical';
         state.selectedItem = null;
         state.currentCatalog = null;
         state.showCatalogsOverview = true;
     } else if (parts.length === 1) {
-        // Layer route: /conceptual, /logical, /physical
-        if (['conceptual', 'logical', 'physical'].includes(parts[0])) {
+        // Layer route: /logical, /physical
+        if (['logical', 'physical'].includes(parts[0])) {
             state.currentLayer = parts[0];
             state.selectedItem = null;
             state.showCatalogsOverview = false;
         }
     } else if (parts.length >= 2) {
-        // Entity route: /conceptual/domain/dom-immo or /catalog/proj-id
+        // Entity route: /logical/domain/dom-immo or /catalog/proj-id
         const [layer, type, id] = parts;
         state.showCatalogsOverview = false;
-        if (['conceptual', 'logical', 'physical'].includes(layer)) {
+        if (['logical', 'physical'].includes(layer)) {
             state.currentLayer = layer;
             if (id) {
                 const item = findItemById(id);
@@ -246,9 +247,6 @@ function findItemById(id) {
     for (const domain of data.domains) {
         if (domain.id === id) return domain;
     }
-    for (const concept of data.concepts) {
-        if (concept.id === id) return concept;
-    }
     for (const entity of data.entities) {
         if (entity.id === id) return entity;
     }
@@ -261,8 +259,8 @@ function findItemById(id) {
     return null;
 }
 
-function getConceptsForDomain(domainId) {
-    return data.concepts.filter(c => c.domain === domainId);
+function getEntitiesForDomain(domainId) {
+    return data.entities.filter(e => e.domain === domainId);
 }
 
 function getSchemasForSystem(systemId) {
@@ -271,8 +269,8 @@ function getSchemasForSystem(systemId) {
 
 function getParentChain(item) {
     const chain = [];
-    if (item.layer === 'conceptual') {
-        if (item.type === 'concept') {
+    if (item.layer === 'logical') {
+        if (item.type === 'entity') {
             const domain = data.domains.find(d => d.id === item.domain);
             if (domain) chain.push(domain);
         }
@@ -289,7 +287,6 @@ function getTypeLabel(type) {
     const labels = {
         catalog: 'Katalog',
         domain: 'Domäne',
-        concept: 'Konzept',
         entity: 'Logische Entität',
         system: 'System',
         schema: 'Schema'
@@ -299,7 +296,6 @@ function getTypeLabel(type) {
 
 function getLayerLabel(layer) {
     const labels = {
-        conceptual: 'Konzeptuell',
         logical: 'Logisch',
         physical: 'Physisch'
     };
@@ -347,7 +343,6 @@ function getTypeIcon(type) {
     const iconMap = {
         catalog: 'K',
         domain: 'D',
-        concept: 'C',
         entity: 'E',
         system: 'S',
         schema: 'S'
@@ -358,7 +353,6 @@ function getTypeIcon(type) {
 function getTreeIcon(type) {
     const iconMap = {
         domain: icons.folder,
-        concept: icons.lightbulb,
         entity: icons.cube,
         system: icons.server,
         schema: icons.database
@@ -399,7 +393,6 @@ function getAllItems() {
     return [
         ...data.catalogs,
         ...data.domains,
-        ...data.concepts,
         ...data.entities,
         ...data.systems,
         ...data.schemas
@@ -619,38 +612,12 @@ function renderTree() {
     const filteredEntities = sortItems(filterItems(data.entities, query), sortType);
     const filteredSystems = sortItems(filterItems(data.systems, query), sortType);
 
-    // Also filter concepts and schemas if searching
-    const hasConceptualMatches = filteredDomains.length > 0 ||
-        (query && data.concepts.some(c => c.name.toLowerCase().includes(query)));
-    const hasLogicalMatches = filteredEntities.length > 0;
+    // Also filter schemas if searching
+    const hasLogicalMatches = filteredDomains.length > 0 || filteredEntities.length > 0;
     const hasPhysicalMatches = filteredSystems.length > 0 ||
         (query && data.schemas.some(s => s.name.toLowerCase().includes(query)));
 
-    // Conceptual Layer Section
-    const isConceptualExpanded = state.expandedLayers.has('conceptual');
-    const showConceptual = !query || hasConceptualMatches;
-    if (showConceptual) {
-        html += `
-            <div class="layer-section">
-                <div class="layer-section-header conceptual ${!isConceptualExpanded ? 'collapsed' : ''}" data-layer="conceptual">
-                    <span class="layer-toggle">${icons.chevronDown}</span>
-                    <span>Konzeptuell</span>
-                </div>
-                <div class="layer-section-content ${!isConceptualExpanded ? 'collapsed' : ''}">
-        `;
-        for (const domain of filteredDomains) {
-            let concepts = getConceptsForDomain(domain.id);
-            if (query) {
-                concepts = sortItems(filterItems(concepts, query), sortType);
-            } else {
-                concepts = sortItems(concepts, sortType);
-            }
-            html += renderTreeItem(domain, concepts);
-        }
-        html += `</div></div>`;
-    }
-
-    // Logical Layer Section
+    // Logical Layer Section (Domains → Entities)
     const isLogicalExpanded = state.expandedLayers.has('logical');
     const showLogical = !query || hasLogicalMatches;
     if (showLogical) {
@@ -662,8 +629,14 @@ function renderTree() {
                 </div>
                 <div class="layer-section-content ${!isLogicalExpanded ? 'collapsed' : ''}">
         `;
-        for (const entity of filteredEntities) {
-            html += renderTreeEntityWithAttributes(entity);
+        for (const domain of filteredDomains) {
+            let entities = getEntitiesForDomain(domain.id);
+            if (query) {
+                entities = sortItems(filterItems(entities, query), sortType);
+            } else {
+                entities = sortItems(entities, sortType);
+            }
+            html += renderTreeItem(domain, entities);
         }
         html += `</div></div>`;
     }
@@ -1103,26 +1076,16 @@ function renderLayerOverview(layer) {
     if (!contentArea) return;
 
     const layerConfig = {
-        conceptual: {
-            title: 'Konzeptuelle Schicht',
-            subtitle: 'Geschäftsdomänen und Konzepte, die das Datenvokabular Ihrer Organisation definieren.',
-            color: 'var(--color-conceptual)',
-            items: [...data.domains, ...data.concepts],
-            kpis: [
-                { label: 'Domänen', value: data.domains.length },
-                { label: 'Konzepte', value: data.concepts.length },
-                { label: 'Aktiv', value: [...data.domains, ...data.concepts].filter(i => i.status === 'active').length }
-            ]
-        },
         logical: {
             title: 'Logische Schicht',
-            subtitle: 'Technologieunabhängige Datenstrukturen und ihre Beziehungen.',
+            subtitle: 'Geschäftsdomänen und technologieunabhängige Datenstrukturen.',
             color: 'var(--color-logical)',
-            items: data.entities,
+            items: [...data.domains, ...data.entities],
             kpis: [
+                { label: 'Domänen', value: data.domains.length },
                 { label: 'Entitäten', value: data.entities.length },
                 { label: 'Attribute', value: data.entities.reduce((sum, e) => sum + (e.attributes?.length || 0), 0) },
-                { label: 'Aktiv', value: data.entities.filter(i => i.status === 'active').length }
+                { label: 'Aktiv', value: [...data.domains, ...data.entities].filter(i => i.status === 'active').length }
             ]
         },
         physical: {
@@ -1204,8 +1167,6 @@ function getEntityKPIs(item) {
     switch (item.type) {
         case 'domain':
             return []; // No KPI cards for domains
-        case 'concept':
-            return []; // No KPI cards for concepts
         case 'entity':
             const attributes = item.attributes || [];
             const physicalTables = item.physicalTables || [];
@@ -1357,11 +1318,31 @@ function renderWikiView(item) {
                         <span class="meta-label">Name (FR) :</span>
                         <span class="meta-value">${escapeHtml(item.nameFr)}</span>
                     ` : ''}
-                    <span class="meta-label">Beschreibung :</span>
+                    ${item.nameIt ? `
+                        <span class="meta-label">Name (IT) :</span>
+                        <span class="meta-value">${escapeHtml(item.nameIt)}</span>
+                    ` : ''}
+                    <span class="meta-label">Beschreibung (DE) :</span>
                     <span class="meta-value">${escapeHtml(item.description || '—')}</span>
+                    ${item.descriptionEn ? `
+                        <span class="meta-label">Description (EN) :</span>
+                        <span class="meta-value">${escapeHtml(item.descriptionEn)}</span>
+                    ` : ''}
+                    ${item.descriptionFr ? `
+                        <span class="meta-label">Description (FR) :</span>
+                        <span class="meta-value">${escapeHtml(item.descriptionFr)}</span>
+                    ` : ''}
+                    ${item.descriptionIt ? `
+                        <span class="meta-label">Descrizione (IT) :</span>
+                        <span class="meta-value">${escapeHtml(item.descriptionIt)}</span>
+                    ` : ''}
                     ${item.synonyms ? `
                         <span class="meta-label">Synonyme :</span>
                         <span class="meta-value">${item.synonyms.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join('')}</span>
+                    ` : ''}
+                    ${item.termdatUrl ? `
+                        <span class="meta-label">TERMDAT :</span>
+                        <span class="meta-value"><a href="${escapeHtml(item.termdatUrl)}" target="_blank" rel="noopener noreferrer" class="external-link">${icons.externalLink} Glossareintrag öffnen</a></span>
                     ` : ''}
                     ${item.owner ? `
                         <span class="meta-label">Verantwortlich :</span>
@@ -1395,15 +1376,15 @@ function renderWikiView(item) {
 
     // Concepts Panel (for domains only)
     if (item.type === 'domain') {
-        const domainConcepts = data.concepts.filter(c => c.domain === item.id);
+        const domainEntities = data.entities.filter(e => e.domain === item.id);
         html += `
             <div class="card">
-                <div class="card-header" data-card="concepts" aria-expanded="true">
-                    <span class="card-title">Konzepte (${domainConcepts.length})</span>
+                <div class="card-header" data-card="entities" aria-expanded="true">
+                    <span class="card-title">Logische Entitäten (${domainEntities.length})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
                 <div class="card-content" style="padding: 0;">
-                    ${domainConcepts.length > 0 ? `
+                    ${domainEntities.length > 0 ? `
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -1413,16 +1394,16 @@ function renderWikiView(item) {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${domainConcepts.map(concept => `
-                                    <tr class="clickable-row" data-id="${escapeHtml(concept.id)}">
-                                        <td>${escapeHtml(concept.name)}</td>
-                                        <td>${escapeHtml(concept.description || '—')}</td>
-                                        <td><span class="tag">${getStatusLabel(concept.status || 'active')}</span></td>
+                                ${domainEntities.map(entity => `
+                                    <tr class="clickable-row" data-id="${escapeHtml(entity.id)}">
+                                        <td>${escapeHtml(entity.name)}</td>
+                                        <td>${escapeHtml(entity.description || '—')}</td>
+                                        <td><span class="tag">${getStatusLabel(entity.status || 'active')}</span></td>
                                     </tr>
                                 `).join('')}
                             </tbody>
                         </table>
-                    ` : '<div class="empty-list-message">Keine Konzepte in dieser Domäne</div>'}
+                    ` : '<div class="empty-list-message">Keine Entitäten in dieser Domäne</div>'}
                 </div>
             </div>
         `;
@@ -1569,8 +1550,20 @@ function renderAttributeDetailView(attr, parentItem) {
                     <span class="meta-label">Name :</span>
                     <span class="meta-value">${escapeHtml(attr.name)}</span>
 
-                    <span class="meta-label">Beschreibung :</span>
+                    <span class="meta-label">Beschreibung (DE) :</span>
                     <span class="meta-value">${escapeHtml(attr.description || '—')}</span>
+                    ${attr.descriptionEn ? `
+                        <span class="meta-label">Description (EN) :</span>
+                        <span class="meta-value">${escapeHtml(attr.descriptionEn)}</span>
+                    ` : ''}
+                    ${attr.descriptionFr ? `
+                        <span class="meta-label">Description (FR) :</span>
+                        <span class="meta-value">${escapeHtml(attr.descriptionFr)}</span>
+                    ` : ''}
+                    ${attr.descriptionIt ? `
+                        <span class="meta-label">Descrizione (IT) :</span>
+                        <span class="meta-value">${escapeHtml(attr.descriptionIt)}</span>
+                    ` : ''}
 
                     <span class="meta-label">Datentyp :</span>
                     <span class="meta-value">${escapeHtml(attr.type)}</span>
@@ -1655,40 +1648,30 @@ function renderAttributeDetailView(attr, parentItem) {
 }
 
 function renderMappingsPanel(item) {
-    const mappings = { conceptual: [], logical: [], physical: [] };
+    const mappings = { logical: [], physical: [] };
 
-    if (item.type === 'concept') {
-        const entities = data.entities.filter(e => e.concept === item.id);
+    if (item.type === 'domain') {
+        const entities = data.entities.filter(e => e.domain === item.id);
         mappings.logical = entities;
-        entities.forEach(e => {
-            e.physicalTables?.forEach(tId => {
-                const table = findItemById(tId);
-                if (table) mappings.physical.push(table);
-            });
-        });
     } else if (item.type === 'entity') {
-        if (item.concept) {
-            const concept = findItemById(item.concept);
-            if (concept) mappings.conceptual.push(concept);
+        // Get parent domain
+        if (item.domain) {
+            const domain = findItemById(item.domain);
+            if (domain) mappings.logical.push(domain);
         }
         item.physicalTables?.forEach(tId => {
             const table = findItemById(tId);
             if (table) mappings.physical.push(table);
         });
-    } else if (item.type === 'table') {
-        if (item.logicalEntity) {
-            const entity = findItemById(item.logicalEntity);
-            if (entity) {
-                mappings.logical.push(entity);
-                if (entity.concept) {
-                    const concept = findItemById(entity.concept);
-                    if (concept) mappings.conceptual.push(concept);
-                }
-            }
-        }
+    } else if (item.type === 'schema') {
+        // Get entities that map to this schema
+        const mappedEntities = data.entities.filter(e =>
+            e.physicalTables?.includes(item.id)
+        );
+        mappings.logical = mappedEntities;
     }
 
-    const hasMappings = mappings.conceptual.length || mappings.logical.length || mappings.physical.length;
+    const hasMappings = mappings.logical.length || mappings.physical.length;
     if (!hasMappings) return '';
 
     return `
@@ -1698,12 +1681,6 @@ function renderMappingsPanel(item) {
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content">
-                ${mappings.conceptual.length ? `
-                    <div class="mapping-section">
-                        <div class="mapping-section-header">Konzeptuelle Schicht</div>
-                        ${mappings.conceptual.map(m => renderMappingCard(m)).join('')}
-                    </div>
-                ` : ''}
                 ${mappings.logical.length ? `
                     <div class="mapping-section">
                         <div class="mapping-section-header">Logische Schicht</div>
@@ -1749,12 +1726,17 @@ function renderCatalogTabContent(catalog) {
 }
 
 function renderCatalogDetailsTab(catalog) {
-    // Count entities in this catalog
-    const catalogDomains = data.domains.filter(d => catalog.domains?.includes(d.id));
-    const catalogConcepts = data.concepts.filter(c => catalogDomains.some(d => c.domain === d.id));
-    const catalogEntities = data.entities.filter(e => catalogDomains.some(d => e.domain === d.id));
+    // Count all entities (simplified for prototype)
+    const catalogDomains = data.domains || [];
+    const catalogEntities = data.entities || [];
     const catalogSystems = data.systems || [];
     const catalogSchemas = data.schemas || [];
+    const catalogValueDomains = data.valueDomains || [];
+    const catalogVersions = data.versions || [];
+
+    // Count attributes (from entities) and columns (from schemas)
+    const totalAttributes = catalogEntities.reduce((sum, e) => sum + (e.attributes?.length || 0), 0);
+    const totalColumns = catalogSchemas.reduce((sum, s) => sum + (s.columns?.length || 0), 0);
 
     return `
         <div class="card">
@@ -1772,17 +1754,24 @@ function renderCatalogDetailsTab(catalog) {
                         </div>
                     </div>
                     <div class="catalog-stat-item">
-                        <span class="catalog-stat-icon">${icons.lightbulb}</span>
-                        <div class="catalog-stat-content">
-                            <span class="catalog-stat-value">${catalogConcepts.length}</span>
-                            <span class="catalog-stat-label">Konzepte</span>
-                        </div>
-                    </div>
-                    <div class="catalog-stat-item">
                         <span class="catalog-stat-icon">${icons.cube}</span>
                         <div class="catalog-stat-content">
                             <span class="catalog-stat-value">${catalogEntities.length}</span>
                             <span class="catalog-stat-label">Entitäten</span>
+                        </div>
+                    </div>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.list}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${totalAttributes}</span>
+                            <span class="catalog-stat-label">Attribute</span>
+                        </div>
+                    </div>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.tag}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogValueDomains.length}</span>
+                            <span class="catalog-stat-label">Wertedomänen</span>
                         </div>
                     </div>
                     <div class="catalog-stat-item">
@@ -1797,6 +1786,20 @@ function renderCatalogDetailsTab(catalog) {
                         <div class="catalog-stat-content">
                             <span class="catalog-stat-value">${catalogSchemas.length}</span>
                             <span class="catalog-stat-label">Schemas</span>
+                        </div>
+                    </div>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.table}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${totalColumns}</span>
+                            <span class="catalog-stat-label">Spalten</span>
+                        </div>
+                    </div>
+                    <div class="catalog-stat-item">
+                        <span class="catalog-stat-icon">${icons.history}</span>
+                        <div class="catalog-stat-content">
+                            <span class="catalog-stat-value">${catalogVersions.length}</span>
+                            <span class="catalog-stat-label">Versionen</span>
                         </div>
                     </div>
                 </div>
@@ -2164,10 +2167,8 @@ function applyErDiagramColors(container, layer, type, isDark) {
 
 function getDiagramTitle(item) {
     switch (item.layer) {
-        case 'conceptual':
-            return item.type === 'domain' ? 'Domänenstruktur' : 'Konzeptzuordnungen';
         case 'logical':
-            return 'Entity-Relationship-Diagramm';
+            return item.type === 'domain' ? 'Domänenstruktur' : 'Entity-Relationship-Diagramm';
         case 'physical':
             return 'Tabellen- und Spaltenzuordnungen';
         default:
@@ -2177,12 +2178,10 @@ function getDiagramTitle(item) {
 
 function getDiagramSubtitle(item) {
     switch (item.layer) {
-        case 'conceptual':
-            return item.type === 'domain'
-                ? 'Übersicht der Konzepte und ihrer logischen Entitäten'
-                : 'Verknüpfung mit logischen und physischen Schichten';
         case 'logical':
-            return 'Beziehungen zwischen Entitäten und Zuordnung zu physischen Tabellen';
+            return item.type === 'domain'
+                ? 'Übersicht der Entitäten in dieser Domäne'
+                : 'Beziehungen zwischen Entitäten und Zuordnung zu physischen Tabellen';
         case 'physical':
             return 'Spaltenstruktur und Zuordnung zu logischen Attributen';
         default:
@@ -2192,12 +2191,10 @@ function getDiagramSubtitle(item) {
 
 function generateMermaidDiagram(item) {
     switch (item.layer) {
-        case 'conceptual':
+        case 'logical':
             return item.type === 'domain'
                 ? generateDomainDiagram(item)
-                : generateConceptDiagram(item);
-        case 'logical':
-            return generateEntityDiagram(item);
+                : generateEntityDiagram(item);
         case 'physical':
             return item.type === 'system'
                 ? generateSystemDiagram(item)
@@ -2208,92 +2205,49 @@ function generateMermaidDiagram(item) {
 }
 
 function generateDomainDiagram(domain) {
-    const concepts = getConceptsForDomain(domain.id);
-    if (concepts.length === 0) {
-        return `graph TD\n    subgraph D["${escapeHtml(domain.name)}"]\n        N[Keine Konzepte]\n    end`;
+    const entities = getEntitiesForDomain(domain.id);
+    if (entities.length === 0) {
+        return `graph TD\n    subgraph D["${escapeHtml(domain.name)}"]\n        N[Keine Entitäten]\n    end`;
     }
 
     let code = 'graph TB\n';
 
-    // Domain as subgraph containing concepts
+    // Domain as subgraph containing entities
     code += `    subgraph D["${escapeHtml(domain.name)}"]\n`;
     code += `        direction TB\n`;
 
-    // Concept nodes inside domain
-    concepts.forEach((concept, idx) => {
-        code += `        C${idx}["${escapeHtml(concept.name)}"]\n`;
+    // Entity nodes inside domain
+    entities.forEach((entity, idx) => {
+        code += `        E${idx}["${escapeHtml(entity.name)}"]\n`;
     });
 
     code += '    end\n';
 
-    // Find relations between concepts (concepts that share entities or have related domains)
-    concepts.forEach((concept, idx) => {
-        concepts.forEach((otherConcept, otherIdx) => {
+    // Find relations between entities
+    entities.forEach((entity, idx) => {
+        entities.forEach((otherEntity, otherIdx) => {
             if (idx < otherIdx) {
-                // Check if concepts are related (e.g., entities reference each other)
-                const entities = data.entities.filter(e => e.concept === concept.id);
-                const otherEntities = data.entities.filter(e => e.concept === otherConcept.id);
-
-                const hasRelation = entities.some(e =>
-                    (e.attributes || []).some(attr =>
-                        attr.key === 'FK' && otherEntities.some(oe =>
-                            attr.description?.toLowerCase().includes(oe.name.toLowerCase()) ||
-                            attr.name.toLowerCase().includes(oe.name.toLowerCase())
-                        )
+                // Check if entities are related via FK attributes
+                const hasRelation = (entity.attributes || []).some(attr =>
+                    attr.key === 'FK' && (
+                        attr.description?.toLowerCase().includes(otherEntity.name.toLowerCase()) ||
+                        attr.name.toLowerCase().includes(otherEntity.name.toLowerCase())
+                    )
+                ) || (otherEntity.attributes || []).some(attr =>
+                    attr.key === 'FK' && (
+                        attr.description?.toLowerCase().includes(entity.name.toLowerCase()) ||
+                        attr.name.toLowerCase().includes(entity.name.toLowerCase())
                     )
                 );
 
                 if (hasRelation) {
-                    code += `    C${idx} <-.-> C${otherIdx}\n`;
+                    code += `    E${idx} <-.-> E${otherIdx}\n`;
                 }
             }
         });
     });
 
     return code;
-}
-
-function generateConceptDiagram(concept) {
-    const domain = data.domains.find(d => d.id === concept.domain);
-    const siblingConcepts = domain ? getConceptsForDomain(domain.id).filter(c => c.id !== concept.id) : [];
-
-    let code = 'graph TB\n';
-
-    // Domain as subgraph containing concepts
-    if (domain) {
-        code += `    subgraph D["${escapeHtml(domain.name)}"]\n`;
-        code += `        direction TB\n`;
-    }
-
-    // Current concept node (highlighted)
-    code += `        C["${escapeHtml(concept.name)}"]:::current\n`;
-
-    // Sibling concepts in same domain
-    siblingConcepts.forEach((sibling, idx) => {
-        code += `        S${idx}["${escapeHtml(sibling.name)}"]\n`;
-    });
-
-    if (domain) {
-        code += '    end\n';
-    }
-
-    // Relations between concepts
-    siblingConcepts.forEach((sibling, idx) => {
-        const entities = data.entities.filter(e => e.concept === concept.id);
-        const siblingEntities = data.entities.filter(e => e.concept === sibling.id);
-
-        const hasRelation = entities.some(e =>
-            (e.attributes || []).some(attr =>
-                attr.key === 'FK' && siblingEntities.some(se =>
-                    attr.description?.toLowerCase().includes(se.name.toLowerCase()) ||
-                    attr.name.toLowerCase().includes(se.name.toLowerCase())
-                )
-            )
-        ) || siblingEntities.some(se =>
-            (se.attributes || []).some(attr =>
-                attr.key === 'FK' && entities.some(e =>
-                    attr.description?.toLowerCase().includes(e.name.toLowerCase()) ||
-                    attr.name.toLowerCase().includes(e.name.toLowerCase())
                 )
             )
         );
@@ -2411,8 +2365,8 @@ function generateSchemaDiagram(schema) {
         schema.columns.forEach(col => {
             const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
             const colType = col.type.split('(')[0]; // Remove size from type
-            const tableInfo = col.table ? ` [${col.table}]` : '';
-            code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)}${tableInfo} ${keyMark}\n`;
+            const tableComment = col.table ? ` "${col.table}"` : '';
+            code += `        ${colType} ${col.name} ${keyMark}${tableComment}\n`;
         });
     }
     code += '    }\n';
@@ -2427,18 +2381,15 @@ function sanitizeMermaidId(name) {
 
 function renderDiagramLegend(item) {
     const legends = {
-        conceptual: [
-            { color: 'var(--color-conceptual)', label: 'Domäne' },
-            { color: 'var(--color-conceptual)', label: 'Konzept', border: true }
-        ],
         logical: [
-            { color: 'var(--color-logical)', label: 'Entität' },
+            { color: 'var(--color-logical)', label: 'Domäne' },
+            { color: 'var(--color-logical)', label: 'Entität', border: true },
             { color: 'var(--color-physical)', label: 'Physische Tabelle' },
             { symbol: 'PK', label: 'Primärschlüssel' },
             { symbol: 'FK', label: 'Fremdschlüssel' }
         ],
         physical: [
-            { color: 'var(--color-physical)', label: 'Tabelle' },
+            { color: 'var(--color-physical)', label: 'Schema' },
             { color: 'var(--color-logical)', label: 'Logische Entität' },
             { symbol: 'PK', label: 'Primärschlüssel' },
             { symbol: 'FK', label: 'Fremdschlüssel' }
@@ -3218,7 +3169,7 @@ async function init() {
 
         if (state.allExpanded) {
             // Expand all layers and nodes
-            state.expandedLayers = new Set(['conceptual', 'logical', 'physical']);
+            state.expandedLayers = new Set(['logical', 'physical']);
             // Expand all domain and system nodes
             data.domains.forEach(d => state.expandedNodes.add(d.id));
             data.systems.forEach(s => state.expandedNodes.add(s.id));

@@ -2,7 +2,7 @@
   {
     "id": "dom-immo",
     "type": "domain",
-    "layer": "conceptual",
+    "layer": "logical",
     "name": "Immobilienverwaltung",
     "nameEn": "Real Estate Management",
     "nameFr": "Gestion immobilière",
@@ -19,13 +19,12 @@
     "ownerIt": "UFCL - Divisione immobili",
     "steward": "Peter Schmidt",
     "created": "2024-01-15",
-    "updated": "2025-06-01",
-    "concepts": ["con-gebaeude", "con-grundstueck", "con-mietobjekt"]
+    "updated": "2025-06-01"
   },
   {
     "id": "dom-project",
     "type": "domain",
-    "layer": "conceptual",
+    "layer": "logical",
     "name": "Projektmanagement",
     "nameEn": "Project Management",
     "nameFr": "Gestion de projet",
@@ -42,13 +41,12 @@
     "ownerIt": "UFCL - Dipartimento progetti",
     "steward": "Michael Bauer",
     "created": "2024-02-01",
-    "updated": "2025-03-15",
-    "concepts": ["con-projekt"]
+    "updated": "2025-03-15"
   },
   {
     "id": "dom-geo",
     "type": "domain",
-    "layer": "conceptual",
+    "layer": "logical",
     "name": "Geoinformation",
     "nameEn": "Geoinformation",
     "nameFr": "Géoinformation",
@@ -65,7 +63,6 @@
     "ownerIt": "swisstopo",
     "steward": "Marco Rossi",
     "created": "2024-03-10",
-    "updated": "2025-09-01",
-    "concepts": []
+    "updated": "2025-09-01"
   }
 ]
