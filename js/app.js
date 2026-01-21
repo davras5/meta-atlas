@@ -2737,13 +2737,14 @@ function generateEntityDiagram(entity) {
             const labelText = 'implements';
 
             // Background for label readability
-            const labelWidth = labelText.length * 6.5 + 8;
+            const labelWidth = labelText.length * 8 + 16;
+            const labelHeight = 22;
             const bgColor = isDark ? '#0F1419' : '#FFFFFF';
-            connectionsSvg += `<rect x="${midX - labelWidth/2}" y="${midY - 8}" width="${labelWidth}" height="16"
-                fill="${bgColor}" rx="3"/>`;
-            connectionsSvg += `<text x="${midX}" y="${midY + 4}"
-                font-family="Inter, system-ui, sans-serif" font-size="10" font-style="italic"
-                fill="${labelColor}" text-anchor="middle">${labelText}</text>`;
+            connectionsSvg += `<rect x="${midX - labelWidth/2}" y="${midY - labelHeight/2}" width="${labelWidth}" height="${labelHeight}"
+                fill="${bgColor}" stroke="${isDark ? '#374151' : '#E5E7EB'}" stroke-width="1" rx="4"/>`;
+            connectionsSvg += `<text x="${midX}" y="${midY + 5}"
+                font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500"
+                fill="${isDark ? '#D1D5DB' : '#374151'}" text-anchor="middle">${labelText}</text>`;
         });
     });
 

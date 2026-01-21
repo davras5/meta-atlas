@@ -2800,8 +2800,6 @@ html {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-md);
-    background: var(--color-bg-base);
 }
 
 .diagram-container,
@@ -2951,14 +2949,6 @@ html {
 }
 
 /* Light mode diagram adjustments */
-[data-theme="light"] .diagram-card .diagram-content {
-    background: var(--color-bg-base);
-}
-
-[data-theme="light"] .diagram-viewport {
-    background: #FAFBFC;
-}
-
 [data-theme="light"] .diagram-controls {
     background: #FFFFFF;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
