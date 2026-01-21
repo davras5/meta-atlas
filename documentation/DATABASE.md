@@ -120,6 +120,18 @@ dcat:Distribution (representation of Dataset)
 
 ```mermaid
 flowchart TB
+    subgraph ORGANIZATION["ORGANIZATION LAYER"]
+        direction TB
+        O_DESC["Project management and governance<br/>Audience: Project managers, administrators"]
+        Project["Project"]
+        ProjectVersion["ProjectVersion"]
+        Changelog["Changelog"]
+        ProjectUser["ProjectUser"]
+        Project -->|has_versions| ProjectVersion
+        Project -->|has_members| ProjectUser
+        Project -->|tracks_changes| Changelog
+    end
+
     subgraph CONCEPTUAL["CONCEPTUAL LAYER"]
         direction TB
         C_DESC["Business-oriented, technology-independent<br/>Audience: Business stakeholders, domain experts"]
@@ -156,13 +168,19 @@ flowchart TB
         Dataset -->|distributed_via| Distribution
     end
 
+    Project -->|contains| Domain
     Concept -->|realizes| LogicalEntity
     LogicalEntity -->|implements| Table
     Attribute -->|maps_to| Column
 
+    style ORGANIZATION fill:#fce7f3,stroke:#db2777
     style CONCEPTUAL fill:#dbeafe,stroke:#2563eb
     style LOGICAL fill:#d1fae5,stroke:#059669
     style PHYSICAL fill:#ffedd5,stroke:#d97706
+    style Project fill:#f9a8d4,stroke:#db2777
+    style ProjectVersion fill:#f9a8d4,stroke:#db2777
+    style Changelog fill:#f9a8d4,stroke:#db2777
+    style ProjectUser fill:#f9a8d4,stroke:#db2777
     style Domain fill:#93c5fd,stroke:#2563eb
     style Concept fill:#93c5fd,stroke:#2563eb
     style Dataset fill:#6ee7b7,stroke:#059669
@@ -181,25 +199,74 @@ flowchart TB
 
 ```mermaid
 erDiagram
+    Project ||--o{ ProjectVersion : "has_versions"
+    Project ||--o{ ProjectUser : "has_members"
+    Project ||--o{ Changelog : "tracks_changes"
+    Project ||--o{ Domain : "contains"
+    ProjectVersion ||--o{ Changelog : "includes"
+
     Domain ||--o{ Concept : contains
     Concept ||--o{ LogicalEntity : "realizes"
-    
+
     Dataset }o--o{ LogicalEntity : describes
     LogicalEntity ||--o{ Attribute : has
     Attribute }o--o| ValueDomain : uses
     LogicalEntity ||--o{ Relationship : has
-    
+
     Dataset ||--o{ Distribution : "distributed_via"
     DataService }o--o{ Dataset : serves
     Distribution }o--o| DataService : "access_via"
-    
+
     System ||--o{ Schema : contains
     System ||--o{ DataService : hosts
     Schema ||--o{ Table : contains
     Table ||--o{ Column : has
-    
+
     LogicalEntity ||--o{ Table : "implements"
     Attribute ||--o{ Column : "maps_to"
+
+    Project {
+        uuid id PK
+        jsonb name
+        jsonb description
+        jsonb owner
+        uuid current_version_id FK
+        enum status
+    }
+
+    ProjectVersion {
+        uuid id PK
+        uuid project_id FK
+        string version_number
+        jsonb name
+        jsonb description
+        enum status
+        datetime published_at
+        uuid previous_version_id FK
+    }
+
+    Changelog {
+        uuid id PK
+        uuid project_id FK
+        uuid version_id FK
+        enum change_type
+        string entity_type
+        uuid entity_id FK
+        enum action
+        jsonb summary
+        jsonb details
+        datetime changed_at
+    }
+
+    ProjectUser {
+        uuid id PK
+        uuid project_id FK
+        string name
+        string email
+        enum role
+        enum status
+        datetime joined_at
+    }
 
     Domain {
         uuid id PK
@@ -422,6 +489,9 @@ flowchart LR
 | Layer | Entity | Description | I14Y Mapping | DCAT Mapping |
 |-------|--------|-------------|--------------|--------------|
 | **Organization** | Project | Workspace container for metadata | - | dcat:Catalog |
+| **Organization** | ProjectVersion | Version snapshot of a project | - | dcat:version |
+| **Organization** | Changelog | Record of changes within a project | - | prov:Activity |
+| **Organization** | ProjectUser | User membership and role in a project | - | foaf:Agent |
 | **Conceptual** | Domain | Business domain grouping | - | dcat:Catalog (partial) |
 | **Conceptual** | Concept | Business term definition | Konzept | skos:Concept |
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
@@ -450,11 +520,13 @@ A project represents a self-contained workspace or catalog that groups related m
 | description | MultiLang | Yes | Detailed project description | dct:description |
 | owner | AgentRef | Yes | Responsible organization or team | dct:publisher |
 | status | Enum | Yes | active, draft, archived | adms:status |
+| current_version_id | UUID | No | Reference to current active version | dcat:version |
 | color | String | No | Display color for UI (hex code) | - |
 | icon | String | No | Icon identifier for UI | - |
 | domains | UUID[] | No | Associated domain references | - |
 | entities | Integer | No | Count of logical entities | - |
 | tables | Integer | No | Count of physical tables | - |
+| users | ProjectUser[] | No | Project team members with roles | - |
 | created | Date | Yes | Creation date | dct:created |
 | updated | Date | No | Last update date | dct:modified |
 | lastActivity | Date | No | Date of last activity | - |
@@ -470,6 +542,124 @@ A project represents a self-contained workspace or catalog that groups related m
 - Isolate development and production catalogs
 - Enable parallel metadata governance initiatives
 - Support multi-tenant scenarios
+
+---
+
+#### 4.2.1 ProjectVersion
+
+A project version represents a point-in-time snapshot of a project's metadata state. Versions enable tracking of project evolution, rollback capabilities, and release management for metadata catalogs.
+
+**Entity: ProjectVersion**
+
+| Attribute | Type | Required | Description | Standard Mapping |
+|-----------|------|----------|-------------|------------------|
+| id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
+| version_number | String | Yes | Semantic version (e.g., "1.0.0", "2.1.0") | dcat:version |
+| name | MultiLang | No | Version name/title (e.g., "Initial Release") | dct:title |
+| description | MultiLang | No | Version description and release notes | dct:description |
+| status | Enum | Yes | draft, published, deprecated | adms:status |
+| published_at | DateTime | No | Publication timestamp | dct:issued |
+| published_by | PersonRef | No | User who published the version | dct:publisher |
+| snapshot | JSON | No | Frozen state of project metadata at version time | - |
+| previous_version_id | UUID | No | Reference to previous version | dct:replaces |
+| metadata | Metadata | Yes | Audit trail (created, updated, version) | - |
+
+**Status Values:**
+- `draft` - Version is being prepared, not yet finalized
+- `published` - Version is finalized and available
+- `deprecated` - Version is superseded and should not be used
+
+**Version Number Convention:**
+Following semantic versioning (SemVer):
+- **Major (X.0.0)** - Breaking changes, significant restructuring
+- **Minor (x.Y.0)** - New entities, attributes, or features added
+- **Patch (x.y.Z)** - Bug fixes, corrections, documentation updates
+
+---
+
+#### 4.2.2 Changelog
+
+A changelog entry records a specific change made within a project. Changelogs provide an audit trail of modifications, enabling compliance tracking, impact analysis, and collaboration transparency.
+
+**Entity: Changelog**
+
+| Attribute | Type | Required | Description | Standard Mapping |
+|-----------|------|----------|-------------|------------------|
+| id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
+| version_id | UUID | No | Associated version (if part of a release) | - |
+| change_type | Enum | Yes | Type of change (see below) | prov:Activity |
+| entity_type | String | Yes | Type of entity changed (domain, concept, entity, etc.) | - |
+| entity_id | UUID | Yes | Reference to the changed entity | - |
+| entity_name | String | No | Name of the entity at time of change | - |
+| action | Enum | Yes | create, update, delete, restore | - |
+| summary | MultiLang | Yes | Brief description of the change | dct:description |
+| details | JSON | No | Detailed change information (before/after values) | - |
+| changed_fields | String[] | No | List of fields that were modified | - |
+| reason | String | No | Reason or justification for the change | - |
+| changed_at | DateTime | Yes | Timestamp of the change | dct:modified |
+| changed_by | PersonRef | Yes | User who made the change | prov:wasAssociatedWith |
+| metadata | Metadata | Yes | Audit trail | - |
+
+**Change Types:**
+| Type | Description |
+|------|-------------|
+| structure | Changes to entity structure (add/remove attributes) |
+| content | Changes to content/values (descriptions, names) |
+| relationship | Changes to relationships between entities |
+| status | Status changes (draft → active, deprecation) |
+| mapping | Changes to cross-layer mappings |
+| compliance | Changes to compliance/classification metadata |
+
+**Action Values:**
+- `create` - New entity or attribute created
+- `update` - Existing entity or attribute modified
+- `delete` - Entity or attribute removed
+- `restore` - Previously deleted entity restored
+
+---
+
+#### 4.2.3 ProjectUser
+
+A project user represents a team member's membership and role within a specific project. This enables role-based access control and responsibility assignment for metadata governance.
+
+**Entity: ProjectUser**
+
+| Attribute | Type | Required | Description | Standard Mapping |
+|-----------|------|----------|-------------|------------------|
+| id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
+| user_id | UUID | No | Reference to user account (if using auth system) | - |
+| name | String | Yes | User's display name | foaf:name |
+| email | String | Yes | User's email address | foaf:mbox |
+| role | Enum | Yes | User's role in the project (see below) | - |
+| status | Enum | Yes | active, inactive, invited | adms:status |
+| joined_at | DateTime | No | When user joined the project | - |
+| invited_by | UUID | No | User who invited this member | - |
+| permissions | String[] | No | Additional permission overrides | - |
+| metadata | Metadata | Yes | Audit trail | - |
+
+**User Roles:**
+
+| Role | Description | Permissions |
+|------|-------------|-------------|
+| owner | Project owner with full administrative control | Full access: create, read, update, delete, manage users, manage versions, publish |
+| steward | Data steward responsible for data quality and governance | Create, read, update entities; approve changes; manage compliance metadata |
+| engineer | Technical user who manages physical layer mappings | Create, read, update logical/physical entities and mappings |
+| analyst | Data analyst who consumes and documents metadata | Read all; create/update documentation and descriptions |
+| viewer | Read-only access for stakeholders | Read-only access to all published content |
+
+**Role Hierarchy:**
+```
+owner
+  └── steward
+        └── engineer
+              └── analyst
+                    └── viewer
+```
+
+Each role inherits all permissions from roles below it in the hierarchy.
 
 ---
 
@@ -500,7 +690,7 @@ A business domain represents a coherent area of business activity or knowledge.
 
 ---
 
-#### 4.2.2 Concept
+#### 4.3.2 Concept
 
 A business concept represents a well-defined business term or notion within a domain.
 
@@ -532,9 +722,9 @@ standard_references: [{ standard: "eCH-0129", version: "5.0" }]
 
 ---
 
-### 4.3 Logical Layer Entities
+### 4.4 Logical Layer Entities
 
-#### 4.3.1 LogicalEntity
+#### 4.4.1 LogicalEntity
 
 A technology-independent data structure that realizes one or more business concepts.
 
@@ -565,7 +755,7 @@ A technology-independent data structure that realizes one or more business conce
 
 ---
 
-#### 4.3.2 Attribute
+#### 4.4.2 Attribute
 
 A data element within a logical entity, describing a single piece of information.
 
@@ -604,7 +794,7 @@ A data element within a logical entity, describing a single piece of information
 
 ---
 
-#### 4.3.3 ValueDomain (Codeliste)
+#### 4.4.3 ValueDomain (Codeliste)
 
 A set of permissible values for an attribute, also known as a code list or enumeration.
 
@@ -648,7 +838,7 @@ A set of permissible values for an attribute, also known as a code list or enume
 
 ---
 
-#### 4.3.4 Dataset
+#### 4.4.4 Dataset
 
 A collection of data published or curated by an organization (DCAT-aligned).
 
@@ -686,9 +876,9 @@ A collection of data published or curated by an organization (DCAT-aligned).
 
 ---
 
-### 4.4 Physical Layer Entities
+### 4.5 Physical Layer Entities
 
-#### 4.4.1 System
+#### 4.5.1 System
 
 A physical system, application, or database that hosts data.
 
@@ -722,7 +912,7 @@ A physical system, application, or database that hosts data.
 
 ---
 
-#### 4.4.2 Schema
+#### 4.5.2 Schema
 
 A database schema or namespace within a system.
 
@@ -739,7 +929,7 @@ A database schema or namespace within a system.
 
 ---
 
-#### 4.4.3 Table
+#### 4.5.3 Table
 
 A physical table or view within a database schema.
 
@@ -763,7 +953,7 @@ A physical table or view within a database schema.
 
 ---
 
-#### 4.4.4 Column
+#### 4.5.4 Column
 
 A physical column within a database table.
 
@@ -787,7 +977,7 @@ A physical column within a database table.
 
 ---
 
-#### 4.4.5 DataService
+#### 4.5.5 DataService
 
 An API or service providing programmatic access to data.
 
@@ -826,7 +1016,7 @@ An API or service providing programmatic access to data.
 
 ---
 
-#### 4.4.6 Distribution
+#### 4.5.6 Distribution
 
 A specific representation or access point for a dataset.
 
@@ -854,9 +1044,9 @@ A specific representation or access point for a dataset.
 
 ---
 
-### 4.5 Supporting Types
+### 4.6 Supporting Types
 
-#### 4.5.1 Type Definitions
+#### 4.6.1 Type Definitions
 
 **MultiLang** - Multilingual string with fallback support
 
@@ -1255,9 +1445,109 @@ Data lineage tracks the flow of data through systems:
 }
 ```
 
+### 6.5 ProjectVersion Schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/mdcat/project-version.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "project_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "version_number": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "name": { "$ref": "common.schema.json#/definitions/multiLang" },
+    "description": { "$ref": "common.schema.json#/definitions/multiLang" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "published", "deprecated"]
+    },
+    "published_at": { "type": "string", "format": "date-time" },
+    "published_by": { "$ref": "common.schema.json#/definitions/agentRef" },
+    "snapshot": { "type": "object" },
+    "previous_version_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "metadata": { "$ref": "common.schema.json#/definitions/metadata" }
+  },
+  "required": ["id", "project_id", "version_number", "status", "metadata"]
+}
+```
+
+### 6.6 Changelog Schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/mdcat/changelog.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "project_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "version_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "change_type": {
+      "type": "string",
+      "enum": ["structure", "content", "relationship", "status", "mapping", "compliance"]
+    },
+    "entity_type": { "type": "string" },
+    "entity_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "entity_name": { "type": "string" },
+    "action": {
+      "type": "string",
+      "enum": ["create", "update", "delete", "restore"]
+    },
+    "summary": { "$ref": "common.schema.json#/definitions/multiLang" },
+    "details": { "type": "object" },
+    "changed_fields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reason": { "type": "string" },
+    "changed_at": { "type": "string", "format": "date-time" },
+    "changed_by": { "$ref": "common.schema.json#/definitions/agentRef" },
+    "metadata": { "$ref": "common.schema.json#/definitions/metadata" }
+  },
+  "required": ["id", "project_id", "change_type", "entity_type", "entity_id", "action", "summary", "changed_at", "changed_by", "metadata"]
+}
+```
+
+### 6.7 ProjectUser Schema
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/mdcat/project-user.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "project_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "user_id": { "$ref": "common.schema.json#/definitions/uuid" },
+    "name": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "role": {
+      "type": "string",
+      "enum": ["owner", "steward", "engineer", "analyst", "viewer"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "inactive", "invited"]
+    },
+    "joined_at": { "type": "string", "format": "date-time" },
+    "invited_by": { "$ref": "common.schema.json#/definitions/uuid" },
+    "permissions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "metadata": { "$ref": "common.schema.json#/definitions/metadata" }
+  },
+  "required": ["id", "project_id", "name", "email", "role", "status", "metadata"]
+}
+```
+
 ---
 
-## 7. Sample Data (BBL Context)
+## 7. Sample Data
 
 ### 7.1 domains.json
 
@@ -1971,6 +2261,311 @@ Data lineage tracks the flow of data through systems:
 }
 ```
 
+### 7.7 projects.json
+
+```json
+{
+  "projects": [
+    {
+      "id": "proj-bundesimmobilien",
+      "name": {
+        "de": "Bundesimmobilien Katalog",
+        "fr": "Catalogue des immeubles fédéraux",
+        "en": "Federal Real Estate Catalog"
+      },
+      "description": {
+        "de": "Metadatenkatalog für das Immobilienportfolio des Bundes, einschliesslich aller Gebäude, Grundstücke und Mietobjekte.",
+        "en": "Metadata catalog for the federal real estate portfolio, including all buildings, plots, and rental units."
+      },
+      "owner": {
+        "name": "BBL - Bundesamt für Bauten und Logistik",
+        "type": "organization",
+        "email": "info@bbl.admin.ch"
+      },
+      "status": "active",
+      "current_version_id": "ver-bundesimmobilien-1.2.0",
+      "color": "#2563eb",
+      "icon": "building",
+      "domains": ["dom-immo", "dom-projekt"],
+      "users": [
+        {
+          "id": "user-001",
+          "name": "Anna Müller",
+          "email": "anna.mueller@admin.ch",
+          "role": "owner",
+          "status": "active",
+          "joined_at": "2024-01-15T10:00:00Z"
+        },
+        {
+          "id": "user-002",
+          "name": "Peter Schmidt",
+          "email": "peter.schmidt@admin.ch",
+          "role": "steward",
+          "status": "active",
+          "joined_at": "2024-01-20T09:00:00Z"
+        },
+        {
+          "id": "user-003",
+          "name": "Lisa Weber",
+          "email": "lisa.weber@admin.ch",
+          "role": "engineer",
+          "status": "active",
+          "joined_at": "2024-02-01T14:00:00Z"
+        },
+        {
+          "id": "user-004",
+          "name": "Marco Rossi",
+          "email": "marco.rossi@admin.ch",
+          "role": "analyst",
+          "status": "active",
+          "joined_at": "2024-03-15T11:00:00Z"
+        }
+      ],
+      "created": "2024-01-15",
+      "updated": "2026-01-20",
+      "lastActivity": "2026-01-20",
+      "metadata": {
+        "created_at": "2024-01-15T10:00:00Z",
+        "created_by": "system",
+        "updated_at": "2026-01-20T14:30:00Z",
+        "updated_by": "anna.mueller",
+        "version": 5
+      }
+    }
+  ]
+}
+```
+
+### 7.8 project-versions.json
+
+```json
+{
+  "project_versions": [
+    {
+      "id": "ver-bundesimmobilien-1.0.0",
+      "project_id": "proj-bundesimmobilien",
+      "version_number": "1.0.0",
+      "name": {
+        "de": "Erstveröffentlichung",
+        "en": "Initial Release"
+      },
+      "description": {
+        "de": "Erste Version des Bundesimmobilien-Katalogs mit Grundentitäten für Gebäude und Grundstücke.",
+        "en": "First version of the Federal Real Estate Catalog with base entities for buildings and plots."
+      },
+      "status": "deprecated",
+      "published_at": "2024-03-01T10:00:00Z",
+      "published_by": {
+        "name": "Anna Müller",
+        "email": "anna.mueller@admin.ch"
+      },
+      "previous_version_id": null,
+      "metadata": {
+        "created_at": "2024-02-15T10:00:00Z",
+        "created_by": "anna.mueller",
+        "version": 1
+      }
+    },
+    {
+      "id": "ver-bundesimmobilien-1.1.0",
+      "project_id": "proj-bundesimmobilien",
+      "version_number": "1.1.0",
+      "name": {
+        "de": "Mietobjekte hinzugefügt",
+        "en": "Rental Units Added"
+      },
+      "description": {
+        "de": "Erweiterung um Mietobjekt-Entitäten und zugehörige Codelisten.",
+        "en": "Extension with rental unit entities and related code lists."
+      },
+      "status": "deprecated",
+      "published_at": "2024-06-15T14:00:00Z",
+      "published_by": {
+        "name": "Peter Schmidt",
+        "email": "peter.schmidt@admin.ch"
+      },
+      "previous_version_id": "ver-bundesimmobilien-1.0.0",
+      "metadata": {
+        "created_at": "2024-05-20T10:00:00Z",
+        "created_by": "peter.schmidt",
+        "version": 1
+      }
+    },
+    {
+      "id": "ver-bundesimmobilien-1.2.0",
+      "project_id": "proj-bundesimmobilien",
+      "version_number": "1.2.0",
+      "name": {
+        "de": "Energiedaten Integration",
+        "en": "Energy Data Integration"
+      },
+      "description": {
+        "de": "Integration von Energieeffizienz-Attributen (GEAK) und Nachhaltigkeitsindikatoren.",
+        "en": "Integration of energy efficiency attributes (GEAK) and sustainability indicators."
+      },
+      "status": "published",
+      "published_at": "2025-01-10T09:00:00Z",
+      "published_by": {
+        "name": "Anna Müller",
+        "email": "anna.mueller@admin.ch"
+      },
+      "previous_version_id": "ver-bundesimmobilien-1.1.0",
+      "metadata": {
+        "created_at": "2024-11-01T10:00:00Z",
+        "created_by": "anna.mueller",
+        "version": 2
+      }
+    },
+    {
+      "id": "ver-bundesimmobilien-2.0.0",
+      "project_id": "proj-bundesimmobilien",
+      "version_number": "2.0.0",
+      "name": {
+        "de": "Projektmanagement Erweiterung",
+        "en": "Project Management Extension"
+      },
+      "description": {
+        "de": "Grosse Erweiterung mit Projektmanagement-Domäne und Bauprojekt-Entitäten.",
+        "en": "Major extension with project management domain and construction project entities."
+      },
+      "status": "draft",
+      "previous_version_id": "ver-bundesimmobilien-1.2.0",
+      "metadata": {
+        "created_at": "2026-01-05T10:00:00Z",
+        "created_by": "anna.mueller",
+        "version": 1
+      }
+    }
+  ]
+}
+```
+
+### 7.9 changelogs.json
+
+```json
+{
+  "changelogs": [
+    {
+      "id": "log-001",
+      "project_id": "proj-bundesimmobilien",
+      "version_id": "ver-bundesimmobilien-1.2.0",
+      "change_type": "structure",
+      "entity_type": "attribute",
+      "entity_id": "attr-building-energy-rating",
+      "entity_name": "energy_rating",
+      "action": "create",
+      "summary": {
+        "de": "Neues Attribut 'energy_rating' zur Building-Entität hinzugefügt",
+        "en": "Added new attribute 'energy_rating' to Building entity"
+      },
+      "details": {
+        "logical_type": "Reference",
+        "value_domain_id": "vd-energy-rating",
+        "is_nullable": true
+      },
+      "reason": "GEAK integration requirement from sustainability initiative",
+      "changed_at": "2024-11-15T14:30:00Z",
+      "changed_by": {
+        "name": "Lisa Weber",
+        "email": "lisa.weber@admin.ch"
+      },
+      "metadata": {
+        "created_at": "2024-11-15T14:30:00Z",
+        "created_by": "lisa.weber",
+        "version": 1
+      }
+    },
+    {
+      "id": "log-002",
+      "project_id": "proj-bundesimmobilien",
+      "version_id": "ver-bundesimmobilien-1.2.0",
+      "change_type": "content",
+      "entity_type": "value_domain",
+      "entity_id": "vd-energy-rating",
+      "entity_name": "EnergyRating",
+      "action": "create",
+      "summary": {
+        "de": "Neue Codeliste 'EnergyRating' für GEAK-Klassen erstellt",
+        "en": "Created new code list 'EnergyRating' for GEAK classes"
+      },
+      "details": {
+        "values_count": 7,
+        "codes": ["A", "B", "C", "D", "E", "F", "G"]
+      },
+      "reason": "Required for energy efficiency tracking",
+      "changed_at": "2024-11-15T14:00:00Z",
+      "changed_by": {
+        "name": "Lisa Weber",
+        "email": "lisa.weber@admin.ch"
+      },
+      "metadata": {
+        "created_at": "2024-11-15T14:00:00Z",
+        "created_by": "lisa.weber",
+        "version": 1
+      }
+    },
+    {
+      "id": "log-003",
+      "project_id": "proj-bundesimmobilien",
+      "version_id": "ver-bundesimmobilien-2.0.0",
+      "change_type": "structure",
+      "entity_type": "domain",
+      "entity_id": "dom-projekt",
+      "entity_name": "Projektmanagement",
+      "action": "create",
+      "summary": {
+        "de": "Neue Domäne 'Projektmanagement' für Bauprojekte erstellt",
+        "en": "Created new domain 'Project Management' for construction projects"
+      },
+      "details": {
+        "abbreviation": "PROJ",
+        "concepts": ["con-projekt", "con-bauphase", "con-kostenstelle"]
+      },
+      "reason": "Business requirement for construction project tracking",
+      "changed_at": "2026-01-10T10:00:00Z",
+      "changed_by": {
+        "name": "Peter Schmidt",
+        "email": "peter.schmidt@admin.ch"
+      },
+      "metadata": {
+        "created_at": "2026-01-10T10:00:00Z",
+        "created_by": "peter.schmidt",
+        "version": 1
+      }
+    },
+    {
+      "id": "log-004",
+      "project_id": "proj-bundesimmobilien",
+      "change_type": "status",
+      "entity_type": "concept",
+      "entity_id": "con-gebaeude",
+      "entity_name": "Gebäude",
+      "action": "update",
+      "summary": {
+        "de": "Konzept 'Gebäude' auf aktiv gesetzt nach Review",
+        "en": "Set concept 'Building' to active after review"
+      },
+      "changed_fields": ["status"],
+      "details": {
+        "before": { "status": "draft" },
+        "after": { "status": "active" }
+      },
+      "reason": "Approved by data governance board",
+      "changed_at": "2024-02-28T16:00:00Z",
+      "changed_by": {
+        "name": "Anna Müller",
+        "email": "anna.mueller@admin.ch"
+      },
+      "metadata": {
+        "created_at": "2024-02-28T16:00:00Z",
+        "created_by": "anna.mueller",
+        "version": 1
+      }
+    }
+  ]
+}
+```
+
 ---
 
 ## 8. Supabase Migration Guide
@@ -1983,8 +2578,95 @@ When migrating to Supabase, the JSON files will be converted to PostgreSQL table
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Projects table (Organization Layer)
+CREATE TABLE projects (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name JSONB NOT NULL,
+  description JSONB NOT NULL,
+  owner JSONB NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  current_version_id UUID,
+  color VARCHAR(7),
+  icon VARCHAR(50),
+  domains UUID[],
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL,
+  updated_at TIMESTAMPTZ,
+  updated_by VARCHAR(100),
+  last_activity TIMESTAMPTZ,
+  version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Project Versions table
+CREATE TABLE project_versions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  version_number VARCHAR(20) NOT NULL,
+  name JSONB,
+  description JSONB,
+  status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  published_at TIMESTAMPTZ,
+  published_by JSONB,
+  snapshot JSONB,
+  previous_version_id UUID REFERENCES project_versions(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL,
+  updated_at TIMESTAMPTZ,
+  updated_by VARCHAR(100),
+  version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE(project_id, version_number)
+);
+
+-- Add foreign key for current_version after project_versions exists
+ALTER TABLE projects
+  ADD CONSTRAINT fk_current_version
+  FOREIGN KEY (current_version_id)
+  REFERENCES project_versions(id);
+
+-- Changelogs table
+CREATE TABLE changelogs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  version_id UUID REFERENCES project_versions(id),
+  change_type VARCHAR(20) NOT NULL,
+  entity_type VARCHAR(50) NOT NULL,
+  entity_id UUID NOT NULL,
+  entity_name VARCHAR(200),
+  action VARCHAR(20) NOT NULL,
+  summary JSONB NOT NULL,
+  details JSONB,
+  changed_fields TEXT[],
+  reason TEXT,
+  changed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  changed_by JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL,
+  version INTEGER NOT NULL DEFAULT 1
+);
+
+-- Project Users table
+CREATE TABLE project_users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  user_id UUID,
+  name VARCHAR(200) NOT NULL,
+  email VARCHAR(200) NOT NULL,
+  role VARCHAR(20) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'active',
+  joined_at TIMESTAMPTZ,
+  invited_by UUID REFERENCES project_users(id),
+  permissions TEXT[],
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL,
+  updated_at TIMESTAMPTZ,
+  updated_by VARCHAR(100),
+  version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE(project_id, email)
+);
+
 -- Domains table
 CREATE TABLE domains (
+  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name JSONB NOT NULL,
   description JSONB NOT NULL,
@@ -2159,6 +2841,13 @@ CREATE TABLE mappings (
 );
 
 -- Indexes for common queries
+CREATE INDEX idx_project_versions_project ON project_versions(project_id);
+CREATE INDEX idx_changelogs_project ON changelogs(project_id);
+CREATE INDEX idx_changelogs_version ON changelogs(version_id);
+CREATE INDEX idx_changelogs_entity ON changelogs(entity_type, entity_id);
+CREATE INDEX idx_changelogs_changed_at ON changelogs(changed_at DESC);
+CREATE INDEX idx_project_users_project ON project_users(project_id);
+CREATE INDEX idx_project_users_email ON project_users(email);
 CREATE INDEX idx_concepts_domain ON concepts(domain_id);
 CREATE INDEX idx_attributes_entity ON attributes(entity_id);
 CREATE INDEX idx_tables_schema ON tables(schema_id);
@@ -2167,6 +2856,7 @@ CREATE INDEX idx_mappings_source ON mappings(source_type, source_id);
 CREATE INDEX idx_mappings_target ON mappings(target_type, target_id);
 
 -- Full-text search indexes
+CREATE INDEX idx_projects_name_gin ON projects USING GIN (name jsonb_path_ops);
 CREATE INDEX idx_domains_name_gin ON domains USING GIN (name jsonb_path_ops);
 CREATE INDEX idx_concepts_name_gin ON concepts USING GIN (name jsonb_path_ops);
 CREATE INDEX idx_concepts_definition_gin ON concepts USING GIN (definition jsonb_path_ops);
@@ -2228,6 +2918,10 @@ A migration script will be provided to:
 
 ---
 
-*Document Version: 1.0*
+*Document Version: 1.1*
 *Created: January 2026*
+*Last Updated: January 2026*
 *Status: Draft for Prototype Development*
+
+### Changelog
+- **v1.1** (January 2026): Added Organization Layer entities (ProjectVersion, Changelog, ProjectUser), updated Project entity with version support and user management, added ER diagrams and sample data
