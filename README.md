@@ -10,6 +10,11 @@ Meta-Atlas provides a unified view of data assets spanning from conceptual busin
 - **Logical Layer** - Data entities, attributes, and relationships
 - **Physical Layer** - Systems, database tables, and columns
 
+<p align="center">
+  <img src="assets/preview1.jpg" width="45%" style="vertical-align: top;"/>
+  <img src="assets/preview2.jpg" width="45%" style="vertical-align: top;"/>
+</p>
+
 ## Features
 
 - Hierarchical tree navigation with layer switching
