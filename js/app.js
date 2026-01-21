@@ -130,7 +130,7 @@ async function loadData() {
     try {
         console.time('⏱️ Total loadData');
         console.time('⏱️ Fetch JSON files');
-        const [catalogs, domains, entities, systems, schemas, enumerations, attributes, columns] = await Promise.all([
+        const [catalogs, domains, entities, systems, schemas, enumerations, attributes, columns, relationships] = await Promise.all([
             fetch('data/catalogs.json').then(r => r.json()),
             fetch('data/domains.json').then(r => r.json()),
             fetch('data/entities.json').then(r => r.json()),
@@ -138,7 +138,8 @@ async function loadData() {
             fetch('data/schemas.json').then(r => r.json()),
             fetch('data/enumerations.json').then(r => r.json()),
             fetch('data/attributes.json').then(r => r.json()),
-            fetch('data/columns.json').then(r => r.json())
+            fetch('data/columns.json').then(r => r.json()),
+            fetch('data/relationships.json').then(r => r.json())
         ]);
         console.timeEnd('⏱️ Fetch JSON files');
 
@@ -150,6 +151,7 @@ async function loadData() {
         data.enumerations = enumerations;
         data.attributes = attributes;
         data.columns = columns;
+        data.relationships = relationships;
 
         console.time('⏱️ Process data relationships');
         // Attach attributes to entities
@@ -178,7 +180,6 @@ async function loadData() {
                     nullable: col.nullable,
                     key: col.key,
                     table: col.table,
-                    mappedTo: col.mapped_to,
                     description: col.description
                 }));
         });
@@ -1599,7 +1600,7 @@ function renderMappingsPanel(item) {
     return `
         <div class="card">
             <div class="card-header" data-card="mappings" aria-expanded="true">
-                <span class="card-title">Schichtübergreifende Zuordnungen</span>
+                <span class="card-title">Zuordnungen</span>
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content">
@@ -2306,42 +2307,31 @@ function generateDomainDiagram(domain) {
             yOffset += entityHeight + entityGapY;
         });
 
-        // Find and draw connections first (so they appear behind entities)
+        // Find and draw connections from relationships.json
         const connections = [];
-        entities.forEach((entity, idx) => {
-            entities.forEach((otherEntity, otherIdx) => {
-                if (idx < otherIdx) {
-                    const otherName = getText(otherEntity.name).toLowerCase();
-                    const entityName = getText(entity.name).toLowerCase();
-                    const hasRelation = (entity.attributes || []).some(attr =>
-                        attr.key === 'FK' && (
-                            getText(attr.description).toLowerCase().includes(otherName) ||
-                            getText(attr.name).toLowerCase().includes(otherName)
-                        )
-                    ) || (otherEntity.attributes || []).some(attr =>
-                        attr.key === 'FK' && (
-                            getText(attr.description).toLowerCase().includes(entityName) ||
-                            getText(attr.name).toLowerCase().includes(entityName)
-                        )
-                    );
-                    if (hasRelation) {
-                        connections.push([idx, otherIdx]);
-                    }
-                }
-            });
+        const entityIds = entities.map(e => e.id);
+
+        // Look up relationships from data.relationships (only logical type)
+        (data.relationships || []).filter(rel => rel.type === 'logical').forEach(rel => {
+            const sourceIdx = entityIds.indexOf(rel.source);
+            const targetIdx = entityIds.indexOf(rel.target);
+            // Only draw if both entities are in this domain's diagram
+            if (sourceIdx !== -1 && targetIdx !== -1) {
+                connections.push([sourceIdx, targetIdx]);
+            }
         });
 
         // Draw connections
         connections.forEach(([fromIdx, toIdx]) => {
             const from = entityPositions[fromIdx];
             const to = entityPositions[toIdx];
-            svg += `<line x1="${from.cx}" y1="${from.cy}" x2="${to.cx}" y2="${to.cy}" stroke="${connectionColor}" stroke-width="2" stroke-dasharray="6,4" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
+            svg += `<line x1="${from.cx}" y1="${from.cy}" x2="${to.cx}" y2="${to.cy}" stroke="${connectionColor}" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
         });
 
         // Draw entity boxes
         entityPositions.forEach(pos => {
             svg += `<rect x="${pos.x}" y="${pos.y}" width="${pos.width}" height="${pos.height}" fill="${entityBg}" stroke="${entityBorder}" stroke-width="1.5" rx="6"/>`;
-            svg += `<text x="${pos.x + pos.width / 2}" y="${pos.y + pos.height / 2 + 5}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="13" font-weight="500" fill="${entityText}">${escapeHtml(pos.name)}</text>`;
+            svg += `<text x="${pos.x + pos.width / 2}" y="${pos.y + pos.height / 2 + 5}" text-anchor="middle" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="13" font-weight="500" fill="${entityText}">${escapeHtml(pos.name)}</text>`;
         });
     }
 
@@ -2395,7 +2385,7 @@ function renderCustomSqlTable(name, rows, headerColor, x = 0, y = 0) {
     svg += `<rect x="0.5" y="${headerHeight - 4}" width="${tableWidth - 1}" height="4" fill="${headerColor}"/>`;
 
     // Header text - bold and readable
-    svg += `<text x="${tableWidth / 2}" y="${headerHeight / 2 + 4}" text-anchor="middle" font-family="'Inter', 'Segoe UI', sans-serif" font-size="${fontSize + 1}" font-weight="600" fill="${headerTextColor}">${escapeHtml(name)}</text>`;
+    svg += `<text x="${tableWidth / 2}" y="${headerHeight / 2 + 4}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="${fontSize + 1}" font-weight="600" fill="${headerTextColor}">${escapeHtml(name)}</text>`;
 
     // Header bottom line
     svg += `<line x1="0" y1="${headerHeight}" x2="${tableWidth}" y2="${headerHeight}" stroke="${borderColor}" stroke-width="1"/>`;
@@ -2545,7 +2535,7 @@ function generateEntityDiagram(entity) {
 
         // Draw system label (top-left inside the box)
         boundingBoxesSvg += `<text x="${boxX + systemPadding}" y="${boxY + 16}"
-            font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600"
+            font-family="'Inter', sans-serif" font-size="11" font-weight="600"
             fill="${systemLabelColor}">${escapeHtml(systemData.systemLabel)}</text>`;
 
         // Store system meta for connection lines
@@ -2607,7 +2597,7 @@ function generateEntityDiagram(entity) {
             connectionsSvg += `<rect x="${midX - labelWidth/2}" y="${midY - labelHeight/2}" width="${labelWidth}" height="${labelHeight}"
                 fill="${bgColor}" stroke="${isDark ? '#374151' : '#E5E7EB'}" stroke-width="1" rx="4"/>`;
             connectionsSvg += `<text x="${midX}" y="${midY + 5}"
-                font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="500"
+                font-family="'Inter', sans-serif" font-size="13" font-weight="500"
                 fill="${isDark ? '#D1D5DB' : '#374151'}" text-anchor="middle">${labelText}</text>`;
         });
     });
@@ -2628,12 +2618,53 @@ function generateEntityDiagram(entity) {
 
 function generateSystemDiagram(system) {
     // Get all schemas for this system
-    const schemas = data.schemas.filter(s => s.system === system.id);
+    let schemas = data.schemas.filter(s => s.system === system.id);
 
     if (schemas.length === 0) {
         // Custom SVG for empty state
         return { type: 'custom', svg: generateEmptyStateDiagram(getText(system.name), 'Keine Schemas', 'physical') };
     }
+
+    // Order schemas by connection count (hub-based layout)
+    // Most connected schema goes in the center for cleaner edge routing
+    const schemaIds = new Set(schemas.map(s => s.id));
+    const relationships = (data.relationships || []).filter(rel =>
+        rel.type === 'physical' && schemaIds.has(rel.source) && schemaIds.has(rel.target)
+    );
+
+    // Count connections per schema
+    const connectionCount = {};
+    schemas.forEach(s => connectionCount[s.id] = 0);
+    relationships.forEach(rel => {
+        connectionCount[rel.source] = (connectionCount[rel.source] || 0) + 1;
+        connectionCount[rel.target] = (connectionCount[rel.target] || 0) + 1;
+    });
+
+    // Sort by connection count (descending)
+    const sortedSchemas = [...schemas].sort((a, b) =>
+        connectionCount[b.id] - connectionCount[a.id]
+    );
+
+    // Place most connected in center, others alternating left/right
+    const orderedSchemas = [];
+    const centerIdx = Math.floor(schemas.length / 2);
+    let left = centerIdx - 1;
+    let right = centerIdx + 1;
+
+    sortedSchemas.forEach((schema, i) => {
+        if (i === 0) {
+            orderedSchemas[centerIdx] = schema; // Hub in center
+        } else if (i % 2 === 1 && left >= 0) {
+            orderedSchemas[left--] = schema;
+        } else if (right < schemas.length) {
+            orderedSchemas[right++] = schema;
+        } else if (left >= 0) {
+            orderedSchemas[left--] = schema;
+        }
+    });
+
+    // Fill any gaps and use ordered schemas
+    schemas = orderedSchemas.filter(s => s);
 
     // Custom SVG for system diagram
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -2665,7 +2696,81 @@ function generateSystemDiagram(system) {
     });
 
     const svgWidth = totalWidth - gap + 40;
-    const svgHeight = maxHeight + 20;
+    const svgHeight = maxHeight + 60; // Extra space for relationship lines
+
+    // Find relationships between schemas using data.relationships
+    const connectionColor = isDark ? '#6B7280' : '#9CA3AF';
+    let connectionsSvg = '';
+
+    // Build a map of schema IDs to their index in tableMeta
+    const schemaIdToIdx = {};
+    schemas.forEach((schema, idx) => {
+        schemaIdToIdx[schema.id] = idx;
+    });
+
+    // Track connections per schema edge for offset calculation
+    const edgeConnections = {}; // key: "schemaIdx-side" -> count
+    const getEdgeKey = (idx, side) => `${idx}-${side}`;
+    const getEdgeOffset = (idx, side) => {
+        const key = getEdgeKey(idx, side);
+        edgeConnections[key] = (edgeConnections[key] || 0) + 1;
+        return (edgeConnections[key] - 1) * 20; // 20px offset per connection
+    };
+
+    // Draw relationships with smart anchor positioning (reuse relationships from ordering)
+    relationships.forEach(rel => {
+        const sourceIdx = schemaIdToIdx[rel.source];
+        const targetIdx = schemaIdToIdx[rel.target];
+
+        if (sourceIdx !== undefined && targetIdx !== undefined && sourceIdx !== targetIdx) {
+            const sourceMeta = tableMeta[sourceIdx];
+            const targetMeta = tableMeta[targetIdx];
+
+            // Determine which schema is left/right
+            const sourceIsLeft = sourceMeta.x < targetMeta.x;
+
+            // Calculate connection points on left/right edges
+            let sourceX, targetX, sourceSide, targetSide;
+            if (sourceIsLeft) {
+                sourceSide = 'right';
+                targetSide = 'left';
+                sourceX = sourceMeta.x + sourceMeta.width;
+                targetX = targetMeta.x;
+            } else {
+                sourceSide = 'left';
+                targetSide = 'right';
+                sourceX = sourceMeta.x;
+                targetX = targetMeta.x + targetMeta.width;
+            }
+
+            // Get vertical offsets for multiple connections to same edge
+            const sourceOffset = getEdgeOffset(sourceIdx, sourceSide);
+            const targetOffset = getEdgeOffset(targetIdx, targetSide);
+
+            // Y position: start from 40% down the table, offset for multiple connections
+            const sourceY = sourceMeta.height * 0.4 + sourceOffset;
+            const targetY = targetMeta.height * 0.4 + targetOffset;
+
+            // Calculate control points for smooth bezier curve
+            const controlOffset = Math.abs(targetX - sourceX) * 0.4;
+            const cp1x = sourceIsLeft ? sourceX + controlOffset : sourceX - controlOffset;
+            const cp2x = sourceIsLeft ? targetX - controlOffset : targetX + controlOffset;
+
+            // Draw smooth bezier curve
+            connectionsSvg += `<path d="M ${sourceX} ${sourceY} C ${cp1x} ${sourceY}, ${cp2x} ${targetY}, ${targetX} ${targetY}" fill="none" stroke="${connectionColor}" stroke-width="1.5"/>`;
+            connectionsSvg += `<circle cx="${sourceX}" cy="${sourceY}" r="3" fill="${connectionColor}"/>`;
+            connectionsSvg += `<circle cx="${targetX}" cy="${targetY}" r="3" fill="${connectionColor}"/>`;
+
+            // Draw FK name label at curve midpoint
+            const labelX = (sourceX + targetX) / 2;
+            const labelY = (sourceY + targetY) / 2 - 8;
+            const labelBg = isDark ? '#1F2937' : '#FFFFFF';
+            const labelText = isDark ? '#9CA3AF' : '#6B7280';
+            const labelWidth = rel.name.length * 6 + 8;
+            connectionsSvg += `<rect x="${labelX - labelWidth/2}" y="${labelY - 8}" width="${labelWidth}" height="14" fill="${labelBg}" rx="2"/>`;
+            connectionsSvg += `<text x="${labelX}" y="${labelY}" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="9" fill="${labelText}">${rel.name}</text>`;
+        }
+    });
 
     // Combine all table SVGs
     let tablesSvg = '';
@@ -2674,6 +2779,7 @@ function generateSystemDiagram(system) {
     });
 
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">
+        ${connectionsSvg}
         ${tablesSvg}
     </svg>`;
 

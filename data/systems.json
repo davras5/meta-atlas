@@ -23,7 +23,7 @@
     },
     "created": "2024-01-10",
     "updated": "2025-06-01",
-    "schemas": ["sch-sap-refx"]
+    "schemas": ["sch-sap-refx", "sch-sap-refx-parcel", "sch-sap-refx-measurements"]
   },
   {
     "id": "sys-postgis",

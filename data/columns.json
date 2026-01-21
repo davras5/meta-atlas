@@ -7,7 +7,6 @@
     "nullable": false,
     "key": "PK",
     "table": "VIBDBE",
-    "mapped_to": "egid",
     "description": {
       "de": "EGID Gebäudekennung",
       "en": "EGID building identifier"
@@ -22,7 +21,6 @@
     "nullable": false,
     "key": "",
     "table": "VIBDBE",
-    "mapped_to": "building_type",
     "description": {
       "de": "Gebäudetyp",
       "en": "Building type"
@@ -37,7 +35,6 @@
     "nullable": true,
     "key": "",
     "table": "VIBDBE",
-    "mapped_to": "address_street",
     "description": {
       "de": "Strassenadresse",
       "en": "Street address"
@@ -52,7 +49,6 @@
     "nullable": true,
     "key": "",
     "table": "VIBDBE",
-    "mapped_to": "address_city",
     "description": {
       "de": "Stadt/Ort",
       "en": "City/Location"
@@ -67,7 +63,6 @@
     "nullable": true,
     "key": "",
     "table": "VIBDBE",
-    "mapped_to": "construction_year",
     "description": {
       "de": "Baujahr",
       "en": "Construction year"
@@ -82,7 +77,6 @@
     "nullable": true,
     "key": "",
     "table": "VIBDBE",
-    "mapped_to": "total_area_sqm",
     "description": {
       "de": "Gesamtfläche m²",
       "en": "Total area m²"
@@ -97,7 +91,6 @@
     "nullable": true,
     "key": "",
     "table": "VIBDBE",
-    "mapped_to": "energy_rating",
     "description": {
       "de": "Energieeffizienzklasse",
       "en": "Energy efficiency class"
@@ -112,7 +105,6 @@
     "nullable": false,
     "key": "FK",
     "table": "VIBDBE",
-    "mapped_to": "plot_id",
     "description": {
       "de": "Referenz zum Grundstück",
       "en": "Reference to plot"
@@ -127,7 +119,6 @@
     "nullable": false,
     "key": "FK",
     "table": "VIBDGR",
-    "mapped_to": "plot_id",
     "description": {
       "de": "Grundstücks-ID",
       "en": "Plot ID"
@@ -142,7 +133,6 @@
     "nullable": false,
     "key": "",
     "table": "VIBDGR",
-    "mapped_to": "area_sqm",
     "description": {
       "de": "Fläche m²",
       "en": "Area m²"
@@ -157,7 +147,6 @@
     "nullable": true,
     "key": "",
     "table": "VIBDGR",
-    "mapped_to": "zone_type",
     "description": {
       "de": "Nutzungszone",
       "en": "Usage zone"
@@ -172,7 +161,6 @@
     "nullable": false,
     "key": "",
     "table": "VIBDGR",
-    "mapped_to": "municipality",
     "description": {
       "de": "Gemeinde",
       "en": "Municipality"
@@ -187,7 +175,6 @@
     "nullable": false,
     "key": "FK",
     "table": "VIOBJ",
-    "mapped_to": "unit_id",
     "description": {
       "de": "Mietobjekt-ID",
       "en": "Rental unit ID"
@@ -202,7 +189,6 @@
     "nullable": false,
     "key": "FK",
     "table": "VIOBJ",
-    "mapped_to": "building_egid",
     "description": {
       "de": "Gebäudereferenz",
       "en": "Building reference"
@@ -217,7 +203,6 @@
     "nullable": true,
     "key": "",
     "table": "VIOBJ",
-    "mapped_to": "floor",
     "description": {
       "de": "Stockwerk",
       "en": "Floor"
@@ -232,7 +217,6 @@
     "nullable": false,
     "key": "",
     "table": "VIOBJ",
-    "mapped_to": "area_sqm",
     "description": {
       "de": "Fläche m²",
       "en": "Area m²"
@@ -247,7 +231,6 @@
     "nullable": false,
     "key": "",
     "table": "VIOBJ",
-    "mapped_to": "unit_type",
     "description": {
       "de": "Objekttyp",
       "en": "Unit type"
@@ -262,12 +245,235 @@
     "nullable": true,
     "key": "",
     "table": "VIOBJ",
-    "mapped_to": "rent_monthly",
     "description": {
       "de": "Monatsmiete",
       "en": "Monthly rent"
     },
     "display_order": 18
+  },
+  {
+    "id": "col-sap-parcel-PARZID",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "PARZID",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "PK",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Parzellen-ID",
+      "en": "Parcel ID"
+    },
+    "display_order": 1
+  },
+  {
+    "id": "col-sap-parcel-PARZNR",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "PARZNR",
+    "type": "VARCHAR(30)",
+    "nullable": false,
+    "key": "UK",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Parzellennummer (amtlich)",
+      "en": "Parcel number (official)"
+    },
+    "display_order": 2
+  },
+  {
+    "id": "col-sap-parcel-EGRID",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "EGRID",
+    "type": "CHAR(14)",
+    "nullable": true,
+    "key": "",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "E-GRID Grundstücksidentifikator",
+      "en": "E-GRID parcel identifier"
+    },
+    "display_order": 3
+  },
+  {
+    "id": "col-sap-parcel-GBKREIS",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "GBKREIS",
+    "type": "VARCHAR(100)",
+    "nullable": false,
+    "key": "",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Grundbuchkreis",
+      "en": "Land registry district"
+    },
+    "display_order": 4
+  },
+  {
+    "id": "col-sap-parcel-PARZAREA",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "PARZAREA",
+    "type": "DECIMAL(12,2)",
+    "nullable": false,
+    "key": "",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Fläche m²",
+      "en": "Area m²"
+    },
+    "display_order": 5
+  },
+  {
+    "id": "col-sap-parcel-NUTZART",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "NUTZART",
+    "type": "CHAR(10)",
+    "nullable": true,
+    "key": "",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Nutzungsart",
+      "en": "Land use type"
+    },
+    "display_order": 6
+  },
+  {
+    "id": "col-sap-parcel-BAUZONE",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "BAUZONE",
+    "type": "VARCHAR(50)",
+    "nullable": true,
+    "key": "",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Bauzone",
+      "en": "Zoning type"
+    },
+    "display_order": 7
+  },
+  {
+    "id": "col-sap-parcel-EIGENTUM",
+    "schema_id": "sch-sap-refx-parcel",
+    "name": "EIGENTUM",
+    "type": "VARCHAR(100)",
+    "nullable": false,
+    "key": "",
+    "table": "VIPARCEL",
+    "description": {
+      "de": "Eigentumsart",
+      "en": "Ownership type"
+    },
+    "display_order": 8
+  },
+  {
+    "id": "col-sap-meas-MESSID",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "MESSID",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "PK",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Vermessungs-ID",
+      "en": "Measurement ID"
+    },
+    "display_order": 1
+  },
+  {
+    "id": "col-sap-meas-EGID_REF",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "EGID_REF",
+    "type": "CHAR(20)",
+    "nullable": false,
+    "key": "FK",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Gebäudereferenz (EGID)",
+      "en": "Building reference (EGID)"
+    },
+    "display_order": 2
+  },
+  {
+    "id": "col-sap-meas-MESSTYP",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "MESSTYP",
+    "type": "CHAR(10)",
+    "nullable": false,
+    "key": "",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Vermessungsart (GF, NF, HNF, etc.)",
+      "en": "Measurement type (GF, NF, HNF, etc.)"
+    },
+    "display_order": 3
+  },
+  {
+    "id": "col-sap-meas-FLAECHE",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "FLAECHE",
+    "type": "DECIMAL(12,2)",
+    "nullable": false,
+    "key": "",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Fläche m²",
+      "en": "Area m²"
+    },
+    "display_order": 4
+  },
+  {
+    "id": "col-sap-meas-MESSDATUM",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "MESSDATUM",
+    "type": "DATE",
+    "nullable": false,
+    "key": "",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Vermessungsdatum",
+      "en": "Measurement date"
+    },
+    "display_order": 5
+  },
+  {
+    "id": "col-sap-meas-NORM",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "NORM",
+    "type": "VARCHAR(50)",
+    "nullable": true,
+    "key": "",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Vermessungsnorm (SIA 416, DIN 277)",
+      "en": "Measurement standard (SIA 416, DIN 277)"
+    },
+    "display_order": 6
+  },
+  {
+    "id": "col-sap-meas-ETAGE",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "ETAGE",
+    "type": "VARCHAR(20)",
+    "nullable": true,
+    "key": "",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Stockwerk/Etage",
+      "en": "Floor/Level"
+    },
+    "display_order": 7
+  },
+  {
+    "id": "col-sap-meas-BEMERKUNG",
+    "schema_id": "sch-sap-refx-measurements",
+    "name": "BEMERKUNG",
+    "type": "VARCHAR(500)",
+    "nullable": true,
+    "key": "",
+    "table": "VIMEAS",
+    "description": {
+      "de": "Bemerkungen",
+      "en": "Remarks"
+    },
+    "display_order": 8
   },
   {
     "id": "col-postgis-geo-id",
@@ -277,7 +483,6 @@
     "nullable": false,
     "key": "PK",
     "table": "buildings",
-    "mapped_to": "",
     "description": {
       "de": "Primärschlüssel",
       "en": "Primary key"
@@ -292,7 +497,6 @@
     "nullable": false,
     "key": "UK",
     "table": "buildings",
-    "mapped_to": "egid",
     "description": {
       "de": "EGID Referenz",
       "en": "EGID reference"
@@ -307,7 +511,6 @@
     "nullable": false,
     "key": "",
     "table": "buildings",
-    "mapped_to": "",
     "description": {
       "de": "Gebäudeumriss LV95",
       "en": "Building footprint LV95"
@@ -322,7 +525,6 @@
     "nullable": true,
     "key": "",
     "table": "buildings",
-    "mapped_to": "",
     "description": {
       "de": "Grundfläche m²",
       "en": "Footprint area m²"
@@ -337,7 +539,6 @@
     "nullable": true,
     "key": "",
     "table": "buildings",
-    "mapped_to": "",
     "description": {
       "de": "Gebäudemittelpunkt",
       "en": "Building centroid"
@@ -352,7 +553,6 @@
     "nullable": false,
     "key": "FK",
     "table": "locations",
-    "mapped_to": "location_id",
     "description": {
       "de": "Standort-ID",
       "en": "Location ID"
@@ -367,7 +567,6 @@
     "nullable": false,
     "key": "",
     "table": "locations",
-    "mapped_to": "coord_e",
     "description": {
       "de": "Koordinate Ost",
       "en": "Easting coordinate"
@@ -382,7 +581,6 @@
     "nullable": false,
     "key": "",
     "table": "locations",
-    "mapped_to": "coord_n",
     "description": {
       "de": "Koordinate Nord",
       "en": "Northing coordinate"
@@ -397,7 +595,6 @@
     "nullable": true,
     "key": "",
     "table": "locations",
-    "mapped_to": "elevation",
     "description": {
       "de": "Höhe über Meer",
       "en": "Elevation"
@@ -412,7 +609,6 @@
     "nullable": false,
     "key": "FK",
     "table": "addresses",
-    "mapped_to": "address_id",
     "description": {
       "de": "Adress-ID",
       "en": "Address ID"
@@ -427,7 +623,6 @@
     "nullable": false,
     "key": "",
     "table": "addresses",
-    "mapped_to": "street",
     "description": {
       "de": "Strasse",
       "en": "Street"
@@ -442,7 +637,6 @@
     "nullable": true,
     "key": "",
     "table": "addresses",
-    "mapped_to": "house_number",
     "description": {
       "de": "Hausnummer",
       "en": "House number"
@@ -457,7 +651,6 @@
     "nullable": false,
     "key": "",
     "table": "addresses",
-    "mapped_to": "postal_code",
     "description": {
       "de": "Postleitzahl",
       "en": "Postal code"
@@ -472,7 +665,6 @@
     "nullable": false,
     "key": "",
     "table": "addresses",
-    "mapped_to": "city",
     "description": {
       "de": "Ort",
       "en": "City"
@@ -487,7 +679,6 @@
     "nullable": false,
     "key": "PK",
     "table": "PROJ",
-    "mapped_to": "project_id",
     "description": {
       "de": "Projektnummer",
       "en": "Project number"
@@ -502,7 +693,6 @@
     "nullable": false,
     "key": "",
     "table": "PROJ",
-    "mapped_to": "name",
     "description": {
       "de": "Projektbezeichnung",
       "en": "Project name"
@@ -517,7 +707,6 @@
     "nullable": true,
     "key": "FK",
     "table": "PROJ",
-    "mapped_to": "building_egid",
     "description": {
       "de": "Gebäudereferenz",
       "en": "Building reference"
@@ -532,7 +721,6 @@
     "nullable": false,
     "key": "",
     "table": "PROJ",
-    "mapped_to": "phase",
     "description": {
       "de": "Projektphase",
       "en": "Project phase"
@@ -547,7 +735,6 @@
     "nullable": true,
     "key": "",
     "table": "PROJ",
-    "mapped_to": "budget_chf",
     "description": {
       "de": "Projektbudget",
       "en": "Project budget"
@@ -562,7 +749,6 @@
     "nullable": true,
     "key": "",
     "table": "PROJ",
-    "mapped_to": "start_date",
     "description": {
       "de": "Startdatum",
       "en": "Start date"
@@ -577,7 +763,6 @@
     "nullable": true,
     "key": "",
     "table": "PROJ",
-    "mapped_to": "end_date",
     "description": {
       "de": "Enddatum",
       "en": "End date"
@@ -592,7 +777,6 @@
     "nullable": false,
     "key": "FK",
     "table": "CSKS",
-    "mapped_to": "cost_center_id",
     "description": {
       "de": "Kostenstellen-ID",
       "en": "Cost center ID"
@@ -607,7 +791,6 @@
     "nullable": false,
     "key": "",
     "table": "CSKS",
-    "mapped_to": "name",
     "description": {
       "de": "Kostenstellenbezeichnung",
       "en": "Cost center name"
@@ -622,7 +805,6 @@
     "nullable": true,
     "key": "",
     "table": "CSKS",
-    "mapped_to": "responsible_person",
     "description": {
       "de": "Verantwortlicher",
       "en": "Responsible person"
@@ -637,7 +819,6 @@
     "nullable": false,
     "key": "",
     "table": "CSKS",
-    "mapped_to": "budget_year",
     "description": {
       "de": "Geschäftsjahr",
       "en": "Fiscal year"

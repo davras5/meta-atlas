@@ -18,9 +18,9 @@
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/71304",
     "status": "active",
     "domain": "dom-immo",
-    "physicalSchemas": ["sch-sap-refx", "sch-postgis-geo"],
+    "physicalSchemas": ["sch-sap-refx", "sch-postgis-geo", "sch-sap-refx-measurements"],
     "created": "2024-01-20",
-    "updated": "2025-01-10"
+    "updated": "2025-01-21"
   },
   {
     "id": "ent-plot",
@@ -41,9 +41,9 @@
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/55892",
     "status": "active",
     "domain": "dom-immo",
-    "physicalSchemas": ["sch-sap-refx"],
+    "physicalSchemas": ["sch-sap-refx-parcel", "sch-sap-refx"],
     "created": "2024-01-20",
-    "updated": "2024-08-15"
+    "updated": "2025-01-21"
   },
   {
     "id": "ent-rental-unit",
