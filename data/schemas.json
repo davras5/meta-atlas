@@ -19,7 +19,7 @@
     "id": "sch-postgis-geo",
     "type": "schema",
     "layer": "physical",
-    "name": "geo",
+    "name": "Building",
     "description": {
       "de": "Geodaten-Schema in PostGIS",
       "en": "Geodata schema in PostGIS",
