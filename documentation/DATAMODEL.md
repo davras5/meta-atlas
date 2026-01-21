@@ -2,22 +2,68 @@
 
 ## 1. Overview
 
-### 1.1 Purpose
+### 1.1 Principles
 
-This document defines the data model for the Metadata Catalog prototype. The model bridges:
+| Principle | Description |
+|-----------|-------------|
+| **Interoperability** | Align with Swiss (eCH, I14Y) and international (DCAT, ISO) standards for seamless data exchange |
+| **Reusability** | Define once, use everywhere — Concepts, ValueDomains, and entities shareable across projects |
+| **API First** | Design for programmatic access; all data accessible via REST/GraphQL APIs |
+| **Open by Default** | Public metadata unless classified; support opendata.swiss publication |
+| **Multilingual** | Native DE/FR/IT/EN support for all content in Switzerland's four-language context |
+| **Separation of Concerns** | Clear boundaries between Conceptual, Logical, and Physical layers |
+| **Single Source of Truth** | One authoritative definition per concept, entity, or code list |
+| **Traceability** | Full lineage from business concept to physical implementation |
 
-- **TOGAF Data Architecture** layers (Conceptual, Logical, Physical)
-- **Swiss Federal Standards** (I14Y, DCAT-AP CH, eCH)
-- **International Standards** (W3C DCAT 3, Dublin Core, ISO 11179)
+### 1.2 Requirements
 
-### 1.2 Design Principles
+This document defines the data model for the Metadata Catalog prototype. The following requirements guide the design:
 
-1. **Standards-Based**: Align with established metadata standards where possible
-2. **Layer Separation**: Clear distinction between conceptual, logical, and physical entities
-3. **Cross-Layer Traceability**: Enable navigation and impact analysis across layers
-4. **Swiss Context**: Support Swiss federal compliance requirements (DSG, ISG)
-5. **Multilingual**: Native support for DE/FR/IT/EN content
-6. **Extensible**: Allow for additional metadata without schema changes
+| ID | Category | Requirement | Description | Status |
+|----|----------|-------------|-------------|--------|
+| **Architecture** |||||
+| R-01 | Architecture | TOGAF layer model (Conceptual, Logical, Physical) | Three distinct layers: Conceptual (Domain, Concept), Logical (Entity, Attribute, ValueDomain), Physical (System, Table, Column, Dataset) | ✅ Implemented |
+| R-02 | Architecture | Documentation of data lineage | Track data flow from source systems through transformations to targets with lineage JSONB structure | ✅ Implemented |
+| **Standards** |||||
+| R-03 | Standards | DCAT 3 class alignment | Map to Dataset, Distribution, DataService classes with compatible properties | ✅ Implemented |
+| R-04 | Standards | I14Y information model | Align with Catalog → Dataset → Structure → DataElement → Concept hierarchy | ✅ Implemented |
+| R-05 | Standards | ISO 11179 metadata registry | Support Concept definitions, Value Domains, and data element registration patterns | ✅ Implemented |
+| R-06 | Standards | DCAT-AP CH 2.0 (Swiss profile) | Swiss-specific properties, controlled vocabularies, opendata.swiss compatibility | ✅ Implemented |
+| R-07 | Standards | eCH standards (0122, 0200) | eCH-0122 architecture framework, eCH-0200 DCAT-AP CH profile compliance | ✅ Implemented |
+| **Swiss Platforms** |||||
+| R-08 | Swiss | I14Y platform compatibility | Export/sync metadata with [i14y.admin.ch](https://www.i14y.admin.ch) interoperability platform | ⚠️ Schema ready |
+| R-09 | Swiss | LINDAS linked data | RDF export for [lindas.admin.ch](https://lindas.admin.ch) federal linked data service | 🔲 Planned |
+| R-10 | Swiss | TERMDAT terminology links | Link Concepts to federal terminology database [TERMDAT](https://www.termdat.bk.admin.ch) | 🔲 Planned |
+| **Data Management** |||||
+| R-11 | Data Mgmt | Business glossary / terminology | Concept entity with multilingual definitions, synonyms, business rules, related concepts | ✅ Implemented |
+| R-12 | Data Mgmt | Code lists / reference data | ValueDomain entity with coded values, multilingual labels, external source references | ✅ Implemented |
+| R-13 | Data Mgmt | Entity relationships | Relationship entity with types (1:1, 1:n, n:m), cardinality, and descriptions | ✅ Implemented |
+| R-14 | Data Mgmt | Physical-to-logical mappings | Column.mappedTo links physical columns to logical attributes; Entity.physicalTables references | ✅ Implemented |
+| R-15 | Data Mgmt | Business metadata references | Link entities to standards (eCH, SIA), laws (DSG, ISG, GeoIG), and business processes | ✅ Implemented |
+| R-16 | Data Mgmt | Data quality definitions | Quality dimensions (accuracy, completeness, timeliness), rules, and metrics per entity | ⚠️ Schema ready |
+| **Data Governance** |||||
+| R-17 | Governance | BFS role model | Four roles: Data Owner (decides purpose), Steward (standardizes), Custodian (technical), Consumer (uses) | ✅ Implemented |
+| R-18 | Governance | Entity-level assignments | GovernanceAssignment links roles to any entity type with valid_from/valid_to periods | ✅ Implemented |
+| R-19 | Governance | Public/Private access control | Content visibility: public (no login) vs. restricted (authenticated users only) | ⚠️ Schema ready |
+| **Compliance** |||||
+| R-20 | Compliance | DSG data protection | Track personal_data, special_categories, data_subjects, retention_period; [EDÖB](https://www.edoeb.admin.ch) reporting ready | ✅ Implemented |
+| R-21 | Compliance | ISG classification | Security levels: öffentlich, intern, vertraulich, geheim (public, internal, confidential, secret) | ✅ Implemented |
+| R-22 | Compliance | Legal basis documentation | legal_references array with law, article, description, and URL for each legal basis | ✅ Implemented |
+| R-23 | Compliance | Swiss Federal ISMS alignment | Security classification compatible with federal ISMS framework | ⚠️ Schema ready |
+| **Versioning** |||||
+| R-24 | Versioning | Project version snapshots | ProjectVersion stores complete JSONB snapshot of all entities at publication time | ✅ Implemented |
+| R-25 | Versioning | Change log (audit trail) | Changelog tracks entity_type, action, changed_fields, before/after values for all changes | ✅ Implemented |
+| R-26 | Versioning | Version comparison (diff) | Schema supports diff via snapshots and changelog; UI implementation pending | ⚠️ Schema ready |
+| **Operations** |||||
+| R-27 | Operations | Multi-tenant projects | Project entity isolates data; all content entities have project_id foreign key | ✅ Implemented |
+| R-28 | Operations | User roles & permissions | ProjectUser with roles: admin (full), editor (content), viewer (read-only) | ✅ Implemented |
+| R-29 | Operations | Import/Export (JSON) | Static JSON files in data/ folder; structure matches database schema for migration | ✅ Implemented |
+| **Technical** |||||
+| R-30 | Technical | Multilingual support | JSONB with de (required), fr, it, en keys for all text fields (name, description) | ✅ Implemented |
+| R-31 | Technical | User-defined properties | JSONB fields (metadata, compliance, extra) allow custom properties without schema changes | ✅ Implemented |
+| R-32 | Technical | Bi-temporal versioning | valid_from/valid_to timestamps on entities; supports point-in-time queries | ✅ Implemented |
+
+**Summary:** 32 requirements — ✅ 23 Implemented, ⚠️ 6 Schema ready, 🔲 3 Planned
 
 ### 1.3 Data Storage Strategy
 
