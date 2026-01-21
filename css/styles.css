@@ -13,6 +13,7 @@ html {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: "kern" 1, "liga" 1;
+    overflow-x: hidden;
 }
 
 body {
@@ -22,6 +23,7 @@ body {
     background-color: var(--color-bg-base);
     color: var(--color-text-primary);
     letter-spacing: var(--tracking-normal);
+    overflow-x: hidden;
 }
 
 /* ===== Focus States ===== */
@@ -1264,6 +1266,8 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    padding: var(--space-8) var(--space-10);
+    gap: var(--space-6);
 }
 
 /* ===== Breadcrumb - Refined ===== */
@@ -1301,15 +1305,6 @@ body {
     color: var(--color-text-primary);
     font-weight: var(--font-semibold);
     padding: var(--space-1-5) var(--space-2-5);
-}
-
-/* ===== Content Area - Refined ===== */
-.content-area {
-    flex: 1;
-    padding: var(--space-8) var(--space-10);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
 }
 
 #contentBody {
@@ -1600,8 +1595,21 @@ body {
     border-top: 1px solid var(--color-border-subtle);
 }
 
+.card-content--flush {
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .card.collapsed .card-content {
     display: none;
+}
+
+/* Coming soon hint text */
+.coming-soon-hint {
+    margin-top: var(--space-4);
+    opacity: 0.5;
+    font-size: var(--text-caption);
 }
 
 /* ===== Metadata Grid - Refined ===== */
@@ -1770,6 +1778,7 @@ body {
     border-collapse: separate;
     border-spacing: 0;
     font-size: var(--text-small);
+    table-layout: auto;
 }
 
 /* Light mode table with subtle depth */
@@ -1788,6 +1797,7 @@ body {
     text-transform: uppercase;
     letter-spacing: var(--tracking-wider);
     border-bottom: 1px solid var(--color-border-subtle);
+    white-space: nowrap;
 }
 
 .data-table th:first-child {
@@ -1803,6 +1813,7 @@ body {
     border-bottom: 1px solid var(--color-border-subtle);
     vertical-align: middle;
     line-height: var(--leading-small);
+    word-break: break-word;
 }
 
 /* Unified row hover */
@@ -2404,6 +2415,23 @@ body {
         transform: translateX(-100%);
     }
 
+    /* Make toggle larger and keep it visible when sidebar is collapsed */
+    .sidebar-toggle {
+        width: 44px;
+        height: 44px;
+        right: -22px;
+    }
+
+    .sidebar.collapsed .sidebar-toggle {
+        position: fixed;
+        left: 12px;
+        top: calc(var(--header-height) + 12px);
+        right: auto;
+        transform: none;
+        z-index: 51;
+        box-shadow: var(--shadow-md);
+    }
+
     .sidebar-overlay {
         position: fixed;
         inset: 0;
@@ -2431,7 +2459,7 @@ body {
         display: none;
     }
 
-    .content-area {
+    .main-content {
         padding: var(--space-4);
     }
 
@@ -2448,9 +2476,82 @@ body {
         padding: 0;
     }
 
-    .data-table {
-        display: block;
+    .data-table th,
+    .data-table td {
+        padding: var(--space-2) var(--space-3);
+    }
+
+    /* Mobile touch targets - 44px minimum */
+    .header-right .icon-btn,
+    .search-toggle,
+    .lang-selector {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .sidebar-control-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Better dropdown/menu option spacing for touch */
+    .dropdown-option,
+    .sort-option,
+    .group-by-option {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    /* Footer text more readable */
+    .footer {
+        font-size: var(--text-small);
+    }
+
+    /* Diagram controls larger on mobile */
+    .diagram-control-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 480px) {
+    .main-content {
+        padding: var(--space-3);
+    }
+
+    .header {
+        padding: 0 var(--space-3);
+    }
+
+    .card-header {
+        padding: var(--space-3);
+    }
+
+    .card-content {
+        padding: var(--space-3);
+    }
+
+    /* Stack breadcrumb items */
+    .breadcrumb {
+        flex-wrap: wrap;
+    }
+
+    /* Ensure touch targets are large enough */
+    .header-right .icon-btn,
+    .search-toggle {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Tabs stack or scroll */
+    .tabs {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-btn {
+        padding: var(--space-2) var(--space-3);
+        white-space: nowrap;
     }
 }
 
@@ -2781,14 +2882,8 @@ body {
 .catalogs-overview-mode .main-content {
     padding: var(--space-8);
     width: 100%;
-}
-
-.catalogs-overview-mode .content-area {
     max-width: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: var(--space-8);
+    align-items: center;
 }
 
 /* ===== Global Animations ===== */
@@ -3003,7 +3098,7 @@ html {
 /* Light mode diagram adjustments */
 [data-theme="light"] .diagram-controls {
     background: #FFFFFF;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
 }
 
 [data-theme="light"] .diagram-card .diagram-legend {
@@ -3093,8 +3188,10 @@ html {
 
 @media (max-width: 768px) {
     .footer {
-        flex-direction: column;
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .footer-left {
         gap: var(--space-1);
-        text-align: center;
     }
 }

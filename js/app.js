@@ -128,6 +128,8 @@ const data = {
 
 async function loadData() {
     try {
+        console.time('⏱️ Total loadData');
+        console.time('⏱️ Fetch JSON files');
         const [catalogs, domains, entities, systems, schemas, enumerations, attributes, columns] = await Promise.all([
             fetch('data/catalogs.json').then(r => r.json()),
             fetch('data/domains.json').then(r => r.json()),
@@ -138,6 +140,7 @@ async function loadData() {
             fetch('data/attributes.json').then(r => r.json()),
             fetch('data/columns.json').then(r => r.json())
         ]);
+        console.timeEnd('⏱️ Fetch JSON files');
 
         data.catalogs = catalogs;
         data.domains = domains;
@@ -148,6 +151,7 @@ async function loadData() {
         data.attributes = attributes;
         data.columns = columns;
 
+        console.time('⏱️ Process data relationships');
         // Attach attributes to entities
         data.entities.forEach(entity => {
             entity.attributes = data.attributes
@@ -178,7 +182,9 @@ async function loadData() {
                     description: col.description
                 }));
         });
+        console.timeEnd('⏱️ Process data relationships');
 
+        console.timeEnd('⏱️ Total loadData');
         return true;
     } catch (error) {
         console.error('Failed to load data:', error);
@@ -579,13 +585,11 @@ function renderApp() {
 
             <!-- Main Content -->
             <main class="main-content" id="main-content">
-                <div class="content-area" id="contentArea">
-                    <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
-                        <!-- Breadcrumb will be rendered here -->
-                    </nav>
-                    <div id="contentBody">
-                        <!-- Content will be rendered here -->
-                    </div>
+                <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
+                    <!-- Breadcrumb will be rendered here -->
+                </nav>
+                <div id="contentBody">
+                    <!-- Content will be rendered here -->
                 </div>
             </main>
         </div>
@@ -1005,9 +1009,6 @@ function updateLayoutForView() {
 
 function renderCatalogsOverview() {
     try {
-        const contentArea = getElement('contentArea');
-        if (!contentArea) return;
-
         const container = getElement('contentBody');
         if (!container) return;
 
@@ -1137,8 +1138,8 @@ function getEntityKPIs(item) {
 
 function renderContent() {
     try {
-        const contentArea = getElement('contentArea');
-        if (!contentArea) return;
+        const contentBody = getElement('contentBody');
+        if (!contentBody) return;
 
         // Show catalogs overview when on root route
         if (state.showCatalogsOverview) {
@@ -1308,7 +1309,7 @@ function renderWikiView(item) {
                     <span class="card-title">Logische Entitäten (${domainEntities.length})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
-                <div class="card-content" style="padding: 0;">
+                <div class="card-content card-content--flush">
                     ${domainEntities.length > 0 ? `
                         <table class="data-table">
                             <thead>
@@ -1343,7 +1344,7 @@ function renderWikiView(item) {
                     <span class="card-title">Schemas (${systemSchemas.length})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
-                <div class="card-content" style="padding: 0;">
+                <div class="card-content card-content--flush">
                     ${systemSchemas.length > 0 ? `
                         <table class="data-table">
                             <thead>
@@ -1409,7 +1410,7 @@ function renderWikiView(item) {
                     <span class="card-title">${isAttribute ? 'Attribute' : 'Spalten'} (${attrs.length})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
-                <div class="card-content" style="padding: 0;">
+                <div class="card-content card-content--flush">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -1540,7 +1541,7 @@ function renderAttributeDetailView(attr, parentItem) {
                     <span class="card-title">Referenzdaten (${enumeration.values?.length || 0})</span>
                     <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                 </div>
-                <div class="card-content" style="padding: 0;">
+                <div class="card-content card-content--flush">
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -1764,7 +1765,7 @@ function renderCatalogMembersTab(catalog) {
                 <span class="card-title">Teammitglieder (${members.length})</span>
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
-            <div class="card-content" style="padding: 0;">
+            <div class="card-content card-content--flush">
                 ${members.length > 0 ? `
                     <div class="members-list">
                         ${members.map(member => `
@@ -1902,7 +1903,7 @@ function renderPlaceholderView(view) {
             <div class="placeholder-icon" aria-hidden="true">${info.icon}</div>
             <h3 class="placeholder-title">${info.title}</h3>
             <p class="placeholder-desc">${info.desc}</p>
-            <p style="margin-top: var(--space-4); opacity: 0.5; font-size: var(--text-caption);">Demnächst verfügbar</p>
+            <p class="coming-soon-hint">Demnächst verfügbar</p>
         </div>
     `;
 }
@@ -1913,17 +1914,10 @@ function renderDiagramView(item) {
 
     // Schedule diagram rendering after DOM update
     setTimeout(() => {
-        if (diagramResult.type === 'custom') {
-            // Custom SVG - inject directly
-            const element = document.getElementById(diagramId);
-            if (element) {
-                element.innerHTML = diagramResult.svg;
-                initDiagramControls(diagramId);
-            }
-        } else if (diagramResult.type === 'd2') {
-            initD2Diagram(diagramId, diagramResult.code, item.layer, item.type);
-        } else {
-            initMermaidDiagram(diagramId, diagramResult.code, item.layer, item.type);
+        const element = document.getElementById(diagramId);
+        if (element) {
+            element.innerHTML = diagramResult.svg;
+            initDiagramControls(diagramId);
         }
     }, 0);
 
@@ -2133,251 +2127,6 @@ function toggleFullscreen(element) {
     }
 }
 
-function initMermaidDiagram(elementId, code, layer = null, type = null) {
-    const element = document.getElementById(elementId);
-    if (!element || !window.mermaid) return;
-
-    // Initialize Mermaid with theme settings
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-    mermaid.initialize({
-        startOnLoad: false,
-        theme: isDark ? 'dark' : 'default',
-        themeVariables: isDark ? {
-            primaryColor: '#4F8EF7',
-            primaryTextColor: '#F0F3F6',
-            primaryBorderColor: '#4F8EF7',
-            lineColor: '#5C6A7A',
-            secondaryColor: '#22C997',
-            tertiaryColor: '#F5A524',
-            background: '#171C24',
-            mainBkg: '#1F252E',
-            nodeBorder: '#5C6A7A',
-            clusterBkg: '#1F252E',
-            titleColor: '#F0F3F6',
-            edgeLabelBackground: '#171C24'
-        } : {
-            primaryColor: '#3574E8',
-            primaryTextColor: '#1A1F26',
-            primaryBorderColor: '#3574E8',
-            lineColor: '#6E7A89',
-            secondaryColor: '#0FA87C',
-            tertiaryColor: '#E09412',
-            background: '#FFFFFF',
-            mainBkg: '#F4F6F8',
-            nodeBorder: '#9CA7B4',
-            clusterBkg: '#F4F6F8',
-            titleColor: '#1A1F26',
-            edgeLabelBackground: '#FFFFFF'
-        },
-        flowchart: {
-            useMaxWidth: true,
-            htmlLabels: true,
-            curve: 'basis'
-        },
-        er: {
-            useMaxWidth: true,
-            layoutDirection: 'TB'
-        }
-    });
-
-    mermaid.render(`${elementId}-svg`, code).then(({ svg }) => {
-        element.innerHTML = svg;
-        // Apply layer-specific colors to ER diagram entities via post-processing
-        if (code.startsWith('erDiagram')) {
-            applyErDiagramColors(element, layer, type, isDark);
-        }
-        // Initialize pan/zoom controls
-        initDiagramControls(elementId);
-    }).catch(err => {
-        console.error('Mermaid rendering error:', err);
-        element.innerHTML = `<div class="diagram-error">Diagramm konnte nicht gerendert werden</div>`;
-    });
-}
-
-// Render D2 diagram with SQL table support and full Unicode
-async function initD2Diagram(elementId, code, layer = null, type = null) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-
-    // Check if D2 is ready
-    if (!window.d2Ready || !window.d2Instance) {
-        // Wait for D2 to be ready
-        await new Promise(resolve => {
-            if (window.d2Ready) {
-                resolve();
-            } else {
-                window.addEventListener('d2-ready', resolve, { once: true });
-            }
-        });
-    }
-
-    try {
-        const d2 = window.d2Instance;
-        const result = await d2.compile(code);
-
-        if (result.diagram) {
-            // Merge render options with transparent background
-            const renderOptions = {
-                ...result.renderOptions,
-                themeOverrides: {
-                    ...(result.renderOptions?.themeOverrides || {}),
-                    N1: 'transparent',  // Background color
-                    B1: 'transparent',  // Canvas background
-                }
-            };
-            const svg = await d2.render(result.diagram, renderOptions);
-            element.innerHTML = svg;
-
-            // Apply custom styling to D2 SVG for layer colors
-            applyD2DiagramColors(element, layer, type);
-            // Initialize pan/zoom controls
-            initDiagramControls(elementId);
-        } else {
-            throw new Error('Failed to compile D2 diagram');
-        }
-    } catch (err) {
-        console.error('D2 rendering error:', err);
-        element.innerHTML = `<div class="diagram-error">Diagramm konnte nicht gerendert werden: ${escapeHtml(err.message)}</div>`;
-    }
-}
-
-// Apply colors to D2 diagram based on layer (logical=green, physical=orange)
-function applyD2DiagramColors(container, layer, type) {
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-
-    // Remove background rectangle (first rect in SVG is usually the background)
-    const svg = container.querySelector('svg');
-    if (svg) {
-        // Find and remove or make transparent the background rect
-        const bgRect = svg.querySelector('rect:first-of-type');
-        if (bgRect && !bgRect.closest('.shape')) {
-            bgRect.setAttribute('fill', 'transparent');
-        }
-        // Also check for style attribute
-        const allRects = svg.querySelectorAll('rect');
-        allRects.forEach(rect => {
-            const fill = rect.getAttribute('fill') || '';
-            // If it's white or near-white and covers the whole canvas, make transparent
-            if ((fill === '#FFFFFF' || fill === 'white' || fill === '#ffffff') &&
-                !rect.closest('.shape') && !rect.closest('g[class*="shape"]')) {
-                rect.setAttribute('fill', 'transparent');
-            }
-        });
-    }
-
-    // Alternating row colors (light backgrounds like Mermaid)
-    const rowEvenFill = isDark ? '#2A2F36' : '#FFFFFF';
-    const rowOddFill = isDark ? '#1F2328' : '#F4F6F8';
-    const textColor = isDark ? '#E5E7EB' : '#1A1F26';
-
-    // D2 sql_table generates rect elements for header and rows
-    // The native style.fill in D2 code handles header color
-    // Here we just apply alternating row colors
-
-    // Find all rect elements in the SVG
-    const allRects = container.querySelectorAll('rect');
-
-    // Group rects by their parent (each table)
-    const tables = new Map();
-    allRects.forEach(rect => {
-        const parent = rect.closest('g');
-        if (parent) {
-            if (!tables.has(parent)) {
-                tables.set(parent, []);
-            }
-            tables.get(parent).push(rect);
-        }
-    });
-
-    // Process each table group
-    tables.forEach((rects, tableGroup) => {
-        // Skip if only one rect (likely not a table) or table outline
-        if (rects.length <= 1) return;
-
-        // Sort rects by Y position to identify header vs rows
-        const sortedRects = [...rects].sort((a, b) => {
-            const aY = parseFloat(a.getAttribute('y') || 0);
-            const bY = parseFloat(b.getAttribute('y') || 0);
-            return aY - bY;
-        });
-
-        // Apply alternating colors to rows (skip first rect which is header - styled by D2)
-        sortedRects.forEach((rect, idx) => {
-            if (idx === 0) {
-                // Header - D2's style.fill handles this
-                return;
-            }
-            // Alternating row colors
-            rect.style.fill = (idx % 2 === 1) ? rowEvenFill : rowOddFill;
-        });
-    });
-
-    // Improve text contrast
-    const texts = container.querySelectorAll('text');
-    texts.forEach(text => {
-        // Check if this text is inside a header (first row)
-        const parentRect = text.closest('g')?.querySelector('rect');
-        if (parentRect) {
-            const fill = parentRect.style.fill || parentRect.getAttribute('fill') || '';
-            // If fill matches our layer colors, it's a header
-            if (fill.includes('#22C997') || fill.includes('#0FA87C') ||
-                fill.includes('#F5A524') || fill.includes('#E09412')) {
-                text.style.fill = isDark ? '#0F1419' : '#FFFFFF';
-                text.style.fontWeight = '600';
-            } else {
-                text.style.fill = textColor;
-            }
-        }
-    });
-}
-
-// Apply colors to ER diagram entities based on layer (logical=green, physical=orange)
-function applyErDiagramColors(container, layer, type, isDark) {
-    const entityBoxes = container.querySelectorAll('.entityBox');
-    if (!entityBoxes.length) return;
-
-    // Define colors based on theme
-    const logicalFill = isDark ? '#22C997' : '#0FA87C';
-    const logicalStroke = isDark ? '#3DDBA8' : '#22C997';
-    const physicalFill = isDark ? '#F5A524' : '#E09412';
-    const physicalStroke = isDark ? '#FFBA42' : '#F5A524';
-    const textColor = isDark ? '#0F1419' : '#1A1F26';
-
-    entityBoxes.forEach((box, index) => {
-        if (layer === 'logical') {
-            // Logical layer view: first entity is logical (green), rest are physical (orange)
-            if (index === 0) {
-                box.style.fill = logicalFill;
-                box.style.stroke = logicalStroke;
-            } else {
-                box.style.fill = physicalFill;
-                box.style.stroke = physicalStroke;
-            }
-        } else if (layer === 'physical') {
-            if (type === 'system') {
-                // System diagram: all tables are physical (orange)
-                box.style.fill = physicalFill;
-                box.style.stroke = physicalStroke;
-            } else {
-                // Table diagram: first is physical (orange), second is logical (green)
-                if (index === 0) {
-                    box.style.fill = physicalFill;
-                    box.style.stroke = physicalStroke;
-                } else {
-                    box.style.fill = logicalFill;
-                    box.style.stroke = logicalStroke;
-                }
-            }
-        }
-    });
-
-    // Update text colors for better contrast on colored backgrounds
-    const entityLabels = container.querySelectorAll('.entityLabel');
-    entityLabels.forEach(label => {
-        label.style.fill = textColor;
-    });
-}
-
 function getDiagramTitle(item) {
     switch (item.layer) {
         case 'logical':
@@ -2406,69 +2155,198 @@ function generateDiagram(item) {
     switch (item.layer) {
         case 'logical':
             if (item.type === 'domain') {
-                // Domain diagrams use Mermaid flowchart
-                return { type: 'mermaid', code: generateDomainDiagram(item) };
+                // Domain diagrams use custom SVG flowchart
+                return { type: 'custom', svg: generateDomainDiagram(item) };
             }
             // Entity diagrams use custom SVG
             return generateEntityDiagram(item);
         case 'physical':
             if (item.type === 'system') {
-                // System diagrams use custom SVG (or Mermaid for empty state)
+                // System diagrams use custom SVG
                 return generateSystemDiagram(item);
             }
             // Schema diagrams use custom SVG
             return generateSchemaDiagram(item);
         default:
-            return { type: 'mermaid', code: 'graph TD\n    A[Kein Diagramm verfügbar]' };
+            return { type: 'custom', svg: generateEmptyDiagram() };
     }
 }
 
+// Simple empty state diagram
+function generateEmptyDiagram() {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const textColor = isDark ? '#9CA3AF' : '#6B7280';
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60">
+        <rect x="20" y="10" width="200" height="40" fill="none" stroke="${textColor}" stroke-width="1.5" stroke-dasharray="6,4" rx="8"/>
+        <text x="120" y="35" text-anchor="middle" font-family="'Inter', sans-serif" font-size="13" fill="${textColor}">Kein Diagramm verfügbar</text>
+    </svg>`;
+}
+
+// Empty state diagram with title and message
+function generateEmptyStateDiagram(title, message, layer = 'logical') {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const headerBg = layer === 'physical'
+        ? (isDark ? '#F5A524' : '#E09412')
+        : (isDark ? '#22C997' : '#0FA87C');
+    const headerText = isDark ? '#0F1419' : '#FFFFFF';
+    const borderColor = layer === 'physical'
+        ? (isDark ? '#FFBA42' : '#F5A524')
+        : (isDark ? '#3DDBA8' : '#22C997');
+    const textColor = isDark ? '#9CA3AF' : '#6B7280';
+    const bgColor = isDark ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)';
+
+    const width = Math.max(200, title.length * 10 + 40);
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width + 40} 100" width="${width + 40}" height="100">
+        <rect x="20" y="10" width="${width}" height="80" fill="${bgColor}" stroke="${borderColor}" stroke-width="2" rx="8"/>
+        <rect x="20" y="10" width="${width}" height="32" fill="${headerBg}" rx="8"/>
+        <rect x="20" y="34" width="${width}" height="8" fill="${headerBg}"/>
+        <text x="${20 + width / 2}" y="32" text-anchor="middle" font-family="'Inter', sans-serif" font-size="13" font-weight="600" fill="${headerText}">${escapeHtml(title)}</text>
+        <text x="${20 + width / 2}" y="65" text-anchor="middle" font-family="'Inter', sans-serif" font-size="12" fill="${textColor}">${escapeHtml(message)}</text>
+    </svg>`;
+}
+
+// Custom SVG flowchart for domain diagrams
 function generateDomainDiagram(domain) {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     const entities = getEntitiesForDomain(domain.id);
+
+    // Colors
+    const domainBorderColor = isDark ? '#3DDBA8' : '#22C997';
+    const domainBgColor = isDark ? 'rgba(34, 201, 151, 0.08)' : 'rgba(15, 168, 124, 0.05)';
+    const domainHeaderBg = isDark ? '#22C997' : '#0FA87C';
+    const domainHeaderText = isDark ? '#0F1419' : '#FFFFFF';
+    const entityBg = isDark ? '#1F2328' : '#FFFFFF';
+    const entityBorder = isDark ? '#4B5563' : '#B8C0CC';
+    const entityText = isDark ? '#E5E7EB' : '#1A1F26';
+    const connectionColor = isDark ? '#6B7280' : '#9CA3AF';
+
+    // Layout constants
+    const padding = 20;
+    const headerHeight = 36;
+    const entityHeight = 36;
+    const entityMinWidth = 140;
+    const entityPadding = 16;
+    const entityGapX = 24;
+    const entityGapY = 16;
+    const maxPerRow = 3;
+
+    // Calculate entity dimensions
+    const entityDims = entities.map(e => {
+        const name = getText(e.name);
+        const width = Math.max(entityMinWidth, name.length * 8 + entityPadding * 2);
+        return { entity: e, name, width, height: entityHeight };
+    });
+
+    // Layout entities in rows
+    const rows = [];
+    let currentRow = [];
+    let currentRowWidth = 0;
+
+    entityDims.forEach(dim => {
+        if (currentRow.length >= maxPerRow) {
+            rows.push(currentRow);
+            currentRow = [dim];
+            currentRowWidth = dim.width;
+        } else {
+            currentRow.push(dim);
+            currentRowWidth += dim.width + (currentRow.length > 1 ? entityGapX : 0);
+        }
+    });
+    if (currentRow.length > 0) rows.push(currentRow);
+
+    // Calculate total dimensions
+    const maxRowWidth = Math.max(...rows.map(row =>
+        row.reduce((sum, d) => sum + d.width, 0) + (row.length - 1) * entityGapX
+    ), 200);
+    const totalEntityHeight = rows.length * entityHeight + (rows.length - 1) * entityGapY;
+
+    const containerWidth = maxRowWidth + padding * 2;
+    const containerHeight = headerHeight + totalEntityHeight + padding * 2;
+    const svgWidth = containerWidth + 40;
+    const svgHeight = containerHeight + 40;
+
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">`;
+    svg += '<defs>';
+    svg += `<marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><circle cx="3" cy="3" r="2" fill="${connectionColor}"/></marker>`;
+    svg += '</defs>';
+
+    const containerX = 20;
+    const containerY = 20;
+
+    // Domain container
+    svg += `<rect x="${containerX}" y="${containerY}" width="${containerWidth}" height="${containerHeight}" fill="${domainBgColor}" stroke="${domainBorderColor}" stroke-width="2" rx="8"/>`;
+
+    // Domain header
+    svg += `<rect x="${containerX}" y="${containerY}" width="${containerWidth}" height="${headerHeight}" fill="${domainHeaderBg}" rx="8"/>`;
+    svg += `<rect x="${containerX}" y="${containerY + headerHeight - 8}" width="${containerWidth}" height="8" fill="${domainHeaderBg}"/>`;
+    svg += `<text x="${containerX + containerWidth / 2}" y="${containerY + headerHeight / 2 + 5}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="14" font-weight="600" fill="${domainHeaderText}">${escapeHtml(getText(domain.name))}</text>`;
+
     if (entities.length === 0) {
-        return `graph TD\n    subgraph D["${escapeHtml(getText(domain.name))}"]\n        N[Keine Entitäten]\n    end`;
+        // Empty state
+        svg += `<text x="${containerX + containerWidth / 2}" y="${containerY + headerHeight + padding + 18}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="13" fill="${entityText}" opacity="0.6">Keine Entitäten</text>`;
+    } else {
+        // Calculate entity positions
+        const entityPositions = [];
+        let yOffset = containerY + headerHeight + padding;
+
+        rows.forEach(row => {
+            const rowWidth = row.reduce((sum, d) => sum + d.width, 0) + (row.length - 1) * entityGapX;
+            let xOffset = containerX + (containerWidth - rowWidth) / 2;
+
+            row.forEach(dim => {
+                entityPositions.push({
+                    ...dim,
+                    x: xOffset,
+                    y: yOffset,
+                    cx: xOffset + dim.width / 2,
+                    cy: yOffset + dim.height / 2
+                });
+                xOffset += dim.width + entityGapX;
+            });
+            yOffset += entityHeight + entityGapY;
+        });
+
+        // Find and draw connections first (so they appear behind entities)
+        const connections = [];
+        entities.forEach((entity, idx) => {
+            entities.forEach((otherEntity, otherIdx) => {
+                if (idx < otherIdx) {
+                    const otherName = getText(otherEntity.name).toLowerCase();
+                    const entityName = getText(entity.name).toLowerCase();
+                    const hasRelation = (entity.attributes || []).some(attr =>
+                        attr.key === 'FK' && (
+                            getText(attr.description).toLowerCase().includes(otherName) ||
+                            getText(attr.name).toLowerCase().includes(otherName)
+                        )
+                    ) || (otherEntity.attributes || []).some(attr =>
+                        attr.key === 'FK' && (
+                            getText(attr.description).toLowerCase().includes(entityName) ||
+                            getText(attr.name).toLowerCase().includes(entityName)
+                        )
+                    );
+                    if (hasRelation) {
+                        connections.push([idx, otherIdx]);
+                    }
+                }
+            });
+        });
+
+        // Draw connections
+        connections.forEach(([fromIdx, toIdx]) => {
+            const from = entityPositions[fromIdx];
+            const to = entityPositions[toIdx];
+            svg += `<line x1="${from.cx}" y1="${from.cy}" x2="${to.cx}" y2="${to.cy}" stroke="${connectionColor}" stroke-width="2" stroke-dasharray="6,4" marker-start="url(#arrow)" marker-end="url(#arrow)"/>`;
+        });
+
+        // Draw entity boxes
+        entityPositions.forEach(pos => {
+            svg += `<rect x="${pos.x}" y="${pos.y}" width="${pos.width}" height="${pos.height}" fill="${entityBg}" stroke="${entityBorder}" stroke-width="1.5" rx="6"/>`;
+            svg += `<text x="${pos.x + pos.width / 2}" y="${pos.y + pos.height / 2 + 5}" text-anchor="middle" font-family="'Inter', sans-serif" font-size="13" font-weight="500" fill="${entityText}">${escapeHtml(pos.name)}</text>`;
+        });
     }
 
-    let code = 'graph TB\n';
-
-    // Domain as subgraph containing entities
-    code += `    subgraph D["${escapeHtml(getText(domain.name))}"]\n`;
-    code += `        direction TB\n`;
-
-    // Entity nodes inside domain
-    entities.forEach((entity, idx) => {
-        code += `        E${idx}["${escapeHtml(getText(entity.name))}"]\n`;
-    });
-
-    code += '    end\n';
-
-    // Find relations between entities
-    entities.forEach((entity, idx) => {
-        entities.forEach((otherEntity, otherIdx) => {
-            if (idx < otherIdx) {
-                const otherName = getText(otherEntity.name).toLowerCase();
-                const entityName = getText(entity.name).toLowerCase();
-                // Check if entities are related via FK attributes
-                const hasRelation = (entity.attributes || []).some(attr =>
-                    attr.key === 'FK' && (
-                        getText(attr.description).toLowerCase().includes(otherName) ||
-                        getText(attr.name).toLowerCase().includes(otherName)
-                    )
-                ) || (otherEntity.attributes || []).some(attr =>
-                    attr.key === 'FK' && (
-                        getText(attr.description).toLowerCase().includes(entityName) ||
-                        getText(attr.name).toLowerCase().includes(entityName)
-                    )
-                );
-
-                if (hasRelation) {
-                    code += `    E${idx} <-.-> E${otherIdx}\n`;
-                }
-            }
-        });
-    });
-
-    return code;
+    svg += '</svg>';
+    return svg;
 }
 
 // Custom SVG table renderer with full Unicode support and proper styling
@@ -2753,8 +2631,8 @@ function generateSystemDiagram(system) {
     const schemas = data.schemas.filter(s => s.system === system.id);
 
     if (schemas.length === 0) {
-        // Use Mermaid for empty state
-        return { type: 'mermaid', code: `graph TD\n    S["${escapeHtml(getText(system.name))}"]:::system\n    S --> N[Keine Schemas]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419` };
+        // Custom SVG for empty state
+        return { type: 'custom', svg: generateEmptyStateDiagram(getText(system.name), 'Keine Schemas', 'physical') };
     }
 
     // Custom SVG for system diagram
@@ -2820,12 +2698,6 @@ function generateSchemaDiagram(schema) {
     </svg>`;
 
     return { type: 'custom', svg };
-}
-
-function sanitizeMermaidId(name) {
-    // Remove special characters and spaces for valid Mermaid IDs
-    const str = typeof name === 'string' ? name : getText(name);
-    return str.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
 function renderDiagramLegend(item) {
@@ -3311,6 +3183,7 @@ function handleClickableRowClick(row) {
 // Initialization
 // ========================================
 async function init() {
+    console.time('⏱️ Total init');
     const loaded = await loadData();
 
     if (!loaded) {
@@ -3324,10 +3197,15 @@ async function init() {
         return;
     }
 
+    console.time('⏱️ renderApp');
     renderApp();
+    console.timeEnd('⏱️ renderApp');
+
+    console.time('⏱️ Setup events');
     setupDelegatedEvents();
     setupKeyboardShortcuts();
     attachVersionSelectorListeners();
+    console.timeEnd('⏱️ Setup events');
 
     // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', () => {
@@ -3508,6 +3386,18 @@ async function init() {
     if (!state.selectedItem && !state.currentCatalog) {
         renderCatalogsOverview();
     }
+
+    console.timeEnd('⏱️ Total init');
+    console.log('📊 Data loaded:', {
+        catalogs: data.catalogs.length,
+        domains: data.domains.length,
+        entities: data.entities.length,
+        systems: data.systems.length,
+        schemas: data.schemas.length,
+        enumerations: data.enumerations.length,
+        attributes: data.attributes.length,
+        columns: data.columns.length
+    });
 }
 
 // Start the app
