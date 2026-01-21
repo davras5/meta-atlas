@@ -48,7 +48,12 @@
             hammer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>',
             home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
             layers: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>',
-            cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-9 5-9-5V8l9-5 9 5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg>'
+            cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-9 5-9-5V8l9-5 9 5z"/><path d="m3 8 9 5 9-5"/><path d="M12 13v8"/></svg>',
+            expandAll: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/></svg>',
+            collapseAll: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5-5 5 5"/><path d="m7 9 5 5 5-5"/></svg>',
+            sortAsc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M11 12h4"/><path d="M11 16h7"/><path d="M11 20h10"/></svg>',
+            sortDesc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/></svg>',
+            x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
         };
 
         // ========================================
@@ -104,7 +109,10 @@
             searchQuery: '',
             searchResults: [],
             showProjectsOverview: true,
-            groupBy: 'layer'
+            groupBy: 'layer',
+            treeSearchQuery: '',
+            treeSort: 'name-asc',
+            allExpanded: true
         };
 
         // ========================================
@@ -375,25 +383,54 @@
                     <!-- Sidebar -->
                     <aside class="sidebar" id="sidebar" role="navigation" aria-label="Entity navigation">
                         <div class="sidebar-header">
-                            <div class="group-by-dropdown" id="groupByDropdown">
-                                <button class="group-by-trigger" id="groupByTrigger" aria-haspopup="listbox" aria-expanded="false">
-                                    <span class="group-by-trigger-icon">${icons.layers}</span>
-                                    <span class="group-by-trigger-text">Nach Schicht</span>
-                                    <span class="group-by-trigger-arrow">${icons.chevronDown}</span>
+                            <!-- Search Input -->
+                            <div class="sidebar-search">
+                                <span class="sidebar-search-icon">${icons.search}</span>
+                                <input type="text" class="sidebar-search-input" id="treeSearch" placeholder="Suchen..." aria-label="Search entities">
+                                <button class="sidebar-search-clear" id="treeSearchClear" aria-label="Clear search">${icons.x}</button>
+                            </div>
+                        </div>
+                        <div class="sidebar-header">
+                            <!-- Controls Row -->
+                            <div class="sidebar-controls">
+                                <div class="group-by-dropdown" id="groupByDropdown">
+                                    <button class="group-by-trigger" id="groupByTrigger" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="group-by-trigger-icon">${icons.layers}</span>
+                                        <span class="group-by-trigger-text">Nach Schicht</span>
+                                        <span class="group-by-trigger-arrow">${icons.chevronDown}</span>
+                                    </button>
+                                    <div class="group-by-menu" id="groupByMenu" role="listbox">
+                                        <button class="group-by-option selected" data-value="layer" role="option">
+                                            <span class="group-by-option-icon">${icons.layers}</span>
+                                            <span>Nach Schicht</span>
+                                        </button>
+                                        <button class="group-by-option" data-value="system" role="option">
+                                            <span class="group-by-option-icon">${icons.server}</span>
+                                            <span>Nach System</span>
+                                        </button>
+                                        <button class="group-by-option" data-value="domain" role="option">
+                                            <span class="group-by-option-icon">${icons.folder}</span>
+                                            <span>Nach Domäne</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button class="sidebar-control-btn" id="expandCollapseToggle" aria-label="Expand all" title="Alle erweitern">
+                                    ${icons.expandAll}
                                 </button>
-                                <div class="group-by-menu" id="groupByMenu" role="listbox">
-                                    <button class="group-by-option selected" data-value="layer" role="option">
-                                        <span class="group-by-option-icon">${icons.layers}</span>
-                                        <span>Nach Schicht</span>
+                                <div class="sort-dropdown" id="sortDropdown">
+                                    <button class="sidebar-control-btn" id="sortTrigger" aria-haspopup="listbox" aria-expanded="false" title="Sortieren">
+                                        ${icons.sortAsc}
                                     </button>
-                                    <button class="group-by-option" data-value="system" role="option">
-                                        <span class="group-by-option-icon">${icons.server}</span>
-                                        <span>Nach System</span>
-                                    </button>
-                                    <button class="group-by-option" data-value="domain" role="option">
-                                        <span class="group-by-option-icon">${icons.folder}</span>
-                                        <span>Nach Domäne</span>
-                                    </button>
+                                    <div class="sort-menu" id="sortMenu" role="listbox">
+                                        <button class="sort-option selected" data-value="name-asc" role="option">
+                                            <span class="sort-option-icon">${icons.sortAsc}</span>
+                                            <span>Name A-Z</span>
+                                        </button>
+                                        <button class="sort-option" data-value="name-desc" role="option">
+                                            <span class="sort-option-icon">${icons.sortDesc}</span>
+                                            <span>Name Z-A</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -448,58 +485,124 @@
             });
         }
 
+        // Helper function to filter items by search query
+        function filterItems(items, query) {
+            if (!query) return items;
+            return items.filter(item =>
+                item.name.toLowerCase().includes(query) ||
+                (item.description && item.description.toLowerCase().includes(query))
+            );
+        }
+
+        // Helper function to sort items
+        function sortItems(items, sortType) {
+            const sorted = [...items];
+            switch (sortType) {
+                case 'name-asc':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    sorted.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+            }
+            return sorted;
+        }
+
         function renderTree() {
             const container = document.getElementById('treeContainer');
             if (!container) return;
 
             let html = '';
+            const query = state.treeSearchQuery;
+            const sortType = state.treeSort;
+
+            // Get filtered and sorted data
+            const filteredDomains = sortItems(filterItems(data.domains, query), sortType);
+            const filteredEntities = sortItems(filterItems(data.entities, query), sortType);
+            const filteredSystems = sortItems(filterItems(data.systems, query), sortType);
+
+            // Also filter concepts and tables if searching
+            const hasConceptualMatches = filteredDomains.length > 0 ||
+                (query && data.concepts.some(c => c.name.toLowerCase().includes(query)));
+            const hasLogicalMatches = filteredEntities.length > 0;
+            const hasPhysicalMatches = filteredSystems.length > 0 ||
+                (query && data.tables.some(t => t.name.toLowerCase().includes(query)));
 
             // Conceptual Layer Section
             const isConceptualExpanded = state.expandedLayers.has('conceptual');
-            html += `
-                <div class="layer-section">
-                    <div class="layer-section-header conceptual ${!isConceptualExpanded ? 'collapsed' : ''}" data-layer="conceptual">
-                        <span class="layer-toggle">${icons.chevronDown}</span>
-                        <span>Konzeptuell</span>
-                    </div>
-                    <div class="layer-section-content ${!isConceptualExpanded ? 'collapsed' : ''}">
-            `;
-            for (const domain of data.domains) {
-                const concepts = getConceptsForDomain(domain.id);
-                html += renderTreeItem(domain, concepts);
+            const showConceptual = !query || hasConceptualMatches;
+            if (showConceptual) {
+                html += `
+                    <div class="layer-section">
+                        <div class="layer-section-header conceptual ${!isConceptualExpanded ? 'collapsed' : ''}" data-layer="conceptual">
+                            <span class="layer-toggle">${icons.chevronDown}</span>
+                            <span>Konzeptuell</span>
+                        </div>
+                        <div class="layer-section-content ${!isConceptualExpanded ? 'collapsed' : ''}">
+                `;
+                for (const domain of filteredDomains) {
+                    let concepts = getConceptsForDomain(domain.id);
+                    if (query) {
+                        concepts = sortItems(filterItems(concepts, query), sortType);
+                    } else {
+                        concepts = sortItems(concepts, sortType);
+                    }
+                    html += renderTreeItem(domain, concepts);
+                }
+                html += `</div></div>`;
             }
-            html += `</div></div>`;
 
             // Logical Layer Section
             const isLogicalExpanded = state.expandedLayers.has('logical');
-            html += `
-                <div class="layer-section">
-                    <div class="layer-section-header logical ${!isLogicalExpanded ? 'collapsed' : ''}" data-layer="logical">
-                        <span class="layer-toggle">${icons.chevronDown}</span>
-                        <span>Logisch</span>
-                    </div>
-                    <div class="layer-section-content ${!isLogicalExpanded ? 'collapsed' : ''}">
-            `;
-            for (const entity of data.entities) {
-                html += renderTreeEntityWithAttributes(entity);
+            const showLogical = !query || hasLogicalMatches;
+            if (showLogical) {
+                html += `
+                    <div class="layer-section">
+                        <div class="layer-section-header logical ${!isLogicalExpanded ? 'collapsed' : ''}" data-layer="logical">
+                            <span class="layer-toggle">${icons.chevronDown}</span>
+                            <span>Logisch</span>
+                        </div>
+                        <div class="layer-section-content ${!isLogicalExpanded ? 'collapsed' : ''}">
+                `;
+                for (const entity of filteredEntities) {
+                    html += renderTreeEntityWithAttributes(entity);
+                }
+                html += `</div></div>`;
             }
-            html += `</div></div>`;
 
             // Physical Layer Section
             const isPhysicalExpanded = state.expandedLayers.has('physical');
-            html += `
-                <div class="layer-section">
-                    <div class="layer-section-header physical ${!isPhysicalExpanded ? 'collapsed' : ''}" data-layer="physical">
-                        <span class="layer-toggle">${icons.chevronDown}</span>
-                        <span>Physisch</span>
-                    </div>
-                    <div class="layer-section-content ${!isPhysicalExpanded ? 'collapsed' : ''}">
-            `;
-            for (const system of data.systems) {
-                const tables = getTablesForSystem(system.id);
-                html += renderTreeItemWithTables(system, tables);
+            const showPhysical = !query || hasPhysicalMatches;
+            if (showPhysical) {
+                html += `
+                    <div class="layer-section">
+                        <div class="layer-section-header physical ${!isPhysicalExpanded ? 'collapsed' : ''}" data-layer="physical">
+                            <span class="layer-toggle">${icons.chevronDown}</span>
+                            <span>Physisch</span>
+                        </div>
+                        <div class="layer-section-content ${!isPhysicalExpanded ? 'collapsed' : ''}">
+                `;
+                for (const system of filteredSystems) {
+                    let tables = getTablesForSystem(system.id);
+                    if (query) {
+                        tables = sortItems(filterItems(tables, query), sortType);
+                    } else {
+                        tables = sortItems(tables, sortType);
+                    }
+                    html += renderTreeItemWithTables(system, tables);
+                }
+                html += `</div></div>`;
             }
-            html += `</div></div>`;
+
+            // Show empty state if no results
+            if (!showConceptual && !showLogical && !showPhysical) {
+                html = `
+                    <div class="tree-empty-state">
+                        <span class="tree-empty-icon">${icons.search}</span>
+                        <span class="tree-empty-text">Keine Ergebnisse für "${state.treeSearchQuery}"</span>
+                    </div>
+                `;
+            }
 
             container.innerHTML = html;
             attachTreeListeners();
@@ -1993,10 +2096,18 @@
             });
 
             // Close dropdown when clicking outside
+            const sortDropdown = document.getElementById('sortDropdown');
+            const sortTrigger = document.getElementById('sortTrigger');
+            const sortMenu = document.getElementById('sortMenu');
+
             document.addEventListener('click', (e) => {
                 if (!groupByDropdown.contains(e.target)) {
                     groupByDropdown.classList.remove('open');
                     groupByTrigger.setAttribute('aria-expanded', 'false');
+                }
+                if (sortDropdown && !sortDropdown.contains(e.target)) {
+                    sortDropdown.classList.remove('open');
+                    sortTrigger?.setAttribute('aria-expanded', 'false');
                 }
             });
 
@@ -2021,6 +2132,76 @@
 
                     // Update state and re-render tree
                     state.groupBy = value;
+                    renderTree();
+                });
+            });
+
+            // Tree search functionality
+            const treeSearch = document.getElementById('treeSearch');
+            const treeSearchClear = document.getElementById('treeSearchClear');
+
+            treeSearch?.addEventListener('input', (e) => {
+                state.treeSearchQuery = e.target.value.toLowerCase();
+                renderTree();
+            });
+
+            treeSearchClear?.addEventListener('click', () => {
+                treeSearch.value = '';
+                state.treeSearchQuery = '';
+                renderTree();
+            });
+
+            // Expand/Collapse all toggle
+            const expandCollapseToggle = document.getElementById('expandCollapseToggle');
+            expandCollapseToggle?.addEventListener('click', () => {
+                state.allExpanded = !state.allExpanded;
+
+                if (state.allExpanded) {
+                    // Expand all layers and nodes
+                    state.expandedLayers = new Set(['conceptual', 'logical', 'physical']);
+                    // Expand all domain and system nodes
+                    data.domains.forEach(d => state.expandedNodes.add(d.id));
+                    data.systems.forEach(s => state.expandedNodes.add(s.id));
+                    data.entities.forEach(e => state.expandedNodes.add(e.id));
+                    expandCollapseToggle.innerHTML = icons.expandAll;
+                    expandCollapseToggle.setAttribute('title', 'Alle erweitern');
+                    expandCollapseToggle.setAttribute('aria-label', 'Expand all');
+                } else {
+                    // Collapse all
+                    state.expandedLayers.clear();
+                    state.expandedNodes.clear();
+                    expandCollapseToggle.innerHTML = icons.collapseAll;
+                    expandCollapseToggle.setAttribute('title', 'Alle reduzieren');
+                    expandCollapseToggle.setAttribute('aria-label', 'Collapse all');
+                }
+
+                renderTree();
+            });
+
+            // Sort dropdown functionality
+            sortTrigger?.addEventListener('click', () => {
+                sortDropdown.classList.toggle('open');
+                sortTrigger.setAttribute('aria-expanded', sortDropdown.classList.contains('open'));
+            });
+
+            sortMenu?.querySelectorAll('.sort-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const value = option.dataset.value;
+
+                    // Update trigger icon
+                    const iconHtml = option.querySelector('.sort-option-icon').innerHTML;
+                    sortTrigger.innerHTML = iconHtml;
+
+                    // Update selected state
+                    sortMenu.querySelectorAll('.sort-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+
+                    // Close dropdown
+                    sortDropdown.classList.remove('open');
+                    sortTrigger.setAttribute('aria-expanded', 'false');
+
+                    // Update state and re-render tree
+                    state.treeSort = value;
                     renderTree();
                 });
             });

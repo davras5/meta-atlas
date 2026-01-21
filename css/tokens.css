@@ -76,6 +76,7 @@
     --font-mono: "JetBrains Mono", "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
 
     /* Type Scale - Clear hierarchy with better rhythm */
+    /* Minimum readable size: 11px (0.6875rem) for accessibility */
     --text-display: 2rem;      /* 32px - Hero titles */
     --text-h1: 1.5rem;         /* 24px - Page titles */
     --text-h2: 1.125rem;       /* 18px - Section titles */
@@ -83,8 +84,8 @@
     --text-body: 0.875rem;     /* 14px - Body text (optimized for screen) */
     --text-small: 0.8125rem;   /* 13px - Secondary text */
     --text-caption: 0.75rem;   /* 12px - Labels, captions */
-    --text-xs: 0.6875rem;      /* 11px - Badges, metadata */
-    --text-2xs: 0.625rem;      /* 10px - Micro text */
+    --text-xs: 0.6875rem;      /* 11px - Badges, metadata (minimum) */
+    --text-2xs: 0.6875rem;     /* 11px - Micro text (same as xs for readability) */
     --text-icon-xl: 2.5rem;    /* 40px - Empty state icons */
 
     /* Line Heights - Optimized for readability */
