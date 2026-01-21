@@ -211,8 +211,8 @@
 
     /* Header - Professional dark header for contrast */
     --color-header-bg: #1F252E;          /* Matches dark mode surface */
-    --color-header-text: #F0F3F6;        /* Light text on header */
-    --color-header-text-secondary: #A8B4C2;
+    --color-header-text: #FFFFFF;        /* White text on header */
+    --color-header-text-secondary: rgba(255, 255, 255, 0.7);  /* Slightly muted white */
     --color-header-border: rgba(255, 255, 255, 0.08);
 
     /* Sidebar - Clean white for consistency */

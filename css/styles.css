@@ -438,6 +438,29 @@ body {
     height: var(--icon-md);
 }
 
+/* Header Branding */
+.header-branding {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: var(--text-2xs);
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.3;
+    margin-left: var(--space-3);
+    padding-left: var(--space-3);
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.header-branding span {
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .header-branding {
+        display: none;
+    }
+}
+
 /* ===== Layer Tabs - Refined ===== */
 .layer-tabs {
     display: flex;
@@ -599,14 +622,14 @@ body {
 }
 
 .lang-selector option {
-    background: white;
-    color: #1a1a2e;
+    background: var(--color-bg-surface);
+    color: var(--color-text-primary);
     padding: var(--space-2);
 }
 
-[data-theme="dark"] .lang-selector option {
-    background: var(--color-bg-surface);
-    color: var(--color-text-primary);
+[data-theme="light"] .lang-selector option {
+    background: white;
+    color: #1A1F26;
 }
 
 .icon-btn {
@@ -2871,31 +2894,7 @@ html {
 /* ========================================
    Diagram View - Mermaid Integration
    ======================================== */
-.diagram-container {
-    background: var(--color-bg-surface);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-}
-
-.diagram-header {
-    padding: var(--space-4) var(--space-5);
-    border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.diagram-title {
-    font-size: var(--text-body);
-    font-weight: var(--font-semibold);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-1);
-}
-
-.diagram-subtitle {
-    font-size: var(--text-small);
-    color: var(--color-text-muted);
-}
-
-.diagram-content {
+.diagram-card .diagram-content {
     padding: var(--space-6);
     min-height: 300px;
     display: flex;
@@ -2965,17 +2964,17 @@ html {
 }
 
 /* Light mode diagram adjustments */
-[data-theme="light"] .diagram-content {
+[data-theme="light"] .diagram-card .diagram-content {
     background: var(--color-bg-base);
 }
 
-[data-theme="light"] .diagram-legend {
+[data-theme="light"] .diagram-card .diagram-legend {
     background: var(--color-bg-surface);
 }
 
 /* Responsive diagram */
 @media (max-width: 768px) {
-    .diagram-content {
+    .diagram-card .diagram-content {
         padding: var(--space-4);
         min-height: 200px;
     }
@@ -2986,5 +2985,59 @@ html {
 
     .legend-item {
         font-size: var(--text-2xs);
+    }
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-1) var(--space-4);
+    background: var(--color-bg-base);
+    border-top: 1px solid var(--color-border-subtle);
+    font-size: var(--text-2xs);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.footer-separator {
+    color: var(--color-text-disabled);
+}
+
+.footer-link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.footer-link:hover {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+}
+
+.footer-link-disabled {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.footer-version {
+    color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+    .footer {
+        flex-direction: column;
+        gap: var(--space-1);
+        text-align: center;
     }
 }
