@@ -1115,10 +1115,8 @@ function getEntityKPIs(item) {
             return []; // No KPI cards for domains
         case 'entity':
             const attributes = item.attributes || [];
-            const physicalTables = item.physicalTables || [];
             return [
-                { label: 'Attribute', value: attributes.length, icon: icons.hash },
-                { label: 'Phys. Tabellen', value: physicalTables.length, icon: icons.table }
+                { label: 'Attribute', value: attributes.length, icon: icons.hash }
             ];
         case 'system':
             const schemasInSystem = data.schemas.filter(s => s.system === item.id);
@@ -1292,6 +1290,10 @@ function renderWikiView(item) {
                         <span class="meta-label">Erstellt :</span>
                         <span class="meta-value">${escapeHtml(item.created)}</span>
                     ` : ''}
+                    ${item.updated ? `
+                        <span class="meta-label">Letzte Änderung :</span>
+                        <span class="meta-value">${escapeHtml(item.updated)}</span>
+                    ` : ''}
                 </div>
             </div>
         </div>
@@ -1413,21 +1415,23 @@ function renderWikiView(item) {
                             <tr>
                                 <th>Name</th>
                                 <th>Typ</th>
-                                <th>Nullable</th>
                                 <th>Schlüssel</th>
-                                ${!isAttribute ? '<th>Zuordnung</th>' : ''}
+                                <th>Werteliste</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${attrs.map(attr => `
+                            ${attrs.map(attr => {
+                                const enumId = attr.enumeration_id || attr.enumeration;
+                                const enumItem = enumId ? data.enumerations.find(e => e.id === enumId) : null;
+                                const enumName = enumItem ? getText(enumItem.name) : null;
+                                return `
                                 <tr class="clickable-row" data-attr-name="${escapeHtml(getText(attr.name))}" data-parent-id="${escapeHtml(item.id)}" data-parent-type="${escapeHtml(item.type)}">
                                     <td>${escapeHtml(getText(attr.name))}</td>
                                     <td>${escapeHtml(attr.type)}</td>
-                                    <td>${attr.nullable ? 'Yes' : 'No'}</td>
                                     <td>${attr.key ? `<span class="tag">${escapeHtml(attr.key)}</span>` : '—'}</td>
-                                    ${!isAttribute ? `<td>${escapeHtml(attr.mappedTo || '—')}</td>` : ''}
+                                    <td>${enumName || '—'}</td>
                                 </tr>
-                            `).join('')}
+                            `}).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -1725,12 +1729,12 @@ function renderCatalogDetailsTab(catalog) {
 
         <div class="card">
             <div class="card-header" data-card="overview" aria-expanded="true">
-                <span class="card-title">Katalogübersicht</span>
+                <span class="card-title">Grundinformationen</span>
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content">
                 <div class="meta-grid">
-                    <span class="meta-label">Name (DE) :</span>
+                    <span class="meta-label">Name :</span>
                     <span class="meta-value">${escapeHtml(getText(catalog.name, 'de'))}</span>
                     <span class="meta-label">Beschreibung :</span>
                     <span class="meta-value">${escapeHtml(getText(catalog.description) || '—')}</span>
@@ -1753,7 +1757,6 @@ function renderCatalogDetailsTab(catalog) {
 
 function renderCatalogMembersTab(catalog) {
     const members = catalog.members || [];
-    const roles = ['owner', 'steward', 'engineer', 'analyst', 'viewer'];
 
     return `
         <div class="card">
@@ -1776,23 +1779,6 @@ function renderCatalogMembersTab(catalog) {
                         `).join('')}
                     </div>
                 ` : '<div class="empty-list-message">Keine Teammitglieder zugewiesen</div>'}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header" data-card="roles" aria-expanded="true">
-                <span class="card-title">Rollendefinitionen</span>
-                <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
-            </div>
-            <div class="card-content">
-                <div class="roles-list">
-                    ${roles.map(role => `
-                        <div class="role-item">
-                            <span class="role-name">${getRoleLabel(role)}</span>
-                            <span class="role-desc text-secondary">${getRoleDescription(role)}</span>
-                        </div>
-                    `).join('')}
-                </div>
             </div>
         </div>
     `;
@@ -3217,7 +3203,7 @@ function handleTreeNodeClick(e, node) {
             const parentItem = findItemById(entityId);
             if (parentItem) {
                 const attrs = parentItem.attributes || [];
-                const attr = attrs.find(a => a.name === attrName);
+                const attr = attrs.find(a => getText(a.name) === attrName);
                 if (attr) {
                     showAttributeDetail(attr, parentItem);
                 }
@@ -3264,7 +3250,7 @@ function handleTreeNodeKeydown(e, node) {
                 const parentItem = findItemById(entityId);
                 if (parentItem) {
                     const attrs = parentItem.attributes || [];
-                    const attr = attrs.find(a => a.name === attrName);
+                    const attr = attrs.find(a => getText(a.name) === attrName);
                     if (attr) {
                         showAttributeDetail(attr, parentItem);
                     }
@@ -3308,7 +3294,7 @@ function handleClickableRowClick(row) {
         const parentItem = findItemById(parentId);
         if (parentItem) {
             const attrs = parentItem.attributes || parentItem.columns || [];
-            const attr = attrs.find(a => a.name === attrName);
+            const attr = attrs.find(a => getText(a.name) === attrName);
             if (attr) {
                 showAttributeDetail(attr, parentItem);
                 return;

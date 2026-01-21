@@ -141,9 +141,9 @@ body {
 .main-layout {
     display: flex;
     flex: 1;
-    max-width: var(--layout-max-width);
-    margin: 0 auto;
     width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 /* ===== Form Control Base Styles ===== */
@@ -1310,7 +1310,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
-    max-width: var(--content-max-width);
 }
 
 #contentBody {
@@ -1980,6 +1979,59 @@ body {
 }
 
 .user-role {
+    flex-shrink: 0;
+}
+
+/* Members list */
+.members-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-medium);
+    font-size: var(--text-small);
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+}
+
+.member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name {
+    display: block;
+    font-weight: var(--font-medium);
+    color: var(--color-text-primary);
+}
+
+.member-email {
+    display: block;
+    font-size: var(--text-small);
+    color: var(--color-text-secondary);
+}
+
+.member-role {
     flex-shrink: 0;
 }
 
