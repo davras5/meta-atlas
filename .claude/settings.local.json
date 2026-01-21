@@ -3,7 +3,8 @@
     "allow": [
       "Bash(powershell -Command:*)",
       "Bash(node:*)",
-      "Bash(xxd:*)"
+      "Bash(xxd:*)",
+      "Bash(find:*)"
     ]
   }
 }
