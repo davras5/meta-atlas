@@ -2791,15 +2791,24 @@ html {
     overflow-x: auto;
 }
 
+.diagram-container,
 .mermaid-diagram {
     width: 100%;
     display: flex;
     justify-content: center;
+    overflow: auto;
 }
 
 .mermaid-diagram svg {
     max-width: 100%;
     height: auto;
+}
+
+/* D2 specific scaling */
+.diagram-container svg {
+    max-width: 100%;
+    height: auto;
+    max-height: 600px;
 }
 
 .diagram-error {

@@ -1922,12 +1922,23 @@ function renderPlaceholderView(view) {
 }
 
 function renderDiagramView(item) {
-    const diagramId = `mermaid-${Date.now()}`;
-    const mermaidCode = generateMermaidDiagram(item);
+    const diagramId = `diagram-${Date.now()}`;
+    const diagramResult = generateDiagram(item);
 
-    // Schedule Mermaid rendering after DOM update
+    // Schedule diagram rendering after DOM update
     setTimeout(() => {
-        initMermaidDiagram(diagramId, mermaidCode, item.layer, item.type);
+        if (diagramResult.type === 'custom') {
+            // Custom SVG - inject directly
+            const element = document.getElementById(diagramId);
+            if (element) {
+                element.innerHTML = diagramResult.svg;
+                initDiagramControls(diagramId);
+            }
+        } else if (diagramResult.type === 'd2') {
+            initD2Diagram(diagramId, diagramResult.code, item.layer, item.type);
+        } else {
+            initMermaidDiagram(diagramId, diagramResult.code, item.layer, item.type);
+        }
     }, 0);
 
     return `
@@ -1937,13 +1948,203 @@ function renderDiagramView(item) {
                 <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
             </div>
             <div class="card-content diagram-content">
-                <div id="${diagramId}" class="mermaid-diagram"></div>
+                <div class="diagram-viewport" id="${diagramId}-viewport">
+                    <div id="${diagramId}" class="diagram-container"></div>
+                </div>
+                <div class="diagram-controls">
+                    <button class="diagram-control-btn" data-action="zoom-in" title="Vergrössern">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
+                    </button>
+                    <button class="diagram-control-btn" data-action="zoom-out" title="Verkleinern">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
+                    </button>
+                    <button class="diagram-control-btn" data-action="reset" title="Zurücksetzen">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                    </button>
+                    <button class="diagram-control-btn" data-action="fullscreen" title="Vollbild">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="diagram-legend">
                 ${renderDiagramLegend(item)}
             </div>
         </div>
     `;
+}
+
+// Initialize diagram pan/zoom controls
+function initDiagramControls(diagramId) {
+    const viewport = document.getElementById(`${diagramId}-viewport`);
+    const container = document.getElementById(diagramId);
+    if (!viewport || !container) return;
+
+    // State for zoom and pan
+    let scale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isPanning = false;
+    let startX = 0;
+    let startY = 0;
+
+    const minScale = 0.25;
+    const maxScale = 3;
+    const zoomStep = 0.25;
+
+    function updateTransform() {
+        container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        container.style.transformOrigin = 'center center';
+    }
+
+    // Mouse wheel zoom
+    viewport.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+        const newScale = Math.min(maxScale, Math.max(minScale, scale + delta));
+
+        if (newScale !== scale) {
+            // Zoom towards mouse position
+            const rect = viewport.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left - rect.width / 2;
+            const mouseY = e.clientY - rect.top - rect.height / 2;
+
+            const scaleDiff = newScale / scale;
+            panX = mouseX - (mouseX - panX) * scaleDiff;
+            panY = mouseY - (mouseY - panY) * scaleDiff;
+            scale = newScale;
+            updateTransform();
+        }
+    }, { passive: false });
+
+    // Mouse pan
+    viewport.addEventListener('mousedown', (e) => {
+        if (e.button === 0) { // Left mouse button
+            isPanning = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+            viewport.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isPanning) {
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            updateTransform();
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isPanning) {
+            isPanning = false;
+            viewport.style.cursor = 'grab';
+        }
+    });
+
+    // Touch pan support
+    let lastTouchX = 0;
+    let lastTouchY = 0;
+    let lastTouchDistance = 0;
+
+    viewport.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            isPanning = true;
+            lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            // Pinch zoom start
+            lastTouchDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && isPanning) {
+            const dx = e.touches[0].clientX - lastTouchX;
+            const dy = e.touches[0].clientY - lastTouchY;
+            panX += dx;
+            panY += dy;
+            lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+            updateTransform();
+        } else if (e.touches.length === 2) {
+            // Pinch zoom
+            const distance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            const delta = (distance - lastTouchDistance) * 0.01;
+            scale = Math.min(maxScale, Math.max(minScale, scale + delta));
+            lastTouchDistance = distance;
+            updateTransform();
+        }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', () => {
+        isPanning = false;
+    });
+
+    // Set initial cursor
+    viewport.style.cursor = 'grab';
+
+    // Control buttons
+    const card = viewport.closest('.diagram-card');
+    if (!card) return;
+
+    const controls = card.querySelector('.diagram-controls');
+    if (!controls) return;
+
+    controls.addEventListener('click', (e) => {
+        const btn = e.target.closest('.diagram-control-btn');
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+
+        switch (action) {
+            case 'zoom-in':
+                scale = Math.min(maxScale, scale + zoomStep);
+                updateTransform();
+                break;
+            case 'zoom-out':
+                scale = Math.max(minScale, scale - zoomStep);
+                updateTransform();
+                break;
+            case 'reset':
+                scale = 1;
+                panX = 0;
+                panY = 0;
+                updateTransform();
+                break;
+            case 'fullscreen':
+                toggleFullscreen(card);
+                break;
+        }
+    });
+}
+
+// Toggle fullscreen mode for diagram
+function toggleFullscreen(element) {
+    if (!document.fullscreenElement) {
+        element.requestFullscreen().catch(err => {
+            console.warn('Fullscreen not available:', err);
+        });
+    } else {
+        document.exitFullscreen();
+    }
 }
 
 function initMermaidDiagram(elementId, code, layer = null, type = null) {
@@ -2002,6 +2203,141 @@ function initMermaidDiagram(elementId, code, layer = null, type = null) {
     }).catch(err => {
         console.error('Mermaid rendering error:', err);
         element.innerHTML = `<div class="diagram-error">Diagramm konnte nicht gerendert werden</div>`;
+    });
+}
+
+// Render D2 diagram with SQL table support and full Unicode
+async function initD2Diagram(elementId, code, layer = null, type = null) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    // Check if D2 is ready
+    if (!window.d2Ready || !window.d2Instance) {
+        // Wait for D2 to be ready
+        await new Promise(resolve => {
+            if (window.d2Ready) {
+                resolve();
+            } else {
+                window.addEventListener('d2-ready', resolve, { once: true });
+            }
+        });
+    }
+
+    try {
+        const d2 = window.d2Instance;
+        const result = await d2.compile(code);
+
+        if (result.diagram) {
+            // Merge render options with transparent background
+            const renderOptions = {
+                ...result.renderOptions,
+                themeOverrides: {
+                    ...(result.renderOptions?.themeOverrides || {}),
+                    N1: 'transparent',  // Background color
+                    B1: 'transparent',  // Canvas background
+                }
+            };
+            const svg = await d2.render(result.diagram, renderOptions);
+            element.innerHTML = svg;
+
+            // Apply custom styling to D2 SVG for layer colors
+            applyD2DiagramColors(element, layer, type);
+        } else {
+            throw new Error('Failed to compile D2 diagram');
+        }
+    } catch (err) {
+        console.error('D2 rendering error:', err);
+        element.innerHTML = `<div class="diagram-error">Diagramm konnte nicht gerendert werden: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+// Apply colors to D2 diagram based on layer (logical=green, physical=orange)
+function applyD2DiagramColors(container, layer, type) {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+    // Remove background rectangle (first rect in SVG is usually the background)
+    const svg = container.querySelector('svg');
+    if (svg) {
+        // Find and remove or make transparent the background rect
+        const bgRect = svg.querySelector('rect:first-of-type');
+        if (bgRect && !bgRect.closest('.shape')) {
+            bgRect.setAttribute('fill', 'transparent');
+        }
+        // Also check for style attribute
+        const allRects = svg.querySelectorAll('rect');
+        allRects.forEach(rect => {
+            const fill = rect.getAttribute('fill') || '';
+            // If it's white or near-white and covers the whole canvas, make transparent
+            if ((fill === '#FFFFFF' || fill === 'white' || fill === '#ffffff') &&
+                !rect.closest('.shape') && !rect.closest('g[class*="shape"]')) {
+                rect.setAttribute('fill', 'transparent');
+            }
+        });
+    }
+
+    // Alternating row colors (light backgrounds like Mermaid)
+    const rowEvenFill = isDark ? '#2A2F36' : '#FFFFFF';
+    const rowOddFill = isDark ? '#1F2328' : '#F4F6F8';
+    const textColor = isDark ? '#E5E7EB' : '#1A1F26';
+
+    // D2 sql_table generates rect elements for header and rows
+    // The native style.fill in D2 code handles header color
+    // Here we just apply alternating row colors
+
+    // Find all rect elements in the SVG
+    const allRects = container.querySelectorAll('rect');
+
+    // Group rects by their parent (each table)
+    const tables = new Map();
+    allRects.forEach(rect => {
+        const parent = rect.closest('g');
+        if (parent) {
+            if (!tables.has(parent)) {
+                tables.set(parent, []);
+            }
+            tables.get(parent).push(rect);
+        }
+    });
+
+    // Process each table group
+    tables.forEach((rects, tableGroup) => {
+        // Skip if only one rect (likely not a table) or table outline
+        if (rects.length <= 1) return;
+
+        // Sort rects by Y position to identify header vs rows
+        const sortedRects = [...rects].sort((a, b) => {
+            const aY = parseFloat(a.getAttribute('y') || 0);
+            const bY = parseFloat(b.getAttribute('y') || 0);
+            return aY - bY;
+        });
+
+        // Apply alternating colors to rows (skip first rect which is header - styled by D2)
+        sortedRects.forEach((rect, idx) => {
+            if (idx === 0) {
+                // Header - D2's style.fill handles this
+                return;
+            }
+            // Alternating row colors
+            rect.style.fill = (idx % 2 === 1) ? rowEvenFill : rowOddFill;
+        });
+    });
+
+    // Improve text contrast
+    const texts = container.querySelectorAll('text');
+    texts.forEach(text => {
+        // Check if this text is inside a header (first row)
+        const parentRect = text.closest('g')?.querySelector('rect');
+        if (parentRect) {
+            const fill = parentRect.style.fill || parentRect.getAttribute('fill') || '';
+            // If fill matches our layer colors, it's a header
+            if (fill.includes('#22C997') || fill.includes('#0FA87C') ||
+                fill.includes('#F5A524') || fill.includes('#E09412')) {
+                text.style.fill = isDark ? '#0F1419' : '#FFFFFF';
+                text.style.fontWeight = '600';
+            } else {
+                text.style.fill = textColor;
+            }
+        }
     });
 }
 
@@ -2076,18 +2412,24 @@ function getDiagramSubtitle(item) {
     }
 }
 
-function generateMermaidDiagram(item) {
+function generateDiagram(item) {
     switch (item.layer) {
         case 'logical':
-            return item.type === 'domain'
-                ? generateDomainDiagram(item)
-                : generateEntityDiagram(item);
+            if (item.type === 'domain') {
+                // Domain diagrams use Mermaid flowchart
+                return { type: 'mermaid', code: generateDomainDiagram(item) };
+            }
+            // Entity diagrams use custom SVG
+            return generateEntityDiagram(item);
         case 'physical':
-            return item.type === 'system'
-                ? generateSystemDiagram(item)
-                : generateSchemaDiagram(item);
+            if (item.type === 'system') {
+                // System diagrams use custom SVG (or Mermaid for empty state)
+                return generateSystemDiagram(item);
+            }
+            // Schema diagrams use custom SVG
+            return generateSchemaDiagram(item);
         default:
-            return 'graph TD\n    A[Kein Diagramm verfügbar]';
+            return { type: 'mermaid', code: 'graph TD\n    A[Kein Diagramm verfügbar]' };
     }
 }
 
@@ -2139,41 +2481,280 @@ function generateDomainDiagram(domain) {
     return code;
 }
 
+// Custom SVG table renderer with full Unicode support and proper styling
+function renderCustomSqlTable(name, rows, headerColor, x = 0, y = 0) {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+    // Styling - optimized for readability
+    const rowHeight = 26;
+    const headerHeight = 30;
+    const padding = 10;
+    const fontSize = 12;
+    const minColWidth = 90;
+
+    // Calculate column widths based on content
+    let nameColWidth = minColWidth;
+    let typeColWidth = 70;
+    let keyColWidth = 36;
+
+    rows.forEach(row => {
+        const nameWidth = row.name.length * 7.5 + padding * 2;
+        const typeWidth = row.type.length * 7 + padding * 2;
+        if (nameWidth > nameColWidth) nameColWidth = nameWidth;
+        if (typeWidth > typeColWidth) typeColWidth = typeWidth;
+    });
+
+    const tableWidth = nameColWidth + typeColWidth + keyColWidth;
+    const tableHeight = headerHeight + rows.length * rowHeight;
+
+    // Colors - high contrast for readability
+    const borderColor = isDark ? '#4B5563' : '#B8C0CC';
+    const lineColor = isDark ? '#374151' : '#D4D9E1';
+    const headerTextColor = isDark ? '#111827' : '#FFFFFF';
+    const rowEvenBg = isDark ? '#1F2328' : '#FFFFFF';
+    const rowOddBg = isDark ? '#262B32' : '#F3F4F6';
+    const textColor = isDark ? '#F3F4F6' : '#111827';           // High contrast text
+    const typeColor = isDark ? '#D1D5DB' : '#374151';           // Darker type text
+    const keyColor = isDark ? '#9CA3AF' : '#4B5563';            // Darker key text
+
+    let svg = `<g transform="translate(${x}, ${y})">`;
+
+    // Table background with rounded corners
+    svg += `<rect x="0" y="0" width="${tableWidth}" height="${tableHeight}" fill="${rowEvenBg}" stroke="${borderColor}" stroke-width="1" rx="4"/>`;
+
+    // Header background
+    svg += `<rect x="0.5" y="0.5" width="${tableWidth - 1}" height="${headerHeight}" fill="${headerColor}" rx="4"/>`;
+    svg += `<rect x="0.5" y="${headerHeight - 4}" width="${tableWidth - 1}" height="4" fill="${headerColor}"/>`;
+
+    // Header text - bold and readable
+    svg += `<text x="${tableWidth / 2}" y="${headerHeight / 2 + 4}" text-anchor="middle" font-family="'Inter', 'Segoe UI', sans-serif" font-size="${fontSize + 1}" font-weight="600" fill="${headerTextColor}">${escapeHtml(name)}</text>`;
+
+    // Header bottom line
+    svg += `<line x1="0" y1="${headerHeight}" x2="${tableWidth}" y2="${headerHeight}" stroke="${borderColor}" stroke-width="1"/>`;
+
+    // Rows
+    rows.forEach((row, idx) => {
+        const rowY = headerHeight + idx * rowHeight;
+        const bgColor = idx % 2 === 0 ? rowEvenBg : rowOddBg;
+        const isLast = idx === rows.length - 1;
+
+        // Row background
+        if (isLast) {
+            // Last row needs rounded bottom corners
+            svg += `<path d="M0,${rowY} h${tableWidth} v${rowHeight - 4} q0,4 -4,4 h-${tableWidth - 8} q-4,0 -4,-4 z" fill="${bgColor}"/>`;
+        } else {
+            svg += `<rect x="0" y="${rowY}" width="${tableWidth}" height="${rowHeight}" fill="${bgColor}"/>`;
+        }
+
+        // Row separator line (except for last row)
+        if (!isLast) {
+            svg += `<line x1="0" y1="${rowY + rowHeight}" x2="${tableWidth}" y2="${rowY + rowHeight}" stroke="${lineColor}" stroke-width="1"/>`;
+        }
+
+        // Name column text - primary, bold for emphasis
+        svg += `<text x="${padding}" y="${rowY + rowHeight / 2 + 4}" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="${fontSize}" font-weight="500" fill="${textColor}">${escapeHtml(row.name)}</text>`;
+
+        // Type column text - secondary
+        svg += `<text x="${nameColWidth + padding}" y="${rowY + rowHeight / 2 + 4}" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="${fontSize}" fill="${typeColor}">${escapeHtml(row.type)}</text>`;
+
+        // Key column text - tertiary
+        if (row.key) {
+            svg += `<text x="${nameColWidth + typeColWidth + padding}" y="${rowY + rowHeight / 2 + 4}" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="${fontSize}" font-weight="500" fill="${keyColor}">${escapeHtml(row.key)}</text>`;
+        }
+    });
+
+    // Full-height column separator lines (from header bottom to table bottom)
+    svg += `<line x1="${nameColWidth}" y1="${headerHeight}" x2="${nameColWidth}" y2="${tableHeight}" stroke="${lineColor}" stroke-width="1"/>`;
+    svg += `<line x1="${nameColWidth + typeColWidth}" y1="${headerHeight}" x2="${nameColWidth + typeColWidth}" y2="${tableHeight}" stroke="${lineColor}" stroke-width="1"/>`;
+
+    // Outer border (re-apply for crisp edges)
+    svg += `<rect x="0" y="0" width="${tableWidth}" height="${tableHeight}" fill="none" stroke="${borderColor}" stroke-width="1" rx="4"/>`;
+
+    svg += `</g>`;
+
+    return { svg, width: tableWidth, height: tableHeight };
+}
+
 function generateEntityDiagram(entity) {
-    let code = 'erDiagram\n';
+    // Custom SVG for entity diagram with system grouping
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const logicalColor = isDark ? '#22C997' : '#0FA87C';
+    const physicalColor = isDark ? '#F5A524' : '#E09412';
+    const lineColor = isDark ? '#6B7280' : '#9CA3AF';
+    const labelColor = isDark ? '#9CA3AF' : '#6B7280';
+    const boxBgColor = isDark ? 'rgba(245, 165, 36, 0.08)' : 'rgba(224, 148, 18, 0.06)';
+    const boxBorderColor = isDark ? 'rgba(245, 165, 36, 0.3)' : 'rgba(224, 148, 18, 0.25)';
+    const systemLabelColor = isDark ? '#F5A524' : '#B8780E';
 
-    // Current entity with all attributes (logical - will be colored green)
-    code += `    ${sanitizeMermaidId(entity.name)} {\n`;
-    if (entity.attributes) {
-        entity.attributes.forEach(attr => {
-            const keyMark = attr.key === 'PK' ? 'PK' : (attr.key === 'FK' ? 'FK' : '');
-            code += `        ${escapeHtml(attr.type)} ${sanitizeMermaidId(getText(attr.name))} ${keyMark}\n`;
-        });
-    }
-    code += '    }\n';
+    // Build logical entity table data
+    const entityName = getText(entity.name);
+    const entityRows = (entity.attributes || []).map(attr => ({
+        name: getText(attr.name),
+        type: attr.type,
+        key: attr.key || ''
+    }));
 
-    // Show physical schema mappings with all columns (physical - will be colored orange)
+    // Build physical schema tables data grouped by system
+    const physicalTablesBySystem = {};
     if (entity.physicalSchemas && entity.physicalSchemas.length > 0) {
         entity.physicalSchemas.forEach(schemaId => {
             const schema = data.schemas.find(s => s.id === schemaId);
             if (schema) {
                 const system = data.systems.find(s => s.id === schema.system);
-                const systemLabel = system ? getText(system.name) : '';
+                const systemId = system ? system.id : 'unknown';
+                const systemLabel = system ? getText(system.name) : 'Unknown System';
 
-                code += `    ${sanitizeMermaidId(schema.name)} {\n`;
-                if (schema.columns) {
-                    schema.columns.forEach(col => {
-                        const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
-                        code += `        ${escapeHtml(col.type.split('(')[0])} ${sanitizeMermaidId(col.name)} ${keyMark}\n`;
-                    });
+                if (!physicalTablesBySystem[systemId]) {
+                    physicalTablesBySystem[systemId] = {
+                        systemLabel,
+                        tables: []
+                    };
                 }
-                code += '    }\n';
-                code += `    ${sanitizeMermaidId(entity.name)} ||--|| ${sanitizeMermaidId(schema.name)} : "${escapeHtml(systemLabel)}"\n`;
+                physicalTablesBySystem[systemId].tables.push({
+                    name: schema.name,
+                    rows: (schema.columns || []).map(col => ({
+                        name: col.name,
+                        type: col.type.split('(')[0],
+                        key: col.key || ''
+                    }))
+                });
             }
         });
     }
 
-    return code;
+    // Render logical entity
+    const logicalTable = renderCustomSqlTable(entityName, entityRows, logicalColor, 0, 0);
+
+    // Layout constants
+    const gap = 80; // Gap between logical and physical layer
+    const systemPadding = 15; // Padding inside system bounding box
+    const systemLabelHeight = 24; // Height reserved for system label
+    const tableGap = 20; // Gap between tables within a system
+    const systemGap = 40; // Gap between system boxes
+    const physicalStartY = logicalTable.height + gap;
+
+    // Render physical tables grouped by system
+    let physicalSvg = '';
+    let boundingBoxesSvg = '';
+    let totalPhysicalWidth = 0;
+    let maxPhysicalHeight = 0;
+    const systemMeta = []; // Track system boxes for connection lines
+
+    Object.keys(physicalTablesBySystem).forEach((systemId, systemIdx) => {
+        const systemData = physicalTablesBySystem[systemId];
+        const systemStartX = totalPhysicalWidth;
+        let systemTablesWidth = 0;
+        let systemMaxHeight = 0;
+        const tableMeta = [];
+
+        // Render each table in this system
+        systemData.tables.forEach((table, tableIdx) => {
+            const tableX = systemStartX + systemPadding + systemTablesWidth;
+            const tableY = physicalStartY + systemLabelHeight + systemPadding;
+            const rendered = renderCustomSqlTable(table.name, table.rows, physicalColor, tableX, tableY);
+            physicalSvg += rendered.svg;
+
+            tableMeta.push({
+                x: tableX,
+                y: tableY,
+                width: rendered.width,
+                height: rendered.height
+            });
+
+            systemTablesWidth += rendered.width + (tableIdx < systemData.tables.length - 1 ? tableGap : 0);
+            if (rendered.height > systemMaxHeight) systemMaxHeight = rendered.height;
+        });
+
+        // Calculate bounding box dimensions
+        const boxX = systemStartX;
+        const boxY = physicalStartY;
+        const boxWidth = systemTablesWidth + systemPadding * 2;
+        const boxHeight = systemLabelHeight + systemPadding * 2 + systemMaxHeight;
+
+        // Draw system bounding box
+        boundingBoxesSvg += `<rect x="${boxX}" y="${boxY}" width="${boxWidth}" height="${boxHeight}"
+            fill="${boxBgColor}" stroke="${boxBorderColor}" stroke-width="1.5" rx="8" ry="8"/>`;
+
+        // Draw system label (top-left inside the box)
+        boundingBoxesSvg += `<text x="${boxX + systemPadding}" y="${boxY + 16}"
+            font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600"
+            fill="${systemLabelColor}">${escapeHtml(systemData.systemLabel)}</text>`;
+
+        // Store system meta for connection lines
+        systemMeta.push({
+            systemLabel: systemData.systemLabel,
+            boxX,
+            boxY,
+            boxWidth,
+            boxHeight,
+            tables: tableMeta
+        });
+
+        totalPhysicalWidth += boxWidth + systemGap;
+        if (boxHeight > maxPhysicalHeight) maxPhysicalHeight = boxHeight;
+    });
+
+    // Remove trailing gap
+    if (totalPhysicalWidth > 0) totalPhysicalWidth -= systemGap;
+
+    // Center the logical table above physical tables
+    const logicalX = totalPhysicalWidth > 0 ? Math.max(0, (totalPhysicalWidth - logicalTable.width) / 2) : 0;
+
+    // Calculate SVG dimensions
+    const svgWidth = Math.max(logicalTable.width, totalPhysicalWidth) + 40;
+    const svgHeight = totalPhysicalWidth > 0 ? physicalStartY + maxPhysicalHeight + 30 : logicalTable.height + 20;
+
+    // Build connection lines with ER notation and relationship labels
+    let connectionsSvg = '';
+    systemMeta.forEach((system, systemIdx) => {
+        system.tables.forEach((table, tableIdx) => {
+            const startX = logicalX + logicalTable.width / 2;
+            const startY = logicalTable.height;
+            const endX = table.x + table.width / 2;
+            const endY = table.y;
+
+            // Straight connection line
+            connectionsSvg += `<line x1="${startX}" y1="${startY}" x2="${startX}" y2="${startY + 20}" stroke="${lineColor}" stroke-width="1.5"/>`;
+            connectionsSvg += `<line x1="${startX}" y1="${startY + 20}" x2="${endX}" y2="${endY - 20}" stroke="${lineColor}" stroke-width="1.5"/>`;
+            connectionsSvg += `<line x1="${endX}" y1="${endY - 20}" x2="${endX}" y2="${endY}" stroke="${lineColor}" stroke-width="1.5"/>`;
+
+            // ER notation: "One" at top (perpendicular line)
+            connectionsSvg += `<line x1="${startX - 8}" y1="${startY + 10}" x2="${startX + 8}" y2="${startY + 10}" stroke="${lineColor}" stroke-width="1.5"/>`;
+
+            // ER notation: "Many" at bottom (crow's foot)
+            const crowFootY = endY - 12;
+            connectionsSvg += `<line x1="${endX}" y1="${endY - 20}" x2="${endX - 8}" y2="${crowFootY}" stroke="${lineColor}" stroke-width="1.5"/>`;
+            connectionsSvg += `<line x1="${endX}" y1="${endY - 20}" x2="${endX + 8}" y2="${crowFootY}" stroke="${lineColor}" stroke-width="1.5"/>`;
+            connectionsSvg += `<line x1="${endX}" y1="${endY - 20}" x2="${endX}" y2="${crowFootY}" stroke="${lineColor}" stroke-width="1.5"/>`;
+
+            // Relationship label on the line
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
+            const labelText = 'implements';
+
+            // Background for label readability
+            const labelWidth = labelText.length * 6.5 + 8;
+            const bgColor = isDark ? '#0F1419' : '#FFFFFF';
+            connectionsSvg += `<rect x="${midX - labelWidth/2}" y="${midY - 8}" width="${labelWidth}" height="16"
+                fill="${bgColor}" rx="3"/>`;
+            connectionsSvg += `<text x="${midX}" y="${midY + 4}"
+                font-family="Inter, system-ui, sans-serif" font-size="10" font-style="italic"
+                fill="${labelColor}" text-anchor="middle">${labelText}</text>`;
+        });
+    });
+
+    // Reassemble logical table with correct position
+    const logicalTableRepositioned = renderCustomSqlTable(entityName, entityRows, logicalColor, logicalX, 0);
+
+    // Build final SVG - order matters: boxes first, then lines, then tables
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">
+        ${logicalTableRepositioned.svg}
+        ${boundingBoxesSvg}
+        ${connectionsSvg}
+        ${physicalSvg}
+    </svg>`;
+
+    return { type: 'custom', svg };
 }
 
 function generateSystemDiagram(system) {
@@ -2181,74 +2762,73 @@ function generateSystemDiagram(system) {
     const schemas = data.schemas.filter(s => s.system === system.id);
 
     if (schemas.length === 0) {
-        return `graph TD\n    S["${escapeHtml(getText(system.name))}"]:::system\n    S --> N[Keine Schemas]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419`;
+        // Use Mermaid for empty state
+        return { type: 'mermaid', code: `graph TD\n    S["${escapeHtml(getText(system.name))}"]:::system\n    S --> N[Keine Schemas]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419` };
     }
 
-    let code = 'erDiagram\n';
+    // Custom SVG for system diagram
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const physicalColor = isDark ? '#F5A524' : '#E09412';
 
-    // Render each schema with its columns (all physical - will be colored orange)
-    schemas.forEach(schema => {
-        code += `    ${sanitizeMermaidId(schema.name)} {\n`;
-        if (schema.columns) {
-            schema.columns.forEach(col => {
-                const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
-                const colType = col.type.split('(')[0]; // Remove size from type
-                code += `        ${escapeHtml(colType)} ${sanitizeMermaidId(col.name)} ${keyMark}\n`;
-            });
-        }
-        code += '    }\n';
+    // Render all schemas as tables
+    const tableMeta = [];
+    let totalWidth = 0;
+    let maxHeight = 0;
+    const gap = 40;
+
+    schemas.forEach((schema, idx) => {
+        const rows = (schema.columns || []).map(col => ({
+            name: col.name,
+            type: col.type.split('(')[0],
+            key: col.key || ''
+        }));
+
+        const rendered = renderCustomSqlTable(schema.name, rows, physicalColor, totalWidth, 0);
+        tableMeta.push({
+            svg: rendered.svg,
+            x: totalWidth,
+            width: rendered.width,
+            height: rendered.height,
+            name: schema.name
+        });
+        totalWidth += rendered.width + gap;
+        if (rendered.height > maxHeight) maxHeight = rendered.height;
     });
 
-    // Add relationships between schemas based on FK columns
-    schemas.forEach(schema => {
-        if (schema.columns) {
-            schema.columns.forEach(col => {
-                if (col.key === 'FK' && col.references) {
-                    // If column has explicit reference, use it
-                    const refSchema = schemas.find(s => s.id === col.references || s.name === col.references);
-                    if (refSchema) {
-                        code += `    ${sanitizeMermaidId(refSchema.name)} ||--o{ ${sanitizeMermaidId(schema.name)} : ""\n`;
-                    }
-                } else if (col.key === 'FK') {
-                    // Try to infer relationship from column name
-                    schemas.forEach(otherSchema => {
-                        if (otherSchema.id !== schema.id) {
-                            const otherSchemaName = getText(otherSchema.name).toLowerCase();
-                            // Check if any PK column matches the FK column pattern
-                            const hasPKMatch = (otherSchema.columns || []).some(otherCol =>
-                                otherCol.key === 'PK' && (
-                                    col.name.toLowerCase().includes(otherCol.name.toLowerCase()) ||
-                                    getText(col.description).toLowerCase().includes(otherSchemaName)
-                                )
-                            );
-                            if (hasPKMatch) {
-                                code += `    ${sanitizeMermaidId(otherSchema.name)} ||--o{ ${sanitizeMermaidId(schema.name)} : ""\n`;
-                            }
-                        }
-                    });
-                }
-            });
-        }
+    const svgWidth = totalWidth - gap + 40;
+    const svgHeight = maxHeight + 20;
+
+    // Combine all table SVGs
+    let tablesSvg = '';
+    tableMeta.forEach(meta => {
+        tablesSvg += meta.svg;
     });
 
-    return code;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">
+        ${tablesSvg}
+    </svg>`;
+
+    return { type: 'custom', svg };
 }
 
 function generateSchemaDiagram(schema) {
-    let code = 'erDiagram\n';
+    // Custom SVG for schema diagram
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const physicalColor = isDark ? '#F5A524' : '#E09412';
 
-    // Schema with columns (physical - will be colored orange)
-    code += `    ${sanitizeMermaidId(schema.name)} {\n`;
-    if (schema.columns) {
-        schema.columns.forEach(col => {
-            const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
-            const colType = col.type.split('(')[0]; // Remove size from type
-            code += `        ${colType} ${sanitizeMermaidId(col.name)} ${keyMark}\n`;
-        });
-    }
-    code += '    }\n';
+    const rows = (schema.columns || []).map(col => ({
+        name: col.name,
+        type: col.type.split('(')[0],
+        key: col.key || ''
+    }));
 
-    return code;
+    const rendered = renderCustomSqlTable(schema.name, rows, physicalColor, 0, 0);
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${rendered.width + 20} ${rendered.height + 20}" width="${rendered.width + 20}" height="${rendered.height + 20}">
+        ${rendered.svg}
+    </svg>`;
+
+    return { type: 'custom', svg };
 }
 
 function sanitizeMermaidId(name) {

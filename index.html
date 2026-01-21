@@ -13,8 +13,17 @@
     <link rel="stylesheet" href="css/tokens.css">
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- Mermaid.js for diagrams -->
+    <!-- Mermaid.js for diagrams (flowcharts) -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+    <!-- D2 for ER diagrams with Unicode support -->
+    <script type="module">
+        import { D2 } from 'https://esm.sh/@terrastruct/d2';
+        window.D2 = D2;
+        window.d2Instance = new D2();
+        window.d2Ready = true;
+        window.dispatchEvent(new Event('d2-ready'));
+    </script>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
