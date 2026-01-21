@@ -397,7 +397,7 @@ function handleSearch(query) {
                 getText(item.name).toLowerCase().includes(q) ||
                 getText(item.description).toLowerCase().includes(q) ||
                 getText(item.name, 'de').toLowerCase().includes(q) ||
-                item.nameEn?.toLowerCase().includes(q)
+                getText(item.name, 'en').toLowerCase().includes(q)
             )
             .slice(0, 10);
         renderSearchResults();
@@ -630,7 +630,7 @@ function renderTree() {
     // Also filter schemas if searching
     const hasLogicalMatches = filteredDomains.length > 0 || filteredEntities.length > 0;
     const hasPhysicalMatches = filteredSystems.length > 0 ||
-        (query && data.schemas.some(s => s.name.toLowerCase().includes(query)));
+        (query && data.schemas.some(s => getText(s.name).toLowerCase().includes(query)));
 
     // Logical Layer Section (Domains → Entities)
     const isLogicalExpanded = state.expandedLayers.has('logical');
@@ -695,20 +695,6 @@ function renderTree() {
     } catch (error) {
         console.error('Error rendering tree:', error);
     }
-}
-
-function attachLayerToggleListeners() {
-    document.querySelectorAll('.layer-section-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const layer = header.dataset.layer;
-            if (state.expandedLayers.has(layer)) {
-                state.expandedLayers.delete(layer);
-            } else {
-                state.expandedLayers.add(layer);
-            }
-            renderTree();
-        });
-    });
 }
 
 function renderTreeItem(item, children) {
@@ -792,41 +778,6 @@ function renderTreeLeaf(item) {
                 <span class="tree-toggle" aria-hidden="true"></span>
                 <span class="tree-icon">${getTreeIcon(item.type)}</span>
                 <span class="tree-label">${escapeHtml(getText(item.name))}</span>
-            </div>
-        </div>
-    `;
-}
-
-function renderTreeEntityWithAttributes(entity) {
-    const isExpanded = state.expandedNodes.has(entity.id);
-    const isSelected = state.selectedItem?.id === entity.id;
-    const attributes = entity.attributes || [];
-    const hasChildren = attributes.length > 0;
-
-    let attributesHtml = '';
-    if (hasChildren) {
-        for (const attr of attributes) {
-            attributesHtml += renderTreeAttribute(attr, entity.id);
-        }
-    }
-
-    return `
-        <div class="tree-item" data-id="${escapeHtml(entity.id)}">
-            <div class="tree-node ${escapeHtml(entity.layer)} ${isSelected ? 'selected ' + escapeHtml(entity.layer) : ''}"
-                 data-id="${escapeHtml(entity.id)}"
-                 data-layer="${escapeHtml(entity.layer)}"
-                 role="treeitem"
-                 aria-expanded="${isExpanded}"
-                 aria-selected="${isSelected}">
-                <span class="tree-toggle ${isExpanded ? 'expanded' : ''}" aria-hidden="true">
-                    ${hasChildren ? icons.chevronRight : ''}
-                </span>
-                <span class="tree-icon">${getTreeIcon(entity.type)}</span>
-                <span class="tree-label">${escapeHtml(getText(entity.name))}</span>
-                ${hasChildren ? `<span class="tree-count">${attributes.length}</span>` : ''}
-            </div>
-            <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(entity.id)}">
-                ${attributesHtml}
             </div>
         </div>
     `;
@@ -957,39 +908,6 @@ function renderBreadcrumb(item) {
     // Event delegation handles breadcrumb listeners
 }
 
-function attachBreadcrumbListeners(breadcrumb) {
-    // Home button listener
-    breadcrumb.querySelectorAll('.breadcrumb-home').forEach(el => {
-        el.addEventListener('click', () => goToCatalogsOverview());
-        el.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                goToCatalogsOverview();
-            }
-        });
-    });
-
-    // Item listeners
-    breadcrumb.querySelectorAll('.breadcrumb-item').forEach(el => {
-        el.addEventListener('click', () => {
-            if (el.dataset.id) {
-                selectItem(el.dataset.id);
-            } else if (el.dataset.layer) {
-                state.currentLayer = el.dataset.layer;
-                renderAll();
-            }
-        });
-        el.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                if (el.dataset.id) {
-                    selectItem(el.dataset.id);
-                }
-            }
-        });
-    });
-}
-
 function goToCatalogsOverview() {
     state.currentCatalog = null;
     state.selectedItem = null;
@@ -1086,71 +1004,6 @@ function selectCatalog(catalogId) {
     }
 }
 
-function renderLayerOverview(layer) {
-    const contentArea = document.getElementById('contentArea');
-    if (!contentArea) return;
-
-    const layerConfig = {
-        logical: {
-            title: 'Logische Schicht',
-            subtitle: 'Geschäftsdomänen und technologieunabhängige Datenstrukturen.',
-            color: 'var(--color-logical)',
-            items: [...data.domains, ...data.entities],
-            kpis: [
-                { label: 'Domänen', value: data.domains.length },
-                { label: 'Entitäten', value: data.entities.length },
-                { label: 'Attribute', value: data.entities.reduce((sum, e) => sum + (e.attributes?.length || 0), 0) },
-                { label: 'Aktiv', value: [...data.domains, ...data.entities].filter(i => i.status === 'active').length }
-            ]
-        },
-        physical: {
-            title: 'Physische Schicht',
-            subtitle: 'Datenbanksysteme und Schemas, die Ihre Daten speichern.',
-            color: 'var(--color-physical)',
-            items: [...data.systems, ...data.schemas],
-            kpis: [
-                { label: 'Systeme', value: data.systems.length },
-                { label: 'Schemas', value: data.schemas.length },
-                { label: 'Spalten', value: data.schemas.reduce((sum, s) => sum + (s.columns?.length || 0), 0) }
-            ]
-        }
-    };
-
-    const config = layerConfig[layer];
-    if (!config) return;
-
-    const container = document.getElementById('contentBody');
-    container.innerHTML = `
-        <div class="layer-overview">
-            <div class="layer-overview-header">
-                <h1 class="layer-overview-title" style="color: ${config.color}">${config.title}</h1>
-                <p class="layer-overview-subtitle">${config.subtitle}</p>
-            </div>
-            <div class="kpi-cards">
-                ${config.kpis.map(kpi => `
-                    <div class="kpi-card" style="--kpi-color: ${config.color}">
-                        <div class="kpi-value">${kpi.value}</div>
-                        <div class="kpi-label">${kpi.label}</div>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="layer-entities-section">
-                <h2 class="layer-entities-title">Alle Elemente</h2>
-                <div class="layer-entities-list">
-                    ${config.items.map(item => `
-                        <div class="layer-entity-item" data-id="${escapeHtml(item.id)}" data-type="${escapeHtml(item.type)}" data-layer="${escapeHtml(item.layer)}">
-                            <span class="layer-entity-badge ${escapeHtml(item.layer)}">${getTypeLabel(item.type)}</span>
-                            <span class="layer-entity-name">${escapeHtml(getText(item.name))}</span>
-                            <span class="layer-entity-status ${escapeHtml(item.status)}">${getStatusLabel(item.status)}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
-    // Event delegation handles layer entity item listeners
-}
-
 function renderStatisticsCard(item) {
     const kpis = getEntityKPIs(item);
     if (!kpis || kpis.length === 0) return '';
@@ -1217,13 +1070,6 @@ function renderContent() {
             renderCatalogsOverview();
             return;
         }
-
-    // Show layer overview when layer is selected but no specific item
-    if (!state.selectedItem && !state.currentCatalog && state.currentLayer) {
-        renderBreadcrumb(null);
-        renderLayerOverview(state.currentLayer);
-        return;
-    }
 
     // If we have a catalog selected but no specific item, show the catalog detail
     if (!state.selectedItem && state.currentCatalog) {
@@ -1980,48 +1826,6 @@ function renderCatalogSettingsTab(catalog) {
     `;
 }
 
-function attachCatalogTabListeners() {
-    document.querySelectorAll('[data-catalog-view]').forEach(tab => {
-        tab.addEventListener('click', () => {
-            state.catalogView = tab.dataset.catalogView;
-            renderContent();
-        });
-    });
-
-    // Card toggle functionality
-    document.querySelectorAll('.card-header[data-card]').forEach(header => {
-        header.addEventListener('click', (e) => {
-            // Don't toggle if clicking on lang selector
-            if (e.target.closest('.lang-selector')) return;
-            const card = header.closest('.card');
-            const content = card.querySelector('.card-content');
-            const isExpanded = header.getAttribute('aria-expanded') === 'true';
-            header.setAttribute('aria-expanded', !isExpanded);
-            content.style.display = isExpanded ? 'none' : 'block';
-        });
-    });
-
-    // Language selector functionality
-    document.querySelectorAll('.lang-selector').forEach(selector => {
-        selector.addEventListener('change', (e) => {
-            currentLang = e.target.value;
-            renderContent();
-        });
-        // Prevent click from bubbling to card header
-        selector.addEventListener('click', (e) => e.stopPropagation());
-    });
-
-    // Domain item click handler
-    document.querySelectorAll('.catalog-domain-item[data-id]').forEach(item => {
-        item.addEventListener('click', () => {
-            const domain = findItemById(item.dataset.id);
-            if (domain) {
-                selectItem(domain);
-            }
-        });
-    });
-}
-
 function renderPlaceholderView(view) {
     const viewInfo = {
         diagram: { icon: icons.box, title: 'Entitätsdiagramm', desc: 'Visuelles Entity-Relationship-Diagramm' },
@@ -2232,16 +2036,18 @@ function generateDomainDiagram(domain) {
     entities.forEach((entity, idx) => {
         entities.forEach((otherEntity, otherIdx) => {
             if (idx < otherIdx) {
+                const otherName = getText(otherEntity.name).toLowerCase();
+                const entityName = getText(entity.name).toLowerCase();
                 // Check if entities are related via FK attributes
                 const hasRelation = (entity.attributes || []).some(attr =>
                     attr.key === 'FK' && (
-                        attr.description?.toLowerCase().includes(otherEntity.name.toLowerCase()) ||
-                        attr.name.toLowerCase().includes(otherEntity.name.toLowerCase())
+                        getText(attr.description).toLowerCase().includes(otherName) ||
+                        attr.name.toLowerCase().includes(otherName)
                     )
                 ) || (otherEntity.attributes || []).some(attr =>
                     attr.key === 'FK' && (
-                        attr.description?.toLowerCase().includes(entity.name.toLowerCase()) ||
-                        attr.name.toLowerCase().includes(entity.name.toLowerCase())
+                        getText(attr.description).toLowerCase().includes(entityName) ||
+                        attr.name.toLowerCase().includes(entityName)
                     )
                 );
 
@@ -2274,7 +2080,7 @@ function generateEntityDiagram(entity) {
             const schema = data.schemas.find(s => s.id === schemaId);
             if (schema) {
                 const system = data.systems.find(s => s.id === schema.system);
-                const systemLabel = system ? system.name : '';
+                const systemLabel = system ? getText(system.name) : '';
 
                 code += `    ${sanitizeMermaidId(schema.name)} {\n`;
                 if (schema.columns) {
@@ -2329,11 +2135,12 @@ function generateSystemDiagram(system) {
                     // Try to infer relationship from column name
                     schemas.forEach(otherSchema => {
                         if (otherSchema.id !== schema.id) {
+                            const otherSchemaName = getText(otherSchema.name).toLowerCase();
                             // Check if any PK column matches the FK column pattern
                             const hasPKMatch = (otherSchema.columns || []).some(otherCol =>
                                 otherCol.key === 'PK' && (
                                     col.name.toLowerCase().includes(otherCol.name.toLowerCase()) ||
-                                    col.description?.toLowerCase().includes(otherSchema.name.toLowerCase())
+                                    getText(col.description).toLowerCase().includes(otherSchemaName)
                                 )
                             );
                             if (hasPKMatch) {
@@ -2369,7 +2176,8 @@ function generateSchemaDiagram(schema) {
 
 function sanitizeMermaidId(name) {
     // Remove special characters and spaces for valid Mermaid IDs
-    return name.replace(/[^a-zA-Z0-9_]/g, '_');
+    const str = typeof name === 'string' ? name : getText(name);
+    return str.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
 function renderDiagramLegend(item) {
@@ -2511,28 +2319,6 @@ function renderAttributeBreadcrumb(attr, parentItem) {
     // Event delegation handles breadcrumb listeners
 }
 
-function attachAttributeDetailListeners() {
-    // Card toggle functionality
-    document.querySelectorAll('.card-header[data-card]').forEach(header => {
-        header.addEventListener('click', () => {
-            const card = header.closest('.card');
-            const content = card.querySelector('.card-content');
-            const isExpanded = header.getAttribute('aria-expanded') === 'true';
-            header.setAttribute('aria-expanded', !isExpanded);
-            content.style.display = isExpanded ? 'none' : 'block';
-        });
-    });
-
-    // Parent link click handler
-    document.querySelectorAll('.attr-parent-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const itemId = link.dataset.id;
-            if (itemId) selectItem(itemId);
-        });
-    });
-}
-
 function toggleNode(id) {
     if (state.expandedNodes.has(id)) {
         state.expandedNodes.delete(id);
@@ -2540,163 +2326,6 @@ function toggleNode(id) {
         state.expandedNodes.add(id);
     }
     renderTree();
-}
-
-function updateLayerTabs() {
-    document.querySelectorAll('.layer-tab').forEach(tab => {
-        const isActive = tab.dataset.layer === state.currentLayer;
-        tab.classList.toggle('active', isActive);
-        tab.setAttribute('aria-selected', isActive);
-    });
-}
-
-function attachTreeListeners() {
-    document.querySelectorAll('.tree-node').forEach(node => {
-        node.addEventListener('click', (e) => {
-            const id = node.dataset.id;
-
-            // Handle attribute clicks - show attribute detail
-            if (node.classList.contains('attribute-node')) {
-                const entityId = node.dataset.entity;
-                const attrName = node.dataset.attrName;
-                if (entityId && attrName) {
-                    const parentItem = findItemById(entityId);
-                    if (parentItem) {
-                        const attrs = parentItem.attributes || [];
-                        const attr = attrs.find(a => a.name === attrName);
-                        if (attr) {
-                            showAttributeDetail(attr, parentItem);
-                        }
-                    }
-                }
-                return;
-            }
-
-            // Handle column clicks - show column detail
-            if (node.classList.contains('column-node')) {
-                const schemaId = node.dataset.schema;
-                const colName = node.dataset.colName;
-                if (schemaId && colName) {
-                    const parentItem = findItemById(schemaId);
-                    if (parentItem) {
-                        const cols = parentItem.columns || [];
-                        const col = cols.find(c => c.name === colName);
-                        if (col) {
-                            showAttributeDetail(col, parentItem);
-                        }
-                    }
-                }
-                return;
-            }
-
-            if (e.target.closest('.tree-toggle')) {
-                toggleNode(id);
-            } else {
-                selectItem(id);
-            }
-        });
-
-        node.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                // Handle attribute keydown - show attribute detail
-                if (node.classList.contains('attribute-node')) {
-                    const entityId = node.dataset.entity;
-                    const attrName = node.dataset.attrName;
-                    if (entityId && attrName) {
-                        const parentItem = findItemById(entityId);
-                        if (parentItem) {
-                            const attrs = parentItem.attributes || [];
-                            const attr = attrs.find(a => a.name === attrName);
-                            if (attr) {
-                                showAttributeDetail(attr, parentItem);
-                            }
-                        }
-                    }
-                    return;
-                }
-                // Handle column keydown - show column detail
-                if (node.classList.contains('column-node')) {
-                    const schemaId = node.dataset.schema;
-                    const colName = node.dataset.colName;
-                    if (schemaId && colName) {
-                        const parentItem = findItemById(schemaId);
-                        if (parentItem) {
-                            const cols = parentItem.columns || [];
-                            const col = cols.find(c => c.name === colName);
-                            if (col) {
-                                showAttributeDetail(col, parentItem);
-                            }
-                        }
-                    }
-                    return;
-                }
-                selectItem(node.dataset.id);
-            } else if (e.key === 'ArrowRight') {
-                state.expandedNodes.add(node.dataset.id);
-                renderTree();
-            } else if (e.key === 'ArrowLeft') {
-                state.expandedNodes.delete(node.dataset.id);
-                renderTree();
-            }
-        });
-    });
-}
-
-function attachContentListeners() {
-    // Card toggles
-    document.querySelectorAll('.card-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const card = header.closest('.card');
-            card.classList.toggle('collapsed');
-            header.setAttribute('aria-expanded', !card.classList.contains('collapsed'));
-        });
-    });
-
-    // Mapping cards
-    document.querySelectorAll('.mapping-card').forEach(card => {
-        card.addEventListener('click', () => selectItem(card.dataset.id));
-        card.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                selectItem(card.dataset.id);
-            }
-        });
-    });
-
-    // Clickable table rows
-    document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', () => {
-            // Check if this is an attribute/column row
-            const attrName = row.dataset.attrName;
-            const parentId = row.dataset.parentId;
-            if (attrName && parentId) {
-                const parentItem = findItemById(parentId);
-                if (parentItem) {
-                    const attrs = parentItem.attributes || parentItem.columns || [];
-                    const attr = attrs.find(a => a.name === attrName);
-                    if (attr) {
-                        showAttributeDetail(attr, parentItem);
-                        return;
-                    }
-                }
-            }
-            // Regular item row
-            const itemId = row.dataset.id;
-            if (itemId) {
-                selectItem(itemId);
-            }
-        });
-    });
-}
-
-function attachViewTabListeners() {
-    document.querySelectorAll('.view-tabs .view-tab[data-view]').forEach(tab => {
-        tab.addEventListener('click', () => {
-            state.currentView = tab.dataset.view;
-            renderContent();
-        });
-    });
 }
 
 // ========================================
@@ -2797,13 +2426,6 @@ function setupDelegatedEvents() {
         const catalogCard = target.closest('.catalog-card');
         if (catalogCard) {
             selectCatalog(catalogCard.dataset.id);
-            return;
-        }
-
-        // Layer entity item clicks
-        const layerEntityItem = target.closest('.layer-entity-item');
-        if (layerEntityItem) {
-            selectItem(layerEntityItem.dataset.id);
             return;
         }
 
