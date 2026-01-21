@@ -1,7 +1,5 @@
 # Metadata Catalog - Database Specification
 
----
-
 ## 1. Overview
 
 ### 1.1 Purpose
