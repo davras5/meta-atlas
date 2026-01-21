@@ -2867,3 +2867,124 @@ html {
         animation: none;
     }
 }
+
+/* ========================================
+   Diagram View - Mermaid Integration
+   ======================================== */
+.diagram-container {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.diagram-header {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.diagram-title {
+    font-size: var(--text-body);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.diagram-subtitle {
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+}
+
+.diagram-content {
+    padding: var(--space-6);
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: auto;
+}
+
+.mermaid-diagram {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.diagram-error {
+    color: var(--color-text-muted);
+    font-size: var(--text-small);
+    padding: var(--space-8);
+    text-align: center;
+}
+
+.diagram-legend {
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--color-border-subtle);
+    background: var(--color-bg-hover);
+}
+
+.legend-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-caption);
+    color: var(--color-text-secondary);
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: var(--radius-xs);
+    flex-shrink: 0;
+}
+
+.legend-symbol {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    font-weight: var(--font-semibold);
+    padding: 2px var(--space-1);
+    background: var(--color-bg-base);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-xs);
+    color: var(--color-text-muted);
+}
+
+.legend-label {
+    white-space: nowrap;
+}
+
+/* Light mode diagram adjustments */
+[data-theme="light"] .diagram-content {
+    background: var(--color-bg-base);
+}
+
+[data-theme="light"] .diagram-legend {
+    background: var(--color-bg-surface);
+}
+
+/* Responsive diagram */
+@media (max-width: 768px) {
+    .diagram-content {
+        padding: var(--space-4);
+        min-height: 200px;
+    }
+
+    .legend-items {
+        gap: var(--space-3);
+    }
+
+    .legend-item {
+        font-size: var(--text-2xs);
+    }
+}

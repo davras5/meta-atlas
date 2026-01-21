@@ -167,8 +167,17 @@ function parseRoute() {
 
 function navigateTo(path, replace = false) {
     const method = replace ? 'replaceState' : 'pushState';
-    history[method](null, '', `#${path}`);
+    // Preserve current tab parameter
+    const tabParam = state.currentView && state.currentView !== 'wiki' ? `?tab=${state.currentView}` : '';
+    history[method](null, '', `#${path}${tabParam}`);
     handleRoute();
+}
+
+function updateUrlWithTab(tabId) {
+    const hash = window.location.hash.slice(1) || '/';
+    const [path] = hash.split('?');
+    const newUrl = tabId === 'wiki' ? `#${path}` : `#${path}?tab=${tabId}`;
+    history.replaceState(null, '', newUrl);
 }
 
 function handleRoute() {
@@ -925,7 +934,7 @@ function renderBreadcrumb(item) {
 
     // Add layer indicator
     if (item.layer) {
-        html += `<span class="breadcrumb-item layer-${escapeHtml(item.layer)}" data-layer="${escapeHtml(item.layer)}" tabindex="0">${escapeHtml(item.layer.charAt(0).toUpperCase() + item.layer.slice(1))}</span>`;
+        html += `<span class="breadcrumb-item layer-${escapeHtml(item.layer)}" data-layer="${escapeHtml(item.layer)}" tabindex="0">${escapeHtml(getLayerLabel(item.layer))}</span>`;
         html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
     }
 
@@ -1294,7 +1303,9 @@ function renderContent() {
         </div>
 
         <div class="view-content" role="tabpanel">
-            ${state.currentView === 'wiki' ? renderWikiView(item) : renderPlaceholderView(state.currentView)}
+            ${state.currentView === 'wiki' ? renderWikiView(item) :
+              state.currentView === 'diagram' ? renderDiagramView(item) :
+              renderPlaceholderView(state.currentView)}
         </div>
     `;
         // Event delegation handles content and view tab listeners
@@ -2031,6 +2042,452 @@ function renderPlaceholderView(view) {
     `;
 }
 
+function renderDiagramView(item) {
+    const diagramId = `mermaid-${Date.now()}`;
+    const mermaidCode = generateMermaidDiagram(item);
+
+    // Schedule Mermaid rendering after DOM update
+    setTimeout(() => {
+        initMermaidDiagram(diagramId, mermaidCode, item.layer, item.type);
+    }, 0);
+
+    return `
+        <div class="diagram-container">
+            <div class="diagram-header">
+                <h3 class="diagram-title">${getDiagramTitle(item)}</h3>
+                <p class="diagram-subtitle">${getDiagramSubtitle(item)}</p>
+            </div>
+            <div class="diagram-content">
+                <div id="${diagramId}" class="mermaid-diagram"></div>
+            </div>
+            <div class="diagram-legend">
+                ${renderDiagramLegend(item)}
+            </div>
+        </div>
+    `;
+}
+
+function initMermaidDiagram(elementId, code, layer = null, type = null) {
+    const element = document.getElementById(elementId);
+    if (!element || !window.mermaid) return;
+
+    // Initialize Mermaid with theme settings
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'default',
+        themeVariables: isDark ? {
+            primaryColor: '#4F8EF7',
+            primaryTextColor: '#F0F3F6',
+            primaryBorderColor: '#4F8EF7',
+            lineColor: '#5C6A7A',
+            secondaryColor: '#22C997',
+            tertiaryColor: '#F5A524',
+            background: '#171C24',
+            mainBkg: '#1F252E',
+            nodeBorder: '#5C6A7A',
+            clusterBkg: '#1F252E',
+            titleColor: '#F0F3F6',
+            edgeLabelBackground: '#171C24'
+        } : {
+            primaryColor: '#3574E8',
+            primaryTextColor: '#1A1F26',
+            primaryBorderColor: '#3574E8',
+            lineColor: '#6E7A89',
+            secondaryColor: '#0FA87C',
+            tertiaryColor: '#E09412',
+            background: '#FFFFFF',
+            mainBkg: '#F4F6F8',
+            nodeBorder: '#9CA7B4',
+            clusterBkg: '#F4F6F8',
+            titleColor: '#1A1F26',
+            edgeLabelBackground: '#FFFFFF'
+        },
+        flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis'
+        },
+        er: {
+            useMaxWidth: true,
+            layoutDirection: 'TB'
+        }
+    });
+
+    mermaid.render(`${elementId}-svg`, code).then(({ svg }) => {
+        element.innerHTML = svg;
+        // Apply layer-specific colors to ER diagram entities via post-processing
+        if (code.startsWith('erDiagram')) {
+            applyErDiagramColors(element, layer, type, isDark);
+        }
+    }).catch(err => {
+        console.error('Mermaid rendering error:', err);
+        element.innerHTML = `<div class="diagram-error">Diagramm konnte nicht gerendert werden</div>`;
+    });
+}
+
+// Apply colors to ER diagram entities based on layer (logical=green, physical=orange)
+function applyErDiagramColors(container, layer, type, isDark) {
+    const entityBoxes = container.querySelectorAll('.entityBox');
+    if (!entityBoxes.length) return;
+
+    // Define colors based on theme
+    const logicalFill = isDark ? '#22C997' : '#0FA87C';
+    const logicalStroke = isDark ? '#3DDBA8' : '#22C997';
+    const physicalFill = isDark ? '#F5A524' : '#E09412';
+    const physicalStroke = isDark ? '#FFBA42' : '#F5A524';
+    const textColor = isDark ? '#0F1419' : '#1A1F26';
+
+    entityBoxes.forEach((box, index) => {
+        if (layer === 'logical') {
+            // Logical layer view: first entity is logical (green), rest are physical (orange)
+            if (index === 0) {
+                box.style.fill = logicalFill;
+                box.style.stroke = logicalStroke;
+            } else {
+                box.style.fill = physicalFill;
+                box.style.stroke = physicalStroke;
+            }
+        } else if (layer === 'physical') {
+            if (type === 'system') {
+                // System diagram: all tables are physical (orange)
+                box.style.fill = physicalFill;
+                box.style.stroke = physicalStroke;
+            } else {
+                // Table diagram: first is physical (orange), second is logical (green)
+                if (index === 0) {
+                    box.style.fill = physicalFill;
+                    box.style.stroke = physicalStroke;
+                } else {
+                    box.style.fill = logicalFill;
+                    box.style.stroke = logicalStroke;
+                }
+            }
+        }
+    });
+
+    // Update text colors for better contrast on colored backgrounds
+    const entityLabels = container.querySelectorAll('.entityLabel');
+    entityLabels.forEach(label => {
+        label.style.fill = textColor;
+    });
+}
+
+function getDiagramTitle(item) {
+    switch (item.layer) {
+        case 'conceptual':
+            return item.type === 'domain' ? 'Domänenstruktur' : 'Konzeptzuordnungen';
+        case 'logical':
+            return 'Entity-Relationship-Diagramm';
+        case 'physical':
+            return 'Tabellen- und Spaltenzuordnungen';
+        default:
+            return 'Strukturdiagramm';
+    }
+}
+
+function getDiagramSubtitle(item) {
+    switch (item.layer) {
+        case 'conceptual':
+            return item.type === 'domain'
+                ? 'Übersicht der Konzepte und ihrer logischen Entitäten'
+                : 'Verknüpfung mit logischen und physischen Schichten';
+        case 'logical':
+            return 'Beziehungen zwischen Entitäten und Zuordnung zu physischen Tabellen';
+        case 'physical':
+            return 'Spaltenstruktur und Zuordnung zu logischen Attributen';
+        default:
+            return '';
+    }
+}
+
+function generateMermaidDiagram(item) {
+    switch (item.layer) {
+        case 'conceptual':
+            return item.type === 'domain'
+                ? generateDomainDiagram(item)
+                : generateConceptDiagram(item);
+        case 'logical':
+            return generateEntityDiagram(item);
+        case 'physical':
+            return item.type === 'system'
+                ? generateSystemDiagram(item)
+                : generateTableDiagram(item);
+        default:
+            return 'graph TD\n    A[Kein Diagramm verfügbar]';
+    }
+}
+
+function generateDomainDiagram(domain) {
+    const concepts = getConceptsForDomain(domain.id);
+    if (concepts.length === 0) {
+        return `graph TD\n    subgraph D["${escapeHtml(domain.name)}"]\n        N[Keine Konzepte]\n    end`;
+    }
+
+    let code = 'graph TB\n';
+
+    // Domain as subgraph containing concepts
+    code += `    subgraph D["${escapeHtml(domain.name)}"]\n`;
+    code += `        direction TB\n`;
+
+    // Concept nodes inside domain
+    concepts.forEach((concept, idx) => {
+        code += `        C${idx}["${escapeHtml(concept.name)}"]\n`;
+    });
+
+    code += '    end\n';
+
+    // Find relations between concepts (concepts that share entities or have related domains)
+    concepts.forEach((concept, idx) => {
+        concepts.forEach((otherConcept, otherIdx) => {
+            if (idx < otherIdx) {
+                // Check if concepts are related (e.g., entities reference each other)
+                const entities = data.entities.filter(e => e.concept === concept.id);
+                const otherEntities = data.entities.filter(e => e.concept === otherConcept.id);
+
+                const hasRelation = entities.some(e =>
+                    (e.attributes || []).some(attr =>
+                        attr.key === 'FK' && otherEntities.some(oe =>
+                            attr.description?.toLowerCase().includes(oe.name.toLowerCase()) ||
+                            attr.name.toLowerCase().includes(oe.name.toLowerCase())
+                        )
+                    )
+                );
+
+                if (hasRelation) {
+                    code += `    C${idx} <-.-> C${otherIdx}\n`;
+                }
+            }
+        });
+    });
+
+    return code;
+}
+
+function generateConceptDiagram(concept) {
+    const domain = data.domains.find(d => d.id === concept.domain);
+    const siblingConcepts = domain ? getConceptsForDomain(domain.id).filter(c => c.id !== concept.id) : [];
+
+    let code = 'graph TB\n';
+
+    // Domain as subgraph containing concepts
+    if (domain) {
+        code += `    subgraph D["${escapeHtml(domain.name)}"]\n`;
+        code += `        direction TB\n`;
+    }
+
+    // Current concept node (highlighted)
+    code += `        C["${escapeHtml(concept.name)}"]:::current\n`;
+
+    // Sibling concepts in same domain
+    siblingConcepts.forEach((sibling, idx) => {
+        code += `        S${idx}["${escapeHtml(sibling.name)}"]\n`;
+    });
+
+    if (domain) {
+        code += '    end\n';
+    }
+
+    // Relations between concepts
+    siblingConcepts.forEach((sibling, idx) => {
+        const entities = data.entities.filter(e => e.concept === concept.id);
+        const siblingEntities = data.entities.filter(e => e.concept === sibling.id);
+
+        const hasRelation = entities.some(e =>
+            (e.attributes || []).some(attr =>
+                attr.key === 'FK' && siblingEntities.some(se =>
+                    attr.description?.toLowerCase().includes(se.name.toLowerCase()) ||
+                    attr.name.toLowerCase().includes(se.name.toLowerCase())
+                )
+            )
+        ) || siblingEntities.some(se =>
+            (se.attributes || []).some(attr =>
+                attr.key === 'FK' && entities.some(e =>
+                    attr.description?.toLowerCase().includes(e.name.toLowerCase()) ||
+                    attr.name.toLowerCase().includes(e.name.toLowerCase())
+                )
+            )
+        );
+
+        if (hasRelation) {
+            code += `    C <-.-> S${idx}\n`;
+        }
+    });
+
+    code += '    classDef current fill:#4F8EF7,stroke:#fff,color:#fff,stroke-width:3px\n';
+
+    return code;
+}
+
+function generateEntityDiagram(entity) {
+    let code = 'erDiagram\n';
+
+    // Current entity with all attributes (logical - will be colored green)
+    code += `    ${sanitizeMermaidId(entity.name)} {\n`;
+    if (entity.attributes) {
+        entity.attributes.forEach(attr => {
+            const keyMark = attr.key === 'PK' ? 'PK' : (attr.key === 'FK' ? 'FK' : '');
+            code += `        ${escapeHtml(attr.type)} ${escapeHtml(attr.name)} ${keyMark}\n`;
+        });
+    }
+    code += '    }\n';
+
+    // Show physical table mappings with all columns (physical - will be colored orange)
+    if (entity.physicalTables && entity.physicalTables.length > 0) {
+        entity.physicalTables.forEach(tableId => {
+            const table = data.tables.find(t => t.id === tableId);
+            if (table) {
+                const system = data.systems.find(s => s.id === table.system);
+                const systemLabel = system ? system.name : '';
+
+                code += `    ${sanitizeMermaidId(table.name)} {\n`;
+                if (table.columns) {
+                    table.columns.forEach(col => {
+                        const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
+                        code += `        ${escapeHtml(col.type.split('(')[0])} ${escapeHtml(col.name)} ${keyMark}\n`;
+                    });
+                }
+                code += '    }\n';
+                code += `    ${sanitizeMermaidId(entity.name)} ||--|| ${sanitizeMermaidId(table.name)} : "${escapeHtml(systemLabel)}"\n`;
+            }
+        });
+    }
+
+    return code;
+}
+
+function generateSystemDiagram(system) {
+    // Get all tables for this system
+    const tables = data.tables.filter(t => t.system === system.id);
+
+    if (tables.length === 0) {
+        return `graph TD\n    S["${escapeHtml(system.name)}"]:::system\n    S --> N[Keine Tabellen]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419`;
+    }
+
+    let code = 'erDiagram\n';
+
+    // Render each table with its columns (all physical - will be colored orange)
+    tables.forEach(table => {
+        code += `    ${sanitizeMermaidId(table.name)} {\n`;
+        if (table.columns) {
+            table.columns.forEach(col => {
+                const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
+                const colType = col.type.split('(')[0]; // Remove size from type
+                code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)} ${keyMark}\n`;
+            });
+        }
+        code += '    }\n';
+    });
+
+    // Add relationships between tables based on FK columns
+    tables.forEach(table => {
+        if (table.columns) {
+            table.columns.forEach(col => {
+                if (col.key === 'FK' && col.references) {
+                    // If column has explicit reference, use it
+                    const refTable = tables.find(t => t.id === col.references || t.name === col.references);
+                    if (refTable) {
+                        code += `    ${sanitizeMermaidId(refTable.name)} ||--o{ ${sanitizeMermaidId(table.name)} : ""\n`;
+                    }
+                } else if (col.key === 'FK') {
+                    // Try to infer relationship from column name
+                    tables.forEach(otherTable => {
+                        if (otherTable.id !== table.id) {
+                            // Check if any PK column matches the FK column pattern
+                            const hasPKMatch = (otherTable.columns || []).some(otherCol =>
+                                otherCol.key === 'PK' && (
+                                    col.name.toLowerCase().includes(otherCol.name.toLowerCase()) ||
+                                    col.description?.toLowerCase().includes(otherTable.name.toLowerCase())
+                                )
+                            );
+                            if (hasPKMatch) {
+                                code += `    ${sanitizeMermaidId(otherTable.name)} ||--o{ ${sanitizeMermaidId(table.name)} : ""\n`;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    return code;
+}
+
+function generateTableDiagram(table) {
+    const logicalEntity = data.entities.find(e => e.id === table.logicalEntity);
+
+    let code = 'erDiagram\n';
+
+    // Table with columns (physical - will be colored orange)
+    code += `    ${sanitizeMermaidId(table.name)} {\n`;
+    if (table.columns) {
+        table.columns.forEach(col => {
+            const keyMark = col.key === 'PK' ? 'PK' : (col.key === 'FK' ? 'FK' : (col.key === 'UK' ? 'UK' : ''));
+            const colType = col.type.split('(')[0]; // Remove size from type
+            code += `        ${escapeHtml(colType)} ${escapeHtml(col.name)} ${keyMark}\n`;
+        });
+    }
+    code += '    }\n';
+
+    // Logical entity mapping (logical - will be colored green)
+    if (logicalEntity) {
+        code += `    ${sanitizeMermaidId(logicalEntity.name)} {\n`;
+        if (logicalEntity.attributes) {
+            logicalEntity.attributes.forEach(attr => {
+                const keyMark = attr.key === 'PK' ? 'PK' : (attr.key === 'FK' ? 'FK' : '');
+                code += `        ${escapeHtml(attr.type)} ${escapeHtml(attr.name)} ${keyMark}\n`;
+            });
+        }
+        code += '    }\n';
+        code += `    ${sanitizeMermaidId(table.name)} ||--|| ${sanitizeMermaidId(logicalEntity.name)} : "implements"\n`;
+    }
+
+    return code;
+}
+
+function sanitizeMermaidId(name) {
+    // Remove special characters and spaces for valid Mermaid IDs
+    return name.replace(/[^a-zA-Z0-9_]/g, '_');
+}
+
+function renderDiagramLegend(item) {
+    const legends = {
+        conceptual: [
+            { color: 'var(--color-conceptual)', label: 'Domäne' },
+            { color: 'var(--color-conceptual)', label: 'Konzept', border: true }
+        ],
+        logical: [
+            { color: 'var(--color-logical)', label: 'Entität' },
+            { color: 'var(--color-physical)', label: 'Physische Tabelle' },
+            { symbol: 'PK', label: 'Primärschlüssel' },
+            { symbol: 'FK', label: 'Fremdschlüssel' }
+        ],
+        physical: [
+            { color: 'var(--color-physical)', label: 'Tabelle' },
+            { color: 'var(--color-logical)', label: 'Logische Entität' },
+            { symbol: 'PK', label: 'Primärschlüssel' },
+            { symbol: 'FK', label: 'Fremdschlüssel' }
+        ]
+    };
+
+    const items = legends[item.layer] || legends.logical;
+
+    return `
+        <div class="legend-items">
+            ${items.map(l => l.color
+                ? `<div class="legend-item">
+                    <span class="legend-color" style="background: ${l.color}"></span>
+                    <span class="legend-label">${l.label}</span>
+                   </div>`
+                : `<div class="legend-item">
+                    <span class="legend-symbol">${l.symbol}</span>
+                    <span class="legend-label">${l.label}</span>
+                   </div>`
+            ).join('')}
+        </div>
+    `;
+}
+
 function renderSearchResults() {
     const container = document.getElementById('searchResults');
     if (!container) return;
@@ -2065,7 +2522,7 @@ function selectItem(id) {
     if (item) {
         state.selectedItem = item;
         state.selectedAttribute = null; // Clear any selected attribute
-        state.currentView = 'wiki';
+        // Preserve current view (tab) when navigating between items
         if (item.layer !== state.currentLayer) {
             state.currentLayer = item.layer;
         }
@@ -2092,9 +2549,15 @@ function renderAttributeBreadcrumb(attr, parentItem) {
     html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} Alle Projekte</span>`;
     html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
 
+    // Add project name if available
+    if (state.currentProject) {
+        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentProject.id)}" tabindex="0">${escapeHtml(state.currentProject.name)}</span>`;
+        html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+    }
+
     // Add layer
     if (parentItem.layer) {
-        html += `<span class="breadcrumb-item layer-${escapeHtml(parentItem.layer)}" data-layer="${escapeHtml(parentItem.layer)}" tabindex="0">${escapeHtml(parentItem.layer.charAt(0).toUpperCase() + parentItem.layer.slice(1))}</span>`;
+        html += `<span class="breadcrumb-item layer-${escapeHtml(parentItem.layer)}" data-layer="${escapeHtml(parentItem.layer)}" tabindex="0">${escapeHtml(getLayerLabel(parentItem.layer))}</span>`;
         html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
     }
 
@@ -2435,6 +2898,7 @@ function setupDelegatedEvents() {
         if (viewTab) {
             if (viewTab.dataset.view) {
                 state.currentView = viewTab.dataset.view;
+                updateUrlWithTab(state.currentView);
                 renderContent();
             } else if (viewTab.dataset.projectView) {
                 state.projectView = viewTab.dataset.projectView;
