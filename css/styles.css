@@ -1574,6 +1574,35 @@ body {
     height: var(--icon-xs);
 }
 
+.card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.lang-selector {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.lang-selector:hover {
+    border-color: var(--color-border-hover);
+}
+
+.lang-selector:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-subtle);
+}
+
 .card.collapsed .card-toggle {
     transform: rotate(-90deg);
 }

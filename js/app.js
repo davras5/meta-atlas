@@ -44,6 +44,21 @@ const icons = {
 // ========================================
 // Utilities
 // ========================================
+
+// Current language setting (default: German)
+let currentLang = 'de';
+
+// Get text from MultiLang object or plain string
+function getText(value, lang = currentLang) {
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+        // Return requested language, fallback to German, then any available
+        return value[lang] || value.de || value.en || value.fr || value.it || '';
+    }
+    return String(value);
+}
+
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -379,9 +394,9 @@ function handleSearch(query) {
         const q = query.toLowerCase();
         state.searchResults = getAllItems()
             .filter(item =>
-                item.name.toLowerCase().includes(q) ||
-                item.description?.toLowerCase().includes(q) ||
-                item.nameDE?.toLowerCase().includes(q) ||
+                getText(item.name).toLowerCase().includes(q) ||
+                getText(item.description).toLowerCase().includes(q) ||
+                getText(item.name, 'de').toLowerCase().includes(q) ||
                 item.nameEn?.toLowerCase().includes(q)
             )
             .slice(0, 10);
@@ -441,11 +456,11 @@ function renderApp() {
                 <button class="icon-btn" id="themeToggle" aria-label="Toggle dark/light theme">
                     ${icons.sun}
                 </button>
-                <select class="lang-selector" aria-label="Language">
-                    <option value="de">DE</option>
-                    <option value="fr">FR</option>
-                    <option value="it">IT</option>
-                    <option value="en">EN</option>
+                <select class="lang-selector" id="headerLangSelector" aria-label="Language">
+                    <option value="de" ${currentLang === 'de' ? 'selected' : ''}>DE</option>
+                    <option value="en" ${currentLang === 'en' ? 'selected' : ''}>EN</option>
+                    <option value="fr" ${currentLang === 'fr' ? 'selected' : ''}>FR</option>
+                    <option value="it" ${currentLang === 'it' ? 'selected' : ''}>IT</option>
                 </select>
                 <button class="btn-login" id="loginBtn">
                     ${icons.logIn}
@@ -579,8 +594,8 @@ function attachVersionSelectorListeners() {
 function filterItems(items, query) {
     if (!query) return items;
     return items.filter(item =>
-        item.name.toLowerCase().includes(query) ||
-        (item.description && item.description.toLowerCase().includes(query))
+        getText(item.name).toLowerCase().includes(query) ||
+        getText(item.description).toLowerCase().includes(query)
     );
 }
 
@@ -589,10 +604,10 @@ function sortItems(items, sortType) {
     const sorted = [...items];
     switch (sortType) {
         case 'name-asc':
-            sorted.sort((a, b) => a.name.localeCompare(b.name));
+            sorted.sort((a, b) => getText(a.name).localeCompare(getText(b.name)));
             break;
         case 'name-desc':
-            sorted.sort((a, b) => b.name.localeCompare(a.name));
+            sorted.sort((a, b) => getText(b.name).localeCompare(getText(a.name)));
             break;
     }
     return sorted;
@@ -720,7 +735,7 @@ function renderTreeItem(item, children) {
                     ${hasChildren ? icons.chevronRight : ''}
                 </span>
                 <span class="tree-icon">${getTreeIcon(item.type)}</span>
-                <span class="tree-label">${escapeHtml(item.name)}</span>
+                <span class="tree-label">${escapeHtml(getText(item.name))}</span>
                 ${hasChildren ? `<span class="tree-count">${children.length}</span>` : ''}
             </div>
             <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(item.id)}">
@@ -755,7 +770,7 @@ function renderTreeItemWithSchemas(system, schemas) {
                     ${hasChildren ? icons.chevronRight : ''}
                 </span>
                 <span class="tree-icon">${getTreeIcon(system.type)}</span>
-                <span class="tree-label">${escapeHtml(system.name)}</span>
+                <span class="tree-label">${escapeHtml(getText(system.name))}</span>
                 ${totalColumns > 0 ? `<span class="tree-count">${totalColumns}</span>` : ''}
             </div>
             <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(system.id)}">
@@ -776,7 +791,7 @@ function renderTreeLeaf(item) {
                  aria-selected="${isSelected}">
                 <span class="tree-toggle" aria-hidden="true"></span>
                 <span class="tree-icon">${getTreeIcon(item.type)}</span>
-                <span class="tree-label">${escapeHtml(item.name)}</span>
+                <span class="tree-label">${escapeHtml(getText(item.name))}</span>
             </div>
         </div>
     `;
@@ -807,7 +822,7 @@ function renderTreeEntityWithAttributes(entity) {
                     ${hasChildren ? icons.chevronRight : ''}
                 </span>
                 <span class="tree-icon">${getTreeIcon(entity.type)}</span>
-                <span class="tree-label">${escapeHtml(entity.name)}</span>
+                <span class="tree-label">${escapeHtml(getText(entity.name))}</span>
                 ${hasChildren ? `<span class="tree-count">${attributes.length}</span>` : ''}
             </div>
             <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(entity.id)}">
@@ -862,7 +877,7 @@ function renderTreeSchemaWithColumns(schema) {
                     ${hasChildren ? icons.chevronRight : ''}
                 </span>
                 <span class="tree-icon">${getTreeIcon(schema.type)}</span>
-                <span class="tree-label">${escapeHtml(schema.name)}</span>
+                <span class="tree-label">${escapeHtml(getText(schema.name))}</span>
                 ${hasChildren ? `<span class="tree-count">${columns.length}</span>` : ''}
             </div>
             <div class="tree-children ${isExpanded ? 'expanded' : ''}" role="group" data-parent="${escapeHtml(schema.id)}">
@@ -912,13 +927,13 @@ function renderBreadcrumb(item) {
 
     // If we have a current catalog and the item is not the catalog itself, show the catalog
     if (state.currentCatalog && item.type !== 'catalog') {
-        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentCatalog.id)}" tabindex="0">${escapeHtml(state.currentCatalog.name)}</span>`;
+        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentCatalog.id)}" tabindex="0">${escapeHtml(getText(state.currentCatalog.name))}</span>`;
         html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
     }
 
     // If item is a catalog, just show it as current
     if (item.type === 'catalog') {
-        html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(item.name)}</span>`;
+        html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(getText(item.name))}</span>`;
         breadcrumb.innerHTML = html;
         // Event delegation handles breadcrumb listeners
         return;
@@ -933,11 +948,11 @@ function renderBreadcrumb(item) {
     // Add parent chain
     const chain = getParentChain(item);
     html += chain.map(parent =>
-        `<span class="breadcrumb-item" data-id="${escapeHtml(parent.id)}" tabindex="0">${escapeHtml(parent.name)}</span>
+        `<span class="breadcrumb-item" data-id="${escapeHtml(parent.id)}" tabindex="0">${escapeHtml(getText(parent.name))}</span>
          <span class="breadcrumb-separator" aria-hidden="true">/</span>`
     ).join('');
 
-    html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(item.name)}</span>`;
+    html += `<span class="breadcrumb-current" aria-current="page">${escapeHtml(getText(item.name))}</span>`;
     breadcrumb.innerHTML = html;
     // Event delegation handles breadcrumb listeners
 }
@@ -1038,11 +1053,11 @@ function renderCatalogCard(catalog) {
         <div class="catalog-card" data-id="${escapeHtml(catalog.id)}" style="--catalog-color: ${escapeHtml(catalog.color || '#3B82F6')}">
             <div class="catalog-card-header">
                 <div class="catalog-info">
-                    <div class="catalog-name">${escapeHtml(catalog.name)}</div>
+                    <div class="catalog-name">${escapeHtml(getText(catalog.name))}</div>
                 </div>
                 <span class="catalog-status ${escapeHtml(catalog.status)}">${getStatusLabel(catalog.status)}</span>
             </div>
-            <p class="catalog-description">${escapeHtml(catalog.description)}</p>
+            <p class="catalog-description">${escapeHtml(getText(catalog.description))}</p>
             <div class="catalog-meta">
                 <div class="catalog-meta-item">
                     ${icons.box}
@@ -1125,7 +1140,7 @@ function renderLayerOverview(layer) {
                     ${config.items.map(item => `
                         <div class="layer-entity-item" data-id="${escapeHtml(item.id)}" data-type="${escapeHtml(item.type)}" data-layer="${escapeHtml(item.layer)}">
                             <span class="layer-entity-badge ${escapeHtml(item.layer)}">${getTypeLabel(item.type)}</span>
-                            <span class="layer-entity-name">${escapeHtml(item.name)}</span>
+                            <span class="layer-entity-name">${escapeHtml(getText(item.name))}</span>
                             <span class="layer-entity-status ${escapeHtml(item.status)}">${getStatusLabel(item.status)}</span>
                         </div>
                     `).join('')}
@@ -1237,8 +1252,8 @@ function renderContent() {
     if (item.type === 'catalog') {
         container.innerHTML = `
             <div class="entity-header">
-                <h1 class="entity-title">${escapeHtml(item.name)}</h1>
-                <p class="entity-subtitle">${escapeHtml(item.description || '')}</p>
+                <h1 class="entity-title">${escapeHtml(getText(item.name))}</h1>
+                <p class="entity-subtitle">${escapeHtml(getText(item.description))}</p>
             </div>
 
             <div class="view-tabs" role="tablist">
@@ -1266,8 +1281,8 @@ function renderContent() {
             <div class="entity-badges">
                 <span class="badge badge-layer ${escapeHtml(item.layer)}">${getTypeLabel(item.type)}</span>
             </div>
-            <h1 class="entity-title">${escapeHtml(item.name)}</h1>
-            <p class="entity-subtitle">${escapeHtml(item.description || '')}</p>
+            <h1 class="entity-title">${escapeHtml(getText(item.name))}</h1>
+            <p class="entity-subtitle">${escapeHtml(getText(item.description))}</p>
         </div>
 
         <div class="view-tabs" role="tablist">
@@ -1304,38 +1319,22 @@ function renderWikiView(item) {
         <div class="card">
             <div class="card-header" data-card="basic" aria-expanded="true">
                 <span class="card-title">Grundinformationen</span>
-                <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                <div class="card-header-actions">
+                    <select class="lang-selector" id="langSelector" aria-label="Sprache wählen">
+                        <option value="de" ${currentLang === 'de' ? 'selected' : ''}>DE</option>
+                        <option value="en" ${currentLang === 'en' ? 'selected' : ''}>EN</option>
+                        <option value="fr" ${currentLang === 'fr' ? 'selected' : ''}>FR</option>
+                        <option value="it" ${currentLang === 'it' ? 'selected' : ''}>IT</option>
+                    </select>
+                    <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                </div>
             </div>
             <div class="card-content">
                 <div class="meta-grid">
-                    <span class="meta-label">Name (DE) :</span>
-                    <span class="meta-value">${escapeHtml(item.nameDE || item.name)}</span>
-                    ${item.nameEn ? `
-                        <span class="meta-label">Name (EN) :</span>
-                        <span class="meta-value">${escapeHtml(item.nameEn)}</span>
-                    ` : ''}
-                    ${item.nameFr ? `
-                        <span class="meta-label">Name (FR) :</span>
-                        <span class="meta-value">${escapeHtml(item.nameFr)}</span>
-                    ` : ''}
-                    ${item.nameIt ? `
-                        <span class="meta-label">Name (IT) :</span>
-                        <span class="meta-value">${escapeHtml(item.nameIt)}</span>
-                    ` : ''}
-                    <span class="meta-label">Beschreibung (DE) :</span>
-                    <span class="meta-value">${escapeHtml(item.description || '—')}</span>
-                    ${item.descriptionEn ? `
-                        <span class="meta-label">Description (EN) :</span>
-                        <span class="meta-value">${escapeHtml(item.descriptionEn)}</span>
-                    ` : ''}
-                    ${item.descriptionFr ? `
-                        <span class="meta-label">Description (FR) :</span>
-                        <span class="meta-value">${escapeHtml(item.descriptionFr)}</span>
-                    ` : ''}
-                    ${item.descriptionIt ? `
-                        <span class="meta-label">Descrizione (IT) :</span>
-                        <span class="meta-value">${escapeHtml(item.descriptionIt)}</span>
-                    ` : ''}
+                    <span class="meta-label">Name :</span>
+                    <span class="meta-value">${escapeHtml(getText(item.name))}</span>
+                    <span class="meta-label">Beschreibung :</span>
+                    <span class="meta-value">${escapeHtml(getText(item.description) || '—')}</span>
                     ${item.synonyms ? `
                         <span class="meta-label">Synonyme :</span>
                         <span class="meta-value">${item.synonyms.map(s => `<span class="tag">${escapeHtml(s)}</span>`).join('')}</span>
@@ -1346,7 +1345,7 @@ function renderWikiView(item) {
                     ` : ''}
                     ${item.owner ? `
                         <span class="meta-label">Verantwortlich :</span>
-                        <span class="meta-value">${escapeHtml(item.owner)}</span>
+                        <span class="meta-value">${escapeHtml(getText(item.owner))}</span>
                     ` : ''}
                     ${item.technology ? `
                         <span class="meta-label">Technologie :</span>
@@ -1396,8 +1395,8 @@ function renderWikiView(item) {
                             <tbody>
                                 ${domainEntities.map(entity => `
                                     <tr class="clickable-row" data-id="${escapeHtml(entity.id)}">
-                                        <td>${escapeHtml(entity.name)}</td>
-                                        <td>${escapeHtml(entity.description || '—')}</td>
+                                        <td>${escapeHtml(getText(entity.name))}</td>
+                                        <td>${escapeHtml(getText(entity.description) || '—')}</td>
                                         <td><span class="tag">${getStatusLabel(entity.status || 'active')}</span></td>
                                     </tr>
                                 `).join('')}
@@ -1431,8 +1430,8 @@ function renderWikiView(item) {
                             <tbody>
                                 ${systemSchemas.map(schema => `
                                     <tr class="clickable-row" data-id="${escapeHtml(schema.id)}">
-                                        <td>${escapeHtml(schema.name)}</td>
-                                        <td>${escapeHtml(schema.description || '—')}</td>
+                                        <td>${escapeHtml(getText(schema.name))}</td>
+                                        <td>${escapeHtml(getText(schema.description) || '—')}</td>
                                         <td>${schema.columns?.length || 0}</td>
                                     </tr>
                                 `).join('')}
@@ -1532,7 +1531,7 @@ function renderAttributeDetailView(attr, parentItem) {
                 <span class="badge badge-layer ${escapeHtml(parentItem.layer)}">${itemLabel}</span>
             </div>
             <h1 class="entity-title">${escapeHtml(attr.name)}</h1>
-            <p class="entity-subtitle">${escapeHtml(attr.description || '')}</p>
+            <p class="entity-subtitle">${escapeHtml(getText(attr.description))}</p>
         </div>
 
         <div class="view-content" role="tabpanel">
@@ -1543,28 +1542,22 @@ function renderAttributeDetailView(attr, parentItem) {
         <div class="card">
             <div class="card-header" data-card="basic" aria-expanded="true">
                 <span class="card-title">Grundinformationen</span>
-                <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                <div class="card-header-actions">
+                    <select class="lang-selector" id="langSelector" aria-label="Sprache wählen">
+                        <option value="de" ${currentLang === 'de' ? 'selected' : ''}>DE</option>
+                        <option value="en" ${currentLang === 'en' ? 'selected' : ''}>EN</option>
+                        <option value="fr" ${currentLang === 'fr' ? 'selected' : ''}>FR</option>
+                        <option value="it" ${currentLang === 'it' ? 'selected' : ''}>IT</option>
+                    </select>
+                    <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                </div>
             </div>
             <div class="card-content">
                 <div class="meta-grid">
                     <span class="meta-label">Name :</span>
                     <span class="meta-value">${escapeHtml(attr.name)}</span>
-
-                    <span class="meta-label">Beschreibung (DE) :</span>
-                    <span class="meta-value">${escapeHtml(attr.description || '—')}</span>
-                    ${attr.descriptionEn ? `
-                        <span class="meta-label">Description (EN) :</span>
-                        <span class="meta-value">${escapeHtml(attr.descriptionEn)}</span>
-                    ` : ''}
-                    ${attr.descriptionFr ? `
-                        <span class="meta-label">Description (FR) :</span>
-                        <span class="meta-value">${escapeHtml(attr.descriptionFr)}</span>
-                    ` : ''}
-                    ${attr.descriptionIt ? `
-                        <span class="meta-label">Descrizione (IT) :</span>
-                        <span class="meta-value">${escapeHtml(attr.descriptionIt)}</span>
-                    ` : ''}
-
+                    <span class="meta-label">Beschreibung :</span>
+                    <span class="meta-value">${escapeHtml(getText(attr.description) || '—')}</span>
                     <span class="meta-label">Datentyp :</span>
                     <span class="meta-value">${escapeHtml(attr.type)}</span>
 
@@ -1575,11 +1568,11 @@ function renderAttributeDetailView(attr, parentItem) {
                     <span class="meta-value">${attr.key ? `<span class="tag">${escapeHtml(attr.key)}</span>` : '—'}</span>
 
                     <span class="meta-label">${parentLabel} :</span>
-                    <span class="meta-value"><a href="#" class="attr-parent-link" data-id="${escapeHtml(parentItem.id)}">${escapeHtml(parentItem.name)}</a></span>
+                    <span class="meta-value"><a href="#" class="attr-parent-link" data-id="${escapeHtml(parentItem.id)}">${escapeHtml(getText(parentItem.name))}</a></span>
 
                     ${valueDomain ? `
                         <span class="meta-label">Wertedomäne :</span>
-                        <span class="meta-value">${escapeHtml(valueDomain.name)}</span>
+                        <span class="meta-value">${escapeHtml(getText(valueDomain.name))}</span>
                     ` : ''}
                 </div>
             </div>
@@ -1632,8 +1625,8 @@ function renderAttributeDetailView(attr, parentItem) {
                             ${(valueDomain.values || []).map(val => `
                                 <tr>
                                     <td>${escapeHtml(val.code)}</td>
-                                    <td>${escapeHtml(val.label)}</td>
-                                    <td>${escapeHtml(val.description || '—')}</td>
+                                    <td>${escapeHtml(getText(val.label))}</td>
+                                    <td>${escapeHtml(getText(val.description) || '—')}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -1703,7 +1696,7 @@ function renderMappingCard(item) {
         <div class="mapping-card ${escapeHtml(item.layer)}" data-id="${escapeHtml(item.id)}" tabindex="0" role="button">
             <div class="mapping-icon ${escapeHtml(item.layer)}">${getTypeIcon(item.type)}</div>
             <div class="mapping-info">
-                <div class="mapping-title">${escapeHtml(item.name)}</div>
+                <div class="mapping-title">${escapeHtml(getText(item.name))}</div>
                 <div class="mapping-subtitle">${getTypeLabel(item.type)}</div>
             </div>
             <span class="mapping-arrow" aria-hidden="true">${icons.arrowRight}</span>
@@ -1814,11 +1807,11 @@ function renderCatalogDetailsTab(catalog) {
             <div class="card-content">
                 <div class="meta-grid">
                     <span class="meta-label">Name (DE) :</span>
-                    <span class="meta-value">${escapeHtml(catalog.nameDE || catalog.name)}</span>
+                    <span class="meta-value">${escapeHtml(getText(catalog.name, 'de'))}</span>
                     <span class="meta-label">Beschreibung :</span>
-                    <span class="meta-value">${escapeHtml(catalog.description || '—')}</span>
+                    <span class="meta-value">${escapeHtml(getText(catalog.description) || '—')}</span>
                     <span class="meta-label">Verantwortlich :</span>
-                    <span class="meta-value">${escapeHtml(catalog.owner || '—')}</span>
+                    <span class="meta-value">${escapeHtml(getText(catalog.owner) || '—')}</span>
                     <span class="meta-label">Erstellt :</span>
                     <span class="meta-value">${escapeHtml(catalog.created || '—')}</span>
                     <span class="meta-label">Status :</span>
@@ -1892,7 +1885,7 @@ function renderCatalogSettingsTab(catalog) {
                 <div class="settings-form">
                     <div class="setting-row">
                         <label class="setting-label">Katalogname :</label>
-                        <input type="text" class="setting-input" value="${escapeHtml(catalog.name)}" readonly />
+                        <input type="text" class="setting-input" value="${escapeHtml(getText(catalog.name))}" readonly />
                     </div>
                     <div class="setting-row">
                         <label class="setting-label">Katalog-ID :</label>
@@ -1997,13 +1990,25 @@ function attachCatalogTabListeners() {
 
     // Card toggle functionality
     document.querySelectorAll('.card-header[data-card]').forEach(header => {
-        header.addEventListener('click', () => {
+        header.addEventListener('click', (e) => {
+            // Don't toggle if clicking on lang selector
+            if (e.target.closest('.lang-selector')) return;
             const card = header.closest('.card');
             const content = card.querySelector('.card-content');
             const isExpanded = header.getAttribute('aria-expanded') === 'true';
             header.setAttribute('aria-expanded', !isExpanded);
             content.style.display = isExpanded ? 'none' : 'block';
         });
+    });
+
+    // Language selector functionality
+    document.querySelectorAll('.lang-selector').forEach(selector => {
+        selector.addEventListener('change', (e) => {
+            currentLang = e.target.value;
+            renderContent();
+        });
+        // Prevent click from bubbling to card header
+        selector.addEventListener('click', (e) => e.stopPropagation());
     });
 
     // Domain item click handler
@@ -2207,18 +2212,18 @@ function generateMermaidDiagram(item) {
 function generateDomainDiagram(domain) {
     const entities = getEntitiesForDomain(domain.id);
     if (entities.length === 0) {
-        return `graph TD\n    subgraph D["${escapeHtml(domain.name)}"]\n        N[Keine Entitäten]\n    end`;
+        return `graph TD\n    subgraph D["${escapeHtml(getText(domain.name))}"]\n        N[Keine Entitäten]\n    end`;
     }
 
     let code = 'graph TB\n';
 
     // Domain as subgraph containing entities
-    code += `    subgraph D["${escapeHtml(domain.name)}"]\n`;
+    code += `    subgraph D["${escapeHtml(getText(domain.name))}"]\n`;
     code += `        direction TB\n`;
 
     // Entity nodes inside domain
     entities.forEach((entity, idx) => {
-        code += `        E${idx}["${escapeHtml(entity.name)}"]\n`;
+        code += `        E${idx}["${escapeHtml(getText(entity.name))}"]\n`;
     });
 
     code += '    end\n';
@@ -2292,7 +2297,7 @@ function generateSystemDiagram(system) {
     const schemas = data.schemas.filter(s => s.system === system.id);
 
     if (schemas.length === 0) {
-        return `graph TD\n    S["${escapeHtml(system.name)}"]:::system\n    S --> N[Keine Schemas]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419`;
+        return `graph TD\n    S["${escapeHtml(getText(system.name))}"]:::system\n    S --> N[Keine Schemas]\n    classDef system fill:#F5A524,stroke:#FFBA42,color:#0F1419`;
     }
 
     let code = 'erDiagram\n';
@@ -2417,7 +2422,7 @@ function renderSearchResults() {
             <div class="search-result-item ${escapeHtml(item.layer)}" data-id="${escapeHtml(item.id)}" role="option" tabindex="0">
                 <span class="tree-icon ${escapeHtml(item.layer)}">${getTypeIcon(item.type)}</span>
                 <div class="search-result-info">
-                    <div class="search-result-name">${escapeHtml(item.name)}</div>
+                    <div class="search-result-name">${escapeHtml(getText(item.name))}</div>
                     <div class="search-result-meta">${getTypeLabel(item.type)} · ${getLayerLabel(item.layer)}</div>
                 </div>
             </div>
@@ -2441,8 +2446,28 @@ function selectItem(id) {
             state.currentLayer = item.layer;
         }
         expandParents(item);
+        // Auto-expand item if it has children
+        if (itemHasChildren(item)) {
+            state.expandedNodes.add(item.id);
+        }
         navigateTo(`/${item.layer}/${item.type}/${item.id}`);
     }
+}
+
+function itemHasChildren(item) {
+    if (item.type === 'domain') {
+        return data.entities.some(e => e.domain === item.id);
+    }
+    if (item.type === 'system') {
+        return data.schemas.some(s => s.system === item.id);
+    }
+    if (item.type === 'entity') {
+        return item.attributes && item.attributes.length > 0;
+    }
+    if (item.type === 'schema') {
+        return item.columns && item.columns.length > 0;
+    }
+    return false;
 }
 
 function showAttributeDetail(attr, parentItem) {
@@ -2465,7 +2490,7 @@ function renderAttributeBreadcrumb(attr, parentItem) {
 
     // Add catalog name if available
     if (state.currentCatalog) {
-        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentCatalog.id)}" tabindex="0">${escapeHtml(state.currentCatalog.name)}</span>`;
+        html += `<span class="breadcrumb-item" data-id="${escapeHtml(state.currentCatalog.id)}" tabindex="0">${escapeHtml(getText(state.currentCatalog.name))}</span>`;
         html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
     }
 
@@ -2476,7 +2501,7 @@ function renderAttributeBreadcrumb(attr, parentItem) {
     }
 
     // Add parent item
-    html += `<span class="breadcrumb-item" data-id="${escapeHtml(parentItem.id)}" tabindex="0">${escapeHtml(parentItem.name)}</span>`;
+    html += `<span class="breadcrumb-item" data-id="${escapeHtml(parentItem.id)}" tabindex="0">${escapeHtml(getText(parentItem.name))}</span>`;
     html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
 
     // Add attribute name as current

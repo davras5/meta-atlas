@@ -3,14 +3,18 @@
     "id": "ent-building",
     "type": "entity",
     "layer": "logical",
-    "name": "Building",
-    "nameDE": "Gebäude",
-    "nameFr": "Bâtiment",
-    "nameIt": "Edificio",
-    "description": "Logische Entität für Gebäudedaten des Bundes",
-    "descriptionEn": "Logical entity for federal building data",
-    "descriptionFr": "Entité logique pour les données de bâtiments fédéraux",
-    "descriptionIt": "Entità logica per i dati degli edifici federali",
+    "name": {
+      "de": "Gebäude",
+      "en": "Building",
+      "fr": "Bâtiment",
+      "it": "Edificio"
+    },
+    "description": {
+      "de": "Logische Entität für Gebäudedaten des Bundes",
+      "en": "Logical entity for federal building data",
+      "fr": "Entité logique pour les données de bâtiments fédéraux",
+      "it": "Entità logica per i dati degli edifici federali"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/71304",
     "status": "active",
     "domain": "dom-immo",
@@ -23,10 +27,12 @@
         "type": "Integer",
         "nullable": false,
         "key": "PK",
-        "description": "Eidgenössischer Gebäudeidentifikator",
-        "descriptionEn": "Federal Building Identifier",
-        "descriptionFr": "Identifiant fédéral de bâtiment",
-        "descriptionIt": "Identificatore federale degli edifici"
+        "description": {
+          "de": "Eidgenössischer Gebäudeidentifikator",
+          "en": "Federal Building Identifier",
+          "fr": "Identifiant fédéral de bâtiment",
+          "it": "Identificatore federale degli edifici"
+        }
       },
       {
         "name": "building_type",
@@ -34,60 +40,72 @@
         "nullable": false,
         "key": "",
         "valueDomain": "vd-building-type",
-        "description": "Gebäudetyp",
-        "descriptionEn": "Building type",
-        "descriptionFr": "Type de bâtiment",
-        "descriptionIt": "Tipo di edificio"
+        "description": {
+          "de": "Gebäudetyp",
+          "en": "Building type",
+          "fr": "Type de bâtiment",
+          "it": "Tipo di edificio"
+        }
       },
       {
         "name": "address_street",
         "type": "String",
         "nullable": true,
         "key": "",
-        "description": "Strassenadresse",
-        "descriptionEn": "Street address",
-        "descriptionFr": "Adresse de rue",
-        "descriptionIt": "Indirizzo stradale"
+        "description": {
+          "de": "Strassenadresse",
+          "en": "Street address",
+          "fr": "Adresse de rue",
+          "it": "Indirizzo stradale"
+        }
       },
       {
         "name": "address_city",
         "type": "String",
         "nullable": true,
         "key": "",
-        "description": "Stadt/Ort",
-        "descriptionEn": "City/Location",
-        "descriptionFr": "Ville/Localité",
-        "descriptionIt": "Città/Località"
+        "description": {
+          "de": "Stadt/Ort",
+          "en": "City/Location",
+          "fr": "Ville/Localité",
+          "it": "Città/Località"
+        }
       },
       {
         "name": "construction_year",
         "type": "Integer",
         "nullable": true,
         "key": "",
-        "description": "Baujahr",
-        "descriptionEn": "Construction year",
-        "descriptionFr": "Année de construction",
-        "descriptionIt": "Anno di costruzione"
+        "description": {
+          "de": "Baujahr",
+          "en": "Construction year",
+          "fr": "Année de construction",
+          "it": "Anno di costruzione"
+        }
       },
       {
         "name": "total_area_sqm",
         "type": "Decimal",
         "nullable": true,
         "key": "",
-        "description": "Gesamtfläche in m²",
-        "descriptionEn": "Total area in m²",
-        "descriptionFr": "Surface totale en m²",
-        "descriptionIt": "Superficie totale in m²"
+        "description": {
+          "de": "Gesamtfläche in m²",
+          "en": "Total area in m²",
+          "fr": "Surface totale en m²",
+          "it": "Superficie totale in m²"
+        }
       },
       {
         "name": "plot_id",
         "type": "Reference",
         "nullable": false,
         "key": "FK",
-        "description": "Referenz zum Grundstück",
-        "descriptionEn": "Reference to plot",
-        "descriptionFr": "Référence au terrain",
-        "descriptionIt": "Riferimento al terreno"
+        "description": {
+          "de": "Referenz zum Grundstück",
+          "en": "Reference to plot",
+          "fr": "Référence au terrain",
+          "it": "Riferimento al terreno"
+        }
       },
       {
         "name": "status",
@@ -95,10 +113,12 @@
         "nullable": false,
         "key": "",
         "valueDomain": "vd-status",
-        "description": "Status des Gebäudes",
-        "descriptionEn": "Building status",
-        "descriptionFr": "Statut du bâtiment",
-        "descriptionIt": "Stato dell'edificio"
+        "description": {
+          "de": "Status des Gebäudes",
+          "en": "Building status",
+          "fr": "Statut du bâtiment",
+          "it": "Stato dell'edificio"
+        }
       },
       {
         "name": "energy_rating",
@@ -106,10 +126,12 @@
         "nullable": true,
         "key": "",
         "valueDomain": "vd-energy-rating",
-        "description": "Energieeffizienzklasse (GEAK)",
-        "descriptionEn": "Energy efficiency class (GEAK)",
-        "descriptionFr": "Classe d'efficacité énergétique (CECB)",
-        "descriptionIt": "Classe di efficienza energetica (CECE)"
+        "description": {
+          "de": "Energieeffizienzklasse (GEAK)",
+          "en": "Energy efficiency class (GEAK)",
+          "fr": "Classe d'efficacité énergétique (CECB)",
+          "it": "Classe di efficienza energetica (CECE)"
+        }
       }
     ]
   },
@@ -117,14 +139,18 @@
     "id": "ent-plot",
     "type": "entity",
     "layer": "logical",
-    "name": "Plot",
-    "nameDE": "Grundstück",
-    "nameFr": "Bien-fonds",
-    "nameIt": "Fondo",
-    "description": "Logische Entität für Grundstücksdaten",
-    "descriptionEn": "Logical entity for plot data",
-    "descriptionFr": "Entité logique pour les données de bien-fonds",
-    "descriptionIt": "Entità logica per i dati dei fondi",
+    "name": {
+      "de": "Grundstück",
+      "en": "Plot",
+      "fr": "Bien-fonds",
+      "it": "Fondo"
+    },
+    "description": {
+      "de": "Logische Entität für Grundstücksdaten",
+      "en": "Logical entity for plot data",
+      "fr": "Entité logique pour les données de bien-fonds",
+      "it": "Entità logica per i dati dei fondi"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/55892",
     "status": "active",
     "domain": "dom-immo",
@@ -137,20 +163,24 @@
         "type": "String",
         "nullable": false,
         "key": "PK",
-        "description": "Grundstücksidentifikator",
-        "descriptionEn": "Plot identifier",
-        "descriptionFr": "Identifiant du bien-fonds",
-        "descriptionIt": "Identificatore del fondo"
+        "description": {
+          "de": "Grundstücksidentifikator",
+          "en": "Plot identifier",
+          "fr": "Identifiant du bien-fonds",
+          "it": "Identificatore del fondo"
+        }
       },
       {
         "name": "area_sqm",
         "type": "Decimal",
         "nullable": false,
         "key": "",
-        "description": "Fläche in m²",
-        "descriptionEn": "Area in m²",
-        "descriptionFr": "Surface en m²",
-        "descriptionIt": "Superficie in m²"
+        "description": {
+          "de": "Fläche in m²",
+          "en": "Area in m²",
+          "fr": "Surface en m²",
+          "it": "Superficie in m²"
+        }
       },
       {
         "name": "zone_type",
@@ -158,20 +188,24 @@
         "nullable": true,
         "key": "",
         "valueDomain": "vd-zone",
-        "description": "Nutzungszone",
-        "descriptionEn": "Usage zone",
-        "descriptionFr": "Zone d'utilisation",
-        "descriptionIt": "Zona d'uso"
+        "description": {
+          "de": "Nutzungszone",
+          "en": "Usage zone",
+          "fr": "Zone d'utilisation",
+          "it": "Zona d'uso"
+        }
       },
       {
         "name": "municipality",
         "type": "String",
         "nullable": false,
         "key": "",
-        "description": "Gemeinde",
-        "descriptionEn": "Municipality",
-        "descriptionFr": "Commune",
-        "descriptionIt": "Comune"
+        "description": {
+          "de": "Gemeinde",
+          "en": "Municipality",
+          "fr": "Commune",
+          "it": "Comune"
+        }
       }
     ]
   },
@@ -179,14 +213,18 @@
     "id": "ent-rental-unit",
     "type": "entity",
     "layer": "logical",
-    "name": "RentalUnit",
-    "nameDE": "Mietobjekt",
-    "nameFr": "Objet locatif",
-    "nameIt": "Unità in affitto",
-    "description": "Logische Entität für Mietobjekte",
-    "descriptionEn": "Logical entity for rental units",
-    "descriptionFr": "Entité logique pour les objets locatifs",
-    "descriptionIt": "Entità logica per le unità in affitto",
+    "name": {
+      "de": "Mietobjekt",
+      "en": "RentalUnit",
+      "fr": "Objet locatif",
+      "it": "Unità in affitto"
+    },
+    "description": {
+      "de": "Logische Entität für Mietobjekte",
+      "en": "Logical entity for rental units",
+      "fr": "Entité logique pour les objets locatifs",
+      "it": "Entità logica per le unità in affitto"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/169458",
     "status": "active",
     "domain": "dom-immo",
@@ -199,40 +237,48 @@
         "type": "String",
         "nullable": false,
         "key": "PK",
-        "description": "Mietobjekt-ID",
-        "descriptionEn": "Rental unit ID",
-        "descriptionFr": "ID de l'objet locatif",
-        "descriptionIt": "ID dell'unità in affitto"
+        "description": {
+          "de": "Mietobjekt-ID",
+          "en": "Rental unit ID",
+          "fr": "ID de l'objet locatif",
+          "it": "ID dell'unità in affitto"
+        }
       },
       {
         "name": "building_egid",
         "type": "Integer",
         "nullable": false,
         "key": "FK",
-        "description": "Referenz zum Gebäude",
-        "descriptionEn": "Reference to building",
-        "descriptionFr": "Référence au bâtiment",
-        "descriptionIt": "Riferimento all'edificio"
+        "description": {
+          "de": "Referenz zum Gebäude",
+          "en": "Reference to building",
+          "fr": "Référence au bâtiment",
+          "it": "Riferimento all'edificio"
+        }
       },
       {
         "name": "floor",
         "type": "Integer",
         "nullable": true,
         "key": "",
-        "description": "Stockwerk",
-        "descriptionEn": "Floor",
-        "descriptionFr": "Étage",
-        "descriptionIt": "Piano"
+        "description": {
+          "de": "Stockwerk",
+          "en": "Floor",
+          "fr": "Étage",
+          "it": "Piano"
+        }
       },
       {
         "name": "area_sqm",
         "type": "Decimal",
         "nullable": false,
         "key": "",
-        "description": "Fläche in m²",
-        "descriptionEn": "Area in m²",
-        "descriptionFr": "Surface en m²",
-        "descriptionIt": "Superficie in m²"
+        "description": {
+          "de": "Fläche in m²",
+          "en": "Area in m²",
+          "fr": "Surface en m²",
+          "it": "Superficie in m²"
+        }
       },
       {
         "name": "unit_type",
@@ -240,20 +286,24 @@
         "nullable": false,
         "key": "",
         "valueDomain": "vd-unit-type",
-        "description": "Objekttyp",
-        "descriptionEn": "Unit type",
-        "descriptionFr": "Type d'objet",
-        "descriptionIt": "Tipo di unità"
+        "description": {
+          "de": "Objekttyp",
+          "en": "Unit type",
+          "fr": "Type d'objet",
+          "it": "Tipo di unità"
+        }
       },
       {
         "name": "rent_monthly",
         "type": "Decimal",
         "nullable": true,
         "key": "",
-        "description": "Monatsmiete CHF",
-        "descriptionEn": "Monthly rent CHF",
-        "descriptionFr": "Loyer mensuel CHF",
-        "descriptionIt": "Affitto mensile CHF"
+        "description": {
+          "de": "Monatsmiete CHF",
+          "en": "Monthly rent CHF",
+          "fr": "Loyer mensuel CHF",
+          "it": "Affitto mensile CHF"
+        }
       }
     ]
   },
@@ -261,14 +311,18 @@
     "id": "ent-project",
     "type": "entity",
     "layer": "logical",
-    "name": "Project",
-    "nameDE": "Bauprojekt",
-    "nameFr": "Projet de construction",
-    "nameIt": "Progetto di costruzione",
-    "description": "Logische Entität für Bauprojekte",
-    "descriptionEn": "Logical entity for construction projects",
-    "descriptionFr": "Entité logique pour les projets de construction",
-    "descriptionIt": "Entità logica per i progetti di costruzione",
+    "name": {
+      "de": "Bauprojekt",
+      "en": "Project",
+      "fr": "Projet de construction",
+      "it": "Progetto di costruzione"
+    },
+    "description": {
+      "de": "Logische Entität für Bauprojekte",
+      "en": "Logical entity for construction projects",
+      "fr": "Entité logique pour les projets de construction",
+      "it": "Entità logica per i progetti di costruzione"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/84721",
     "status": "active",
     "domain": "dom-project",
@@ -281,30 +335,36 @@
         "type": "String",
         "nullable": false,
         "key": "PK",
-        "description": "Projekt-ID",
-        "descriptionEn": "Project ID",
-        "descriptionFr": "ID du projet",
-        "descriptionIt": "ID del progetto"
+        "description": {
+          "de": "Projekt-ID",
+          "en": "Project ID",
+          "fr": "ID du projet",
+          "it": "ID del progetto"
+        }
       },
       {
         "name": "name",
         "type": "String",
         "nullable": false,
         "key": "",
-        "description": "Projektname",
-        "descriptionEn": "Project name",
-        "descriptionFr": "Nom du projet",
-        "descriptionIt": "Nome del progetto"
+        "description": {
+          "de": "Projektname",
+          "en": "Project name",
+          "fr": "Nom du projet",
+          "it": "Nome del progetto"
+        }
       },
       {
         "name": "building_egid",
         "type": "Integer",
         "nullable": true,
         "key": "FK",
-        "description": "Referenz zum Gebäude",
-        "descriptionEn": "Reference to building",
-        "descriptionFr": "Référence au bâtiment",
-        "descriptionIt": "Riferimento all'edificio"
+        "description": {
+          "de": "Referenz zum Gebäude",
+          "en": "Reference to building",
+          "fr": "Référence au bâtiment",
+          "it": "Riferimento all'edificio"
+        }
       },
       {
         "name": "phase",
@@ -312,40 +372,48 @@
         "nullable": false,
         "key": "",
         "valueDomain": "vd-project-phase",
-        "description": "Projektphase",
-        "descriptionEn": "Project phase",
-        "descriptionFr": "Phase du projet",
-        "descriptionIt": "Fase del progetto"
+        "description": {
+          "de": "Projektphase",
+          "en": "Project phase",
+          "fr": "Phase du projet",
+          "it": "Fase del progetto"
+        }
       },
       {
         "name": "budget_chf",
         "type": "Decimal",
         "nullable": true,
         "key": "",
-        "description": "Budget in CHF",
-        "descriptionEn": "Budget in CHF",
-        "descriptionFr": "Budget en CHF",
-        "descriptionIt": "Budget in CHF"
+        "description": {
+          "de": "Budget in CHF",
+          "en": "Budget in CHF",
+          "fr": "Budget en CHF",
+          "it": "Budget in CHF"
+        }
       },
       {
         "name": "start_date",
         "type": "Date",
         "nullable": true,
         "key": "",
-        "description": "Startdatum",
-        "descriptionEn": "Start date",
-        "descriptionFr": "Date de début",
-        "descriptionIt": "Data di inizio"
+        "description": {
+          "de": "Startdatum",
+          "en": "Start date",
+          "fr": "Date de début",
+          "it": "Data di inizio"
+        }
       },
       {
         "name": "end_date",
         "type": "Date",
         "nullable": true,
         "key": "",
-        "description": "Enddatum",
-        "descriptionEn": "End date",
-        "descriptionFr": "Date de fin",
-        "descriptionIt": "Data di fine"
+        "description": {
+          "de": "Enddatum",
+          "en": "End date",
+          "fr": "Date de fin",
+          "it": "Data di fine"
+        }
       }
     ]
   },
@@ -353,14 +421,18 @@
     "id": "ent-cost-center",
     "type": "entity",
     "layer": "logical",
-    "name": "CostCenter",
-    "nameDE": "Kostenstelle",
-    "nameFr": "Centre de coûts",
-    "nameIt": "Centro di costo",
-    "description": "Logische Entität für Kostenstellen",
-    "descriptionEn": "Logical entity for cost centers",
-    "descriptionFr": "Entité logique pour les centres de coûts",
-    "descriptionIt": "Entità logica per i centri di costo",
+    "name": {
+      "de": "Kostenstelle",
+      "en": "CostCenter",
+      "fr": "Centre de coûts",
+      "it": "Centro di costo"
+    },
+    "description": {
+      "de": "Logische Entität für Kostenstellen",
+      "en": "Logical entity for cost centers",
+      "fr": "Entité logique pour les centres de coûts",
+      "it": "Entità logica per i centri di costo"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/50285",
     "status": "active",
     "domain": "dom-project",
@@ -373,40 +445,48 @@
         "type": "String",
         "nullable": false,
         "key": "PK",
-        "description": "Kostenstellen-ID",
-        "descriptionEn": "Cost center ID",
-        "descriptionFr": "ID du centre de coûts",
-        "descriptionIt": "ID del centro di costo"
+        "description": {
+          "de": "Kostenstellen-ID",
+          "en": "Cost center ID",
+          "fr": "ID du centre de coûts",
+          "it": "ID del centro di costo"
+        }
       },
       {
         "name": "name",
         "type": "String",
         "nullable": false,
         "key": "",
-        "description": "Bezeichnung",
-        "descriptionEn": "Name",
-        "descriptionFr": "Désignation",
-        "descriptionIt": "Denominazione"
+        "description": {
+          "de": "Bezeichnung",
+          "en": "Name",
+          "fr": "Désignation",
+          "it": "Denominazione"
+        }
       },
       {
         "name": "responsible_person",
         "type": "String",
         "nullable": true,
         "key": "",
-        "description": "Verantwortliche Person",
-        "descriptionEn": "Responsible person",
-        "descriptionFr": "Personne responsable",
-        "descriptionIt": "Persona responsabile"
+        "description": {
+          "de": "Verantwortliche Person",
+          "en": "Responsible person",
+          "fr": "Personne responsable",
+          "it": "Persona responsabile"
+        }
       },
       {
         "name": "budget_year",
         "type": "Integer",
         "nullable": false,
         "key": "",
-        "description": "Budgetjahr",
-        "descriptionEn": "Budget year",
-        "descriptionFr": "Année budgétaire",
-        "descriptionIt": "Anno di bilancio"
+        "description": {
+          "de": "Budgetjahr",
+          "en": "Budget year",
+          "fr": "Année budgétaire",
+          "it": "Anno di bilancio"
+        }
       }
     ]
   },
@@ -414,14 +494,18 @@
     "id": "ent-location",
     "type": "entity",
     "layer": "logical",
-    "name": "Location",
-    "nameDE": "Standort",
-    "nameFr": "Emplacement",
-    "nameIt": "Posizione",
-    "description": "Logische Entität für geografische Standorte",
-    "descriptionEn": "Logical entity for geographic locations",
-    "descriptionFr": "Entité logique pour les emplacements géographiques",
-    "descriptionIt": "Entità logica per le posizioni geografiche",
+    "name": {
+      "de": "Standort",
+      "en": "Location",
+      "fr": "Emplacement",
+      "it": "Posizione"
+    },
+    "description": {
+      "de": "Logische Entität für geografische Standorte",
+      "en": "Logical entity for geographic locations",
+      "fr": "Entité logique pour les emplacements géographiques",
+      "it": "Entità logica per le posizioni geografiche"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/168735",
     "status": "active",
     "domain": "dom-geo",
@@ -434,40 +518,48 @@
         "type": "Integer",
         "nullable": false,
         "key": "PK",
-        "description": "Standort-ID",
-        "descriptionEn": "Location ID",
-        "descriptionFr": "ID de l'emplacement",
-        "descriptionIt": "ID della posizione"
+        "description": {
+          "de": "Standort-ID",
+          "en": "Location ID",
+          "fr": "ID de l'emplacement",
+          "it": "ID della posizione"
+        }
       },
       {
         "name": "coord_e",
         "type": "Decimal",
         "nullable": false,
         "key": "",
-        "description": "Koordinate Ost (E)",
-        "descriptionEn": "Easting coordinate (E)",
-        "descriptionFr": "Coordonnée Est (E)",
-        "descriptionIt": "Coordinata Est (E)"
+        "description": {
+          "de": "Koordinate Ost (E)",
+          "en": "Easting coordinate (E)",
+          "fr": "Coordonnée Est (E)",
+          "it": "Coordinata Est (E)"
+        }
       },
       {
         "name": "coord_n",
         "type": "Decimal",
         "nullable": false,
         "key": "",
-        "description": "Koordinate Nord (N)",
-        "descriptionEn": "Northing coordinate (N)",
-        "descriptionFr": "Coordonnée Nord (N)",
-        "descriptionIt": "Coordinata Nord (N)"
+        "description": {
+          "de": "Koordinate Nord (N)",
+          "en": "Northing coordinate (N)",
+          "fr": "Coordonnée Nord (N)",
+          "it": "Coordinata Nord (N)"
+        }
       },
       {
         "name": "elevation",
         "type": "Decimal",
         "nullable": true,
         "key": "",
-        "description": "Höhe über Meer (m)",
-        "descriptionEn": "Elevation above sea level (m)",
-        "descriptionFr": "Altitude (m)",
-        "descriptionIt": "Altitudine (m)"
+        "description": {
+          "de": "Höhe über Meer (m)",
+          "en": "Elevation above sea level (m)",
+          "fr": "Altitude (m)",
+          "it": "Altitudine (m)"
+        }
       }
     ]
   },
@@ -475,14 +567,18 @@
     "id": "ent-address",
     "type": "entity",
     "layer": "logical",
-    "name": "Address",
-    "nameDE": "Adresse",
-    "nameFr": "Adresse",
-    "nameIt": "Indirizzo",
-    "description": "Logische Entität für postalische Adressen",
-    "descriptionEn": "Logical entity for postal addresses",
-    "descriptionFr": "Entité logique pour les adresses postales",
-    "descriptionIt": "Entità logica per gli indirizzi postali",
+    "name": {
+      "de": "Adresse",
+      "en": "Address",
+      "fr": "Adresse",
+      "it": "Indirizzo"
+    },
+    "description": {
+      "de": "Logische Entität für postalische Adressen",
+      "en": "Logical entity for postal addresses",
+      "fr": "Entité logique pour les adresses postales",
+      "it": "Entità logica per gli indirizzi postali"
+    },
     "termdatUrl": "https://www.termdat.bk.admin.ch/entry/52116",
     "status": "active",
     "domain": "dom-geo",
@@ -495,50 +591,60 @@
         "type": "Integer",
         "nullable": false,
         "key": "PK",
-        "description": "Adress-ID",
-        "descriptionEn": "Address ID",
-        "descriptionFr": "ID de l'adresse",
-        "descriptionIt": "ID dell'indirizzo"
+        "description": {
+          "de": "Adress-ID",
+          "en": "Address ID",
+          "fr": "ID de l'adresse",
+          "it": "ID dell'indirizzo"
+        }
       },
       {
         "name": "street",
         "type": "String",
         "nullable": false,
         "key": "",
-        "description": "Strasse",
-        "descriptionEn": "Street",
-        "descriptionFr": "Rue",
-        "descriptionIt": "Via"
+        "description": {
+          "de": "Strasse",
+          "en": "Street",
+          "fr": "Rue",
+          "it": "Via"
+        }
       },
       {
         "name": "house_number",
         "type": "String",
         "nullable": true,
         "key": "",
-        "description": "Hausnummer",
-        "descriptionEn": "House number",
-        "descriptionFr": "Numéro de maison",
-        "descriptionIt": "Numero civico"
+        "description": {
+          "de": "Hausnummer",
+          "en": "House number",
+          "fr": "Numéro de maison",
+          "it": "Numero civico"
+        }
       },
       {
         "name": "postal_code",
         "type": "String",
         "nullable": false,
         "key": "",
-        "description": "Postleitzahl",
-        "descriptionEn": "Postal code",
-        "descriptionFr": "Code postal",
-        "descriptionIt": "Codice postale"
+        "description": {
+          "de": "Postleitzahl",
+          "en": "Postal code",
+          "fr": "Code postal",
+          "it": "Codice postale"
+        }
       },
       {
         "name": "city",
         "type": "String",
         "nullable": false,
         "key": "",
-        "description": "Ort",
-        "descriptionEn": "City",
-        "descriptionFr": "Localité",
-        "descriptionIt": "Località"
+        "description": {
+          "de": "Ort",
+          "en": "City",
+          "fr": "Localité",
+          "it": "Località"
+        }
       }
     ]
   }

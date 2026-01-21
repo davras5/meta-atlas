@@ -3,20 +3,26 @@
     "id": "dom-immo",
     "type": "domain",
     "layer": "logical",
-    "name": "Immobilienverwaltung",
-    "nameEn": "Real Estate Management",
-    "nameFr": "Gestion immobilière",
-    "nameIt": "Gestione immobiliare",
-    "description": "Verwaltung von Bundesimmobilien, Mietobjekten und Grundstücken",
-    "descriptionEn": "Management of federal real estate, rental units and plots",
-    "descriptionFr": "Gestion des biens immobiliers fédéraux, des objets locatifs et des terrains",
-    "descriptionIt": "Gestione degli immobili federali, delle unità in affitto e dei terreni",
+    "name": {
+      "de": "Immobilienverwaltung",
+      "en": "Real Estate Management",
+      "fr": "Gestion immobilière",
+      "it": "Gestione immobiliare"
+    },
+    "description": {
+      "de": "Verwaltung von Bundesimmobilien, Mietobjekten und Grundstücken",
+      "en": "Management of federal real estate, rental units and plots",
+      "fr": "Gestion des biens immobiliers fédéraux, des objets locatifs et des terrains",
+      "it": "Gestione degli immobili federali, delle unità in affitto e dei terreni"
+    },
     "abbreviation": "IMMO",
     "status": "active",
-    "owner": "BBL - Abteilung Immobilien",
-    "ownerEn": "FOBL - Real Estate Division",
-    "ownerFr": "OFCL - Division immobilier",
-    "ownerIt": "UFCL - Divisione immobili",
+    "owner": {
+      "de": "BBL - Abteilung Immobilien",
+      "en": "FOBL - Real Estate Division",
+      "fr": "OFCL - Division immobilier",
+      "it": "UFCL - Divisione immobili"
+    },
     "steward": "Peter Schmidt",
     "created": "2024-01-15",
     "updated": "2025-06-01"
@@ -25,20 +31,26 @@
     "id": "dom-project",
     "type": "domain",
     "layer": "logical",
-    "name": "Projektmanagement",
-    "nameEn": "Project Management",
-    "nameFr": "Gestion de projet",
-    "nameIt": "Gestione progetti",
-    "description": "Verwaltung von Bauprojekten, Renovierungen und Sanierungen",
-    "descriptionEn": "Management of construction projects, renovations and refurbishments",
-    "descriptionFr": "Gestion des projets de construction, des rénovations et des assainissements",
-    "descriptionIt": "Gestione dei progetti di costruzione, delle ristrutturazioni e dei risanamenti",
+    "name": {
+      "de": "Projektmanagement",
+      "en": "Project Management",
+      "fr": "Gestion de projet",
+      "it": "Gestione progetti"
+    },
+    "description": {
+      "de": "Verwaltung von Bauprojekten, Renovierungen und Sanierungen",
+      "en": "Management of construction projects, renovations and refurbishments",
+      "fr": "Gestion des projets de construction, des rénovations et des assainissements",
+      "it": "Gestione dei progetti di costruzione, delle ristrutturazioni e dei risanamenti"
+    },
     "abbreviation": "PROJ",
     "status": "active",
-    "owner": "BBL - Projektabteilung",
-    "ownerEn": "FOBL - Project Department",
-    "ownerFr": "OFCL - Département des projets",
-    "ownerIt": "UFCL - Dipartimento progetti",
+    "owner": {
+      "de": "BBL - Projektabteilung",
+      "en": "FOBL - Project Department",
+      "fr": "OFCL - Département des projets",
+      "it": "UFCL - Dipartimento progetti"
+    },
     "steward": "Michael Bauer",
     "created": "2024-02-01",
     "updated": "2025-03-15"
@@ -47,20 +59,26 @@
     "id": "dom-geo",
     "type": "domain",
     "layer": "logical",
-    "name": "Geoinformation",
-    "nameEn": "Geoinformation",
-    "nameFr": "Géoinformation",
-    "nameIt": "Geoinformazione",
-    "description": "Räumliche Basisdaten und thematische Geodaten der Schweiz",
-    "descriptionEn": "Spatial base data and thematic geodata of Switzerland",
-    "descriptionFr": "Données spatiales de base et géodonnées thématiques de la Suisse",
-    "descriptionIt": "Dati spaziali di base e geodati tematici della Svizzera",
+    "name": {
+      "de": "Geoinformation",
+      "en": "Geoinformation",
+      "fr": "Géoinformation",
+      "it": "Geoinformazione"
+    },
+    "description": {
+      "de": "Räumliche Basisdaten und thematische Geodaten der Schweiz",
+      "en": "Spatial base data and thematic geodata of Switzerland",
+      "fr": "Données spatiales de base et géodonnées thématiques de la Suisse",
+      "it": "Dati spaziali di base e geodati tematici della Svizzera"
+    },
     "abbreviation": "GEO",
     "status": "active",
-    "owner": "swisstopo",
-    "ownerEn": "swisstopo",
-    "ownerFr": "swisstopo",
-    "ownerIt": "swisstopo",
+    "owner": {
+      "de": "swisstopo",
+      "en": "swisstopo",
+      "fr": "swisstopo",
+      "it": "swisstopo"
+    },
     "steward": "Marco Rossi",
     "created": "2024-03-10",
     "updated": "2025-09-01"
