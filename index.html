@@ -1319,6 +1319,41 @@
                 `;
             }
 
+            // Tables Panel (for systems only)
+            if (item.type === 'system') {
+                const systemTables = data.tables.filter(t => t.system === item.id);
+                html += `
+                    <div class="card">
+                        <div class="card-header" data-card="tables" aria-expanded="true">
+                            <span class="card-title">Tabellen (${systemTables.length})</span>
+                            <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                        </div>
+                        <div class="card-content" style="padding: 0;">
+                            ${systemTables.length > 0 ? `
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Beschreibung</th>
+                                            <th>Spalten</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${systemTables.map(table => `
+                                            <tr class="clickable-row" data-id="${table.id}">
+                                                <td><strong>${table.name}</strong></td>
+                                                <td>${table.description || '—'}</td>
+                                                <td>${table.columns?.length || 0}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<div class="empty-list-message">Keine Tabellen in diesem System</div>'}
+                        </div>
+                    </div>
+                `;
+            }
+
             // Compliance Panel (for entities only)
             if (item.type === 'entity') {
                 html += `
