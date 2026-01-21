@@ -1,17 +1,5 @@
 # Metadata Catalog - Database Specification
 
-## Table of Contents
-
-1. [Overview](#1-overview)
-2. [Standards Alignment](#2-standards-alignment)
-3. [Conceptual Data Model](#3-conceptual-data-model)
-4. [Entity Specifications](#4-entity-specifications)
-5. [Cross-Layer Relationships](#5-cross-layer-relationships)
-6. [JSON Schema Definitions](#6-json-schema-definitions)
-7. [Sample Data (BBL Context)](#7-sample-data-bbl-context)
-8. [Supabase Migration Guide](#8-supabase-migration-guide)
-9. [References](#9-references)
-
 ---
 
 ## 1. Overview
