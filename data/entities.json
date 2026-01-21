@@ -5,21 +5,112 @@
     "layer": "logical",
     "name": "Building",
     "nameDE": "Gebäude",
+    "nameFr": "Bâtiment",
+    "nameIt": "Edificio",
     "description": "Logische Entität für Gebäudedaten des Bundes",
+    "descriptionEn": "Logical entity for federal building data",
+    "descriptionFr": "Entité logique pour les données de bâtiments fédéraux",
+    "descriptionIt": "Entità logica per i dati degli edifici federali",
     "status": "active",
     "concept": "con-gebaeude",
     "domain": "dom-immo",
     "physicalTables": ["tbl-vibdbe", "tbl-geo-buildings"],
     "created": "2024-01-20",
+    "updated": "2025-01-10",
     "attributes": [
-      { "name": "egid", "type": "Integer", "nullable": false, "key": "PK", "description": "Eidgenössischer Gebäudeidentifikator" },
-      { "name": "building_type", "type": "Reference", "nullable": false, "key": "", "valueDomain": "vd-building-type", "description": "Gebäudetyp" },
-      { "name": "address_street", "type": "String", "nullable": true, "key": "", "description": "Strassenadresse" },
-      { "name": "address_city", "type": "String", "nullable": true, "key": "", "description": "Stadt/Ort" },
-      { "name": "construction_year", "type": "Integer", "nullable": true, "key": "", "description": "Baujahr" },
-      { "name": "total_area_sqm", "type": "Decimal", "nullable": true, "key": "", "description": "Gesamtfläche in m²" },
-      { "name": "plot_id", "type": "Reference", "nullable": false, "key": "FK", "description": "Referenz zum Grundstück" },
-      { "name": "status", "type": "Reference", "nullable": false, "key": "", "valueDomain": "vd-status", "description": "Status des Gebäudes" }
+      {
+        "name": "egid",
+        "type": "Integer",
+        "nullable": false,
+        "key": "PK",
+        "description": "Eidgenössischer Gebäudeidentifikator",
+        "descriptionEn": "Federal Building Identifier",
+        "descriptionFr": "Identifiant fédéral de bâtiment",
+        "descriptionIt": "Identificatore federale degli edifici"
+      },
+      {
+        "name": "building_type",
+        "type": "Reference",
+        "nullable": false,
+        "key": "",
+        "valueDomain": "vd-building-type",
+        "description": "Gebäudetyp",
+        "descriptionEn": "Building type",
+        "descriptionFr": "Type de bâtiment",
+        "descriptionIt": "Tipo di edificio"
+      },
+      {
+        "name": "address_street",
+        "type": "String",
+        "nullable": true,
+        "key": "",
+        "description": "Strassenadresse",
+        "descriptionEn": "Street address",
+        "descriptionFr": "Adresse de rue",
+        "descriptionIt": "Indirizzo stradale"
+      },
+      {
+        "name": "address_city",
+        "type": "String",
+        "nullable": true,
+        "key": "",
+        "description": "Stadt/Ort",
+        "descriptionEn": "City/Location",
+        "descriptionFr": "Ville/Localité",
+        "descriptionIt": "Città/Località"
+      },
+      {
+        "name": "construction_year",
+        "type": "Integer",
+        "nullable": true,
+        "key": "",
+        "description": "Baujahr",
+        "descriptionEn": "Construction year",
+        "descriptionFr": "Année de construction",
+        "descriptionIt": "Anno di costruzione"
+      },
+      {
+        "name": "total_area_sqm",
+        "type": "Decimal",
+        "nullable": true,
+        "key": "",
+        "description": "Gesamtfläche in m²",
+        "descriptionEn": "Total area in m²",
+        "descriptionFr": "Surface totale en m²",
+        "descriptionIt": "Superficie totale in m²"
+      },
+      {
+        "name": "plot_id",
+        "type": "Reference",
+        "nullable": false,
+        "key": "FK",
+        "description": "Referenz zum Grundstück",
+        "descriptionEn": "Reference to plot",
+        "descriptionFr": "Référence au terrain",
+        "descriptionIt": "Riferimento al terreno"
+      },
+      {
+        "name": "status",
+        "type": "Reference",
+        "nullable": false,
+        "key": "",
+        "valueDomain": "vd-status",
+        "description": "Status des Gebäudes",
+        "descriptionEn": "Building status",
+        "descriptionFr": "Statut du bâtiment",
+        "descriptionIt": "Stato dell'edificio"
+      },
+      {
+        "name": "energy_rating",
+        "type": "Reference",
+        "nullable": true,
+        "key": "",
+        "valueDomain": "vd-energy-rating",
+        "description": "Energieeffizienzklasse (GEAK)",
+        "descriptionEn": "Energy efficiency class (GEAK)",
+        "descriptionFr": "Classe d'efficacité énergétique (CECB)",
+        "descriptionIt": "Classe di efficienza energetica (CECE)"
+      }
     ]
   },
   {
@@ -28,17 +119,60 @@
     "layer": "logical",
     "name": "Plot",
     "nameDE": "Grundstück",
+    "nameFr": "Bien-fonds",
+    "nameIt": "Fondo",
     "description": "Logische Entität für Grundstücksdaten",
+    "descriptionEn": "Logical entity for plot data",
+    "descriptionFr": "Entité logique pour les données de bien-fonds",
+    "descriptionIt": "Entità logica per i dati dei fondi",
     "status": "active",
     "concept": "con-grundstueck",
     "domain": "dom-immo",
     "physicalTables": ["tbl-vibdgr"],
     "created": "2024-01-20",
+    "updated": "2024-08-15",
     "attributes": [
-      { "name": "plot_id", "type": "String", "nullable": false, "key": "PK", "description": "Grundstücksidentifikator" },
-      { "name": "area_sqm", "type": "Decimal", "nullable": false, "key": "", "description": "Fläche in m²" },
-      { "name": "zone_type", "type": "Reference", "nullable": true, "key": "", "valueDomain": "vd-zone", "description": "Nutzungszone" },
-      { "name": "municipality", "type": "String", "nullable": false, "key": "", "description": "Gemeinde" }
+      {
+        "name": "plot_id",
+        "type": "String",
+        "nullable": false,
+        "key": "PK",
+        "description": "Grundstücksidentifikator",
+        "descriptionEn": "Plot identifier",
+        "descriptionFr": "Identifiant du bien-fonds",
+        "descriptionIt": "Identificatore del fondo"
+      },
+      {
+        "name": "area_sqm",
+        "type": "Decimal",
+        "nullable": false,
+        "key": "",
+        "description": "Fläche in m²",
+        "descriptionEn": "Area in m²",
+        "descriptionFr": "Surface en m²",
+        "descriptionIt": "Superficie in m²"
+      },
+      {
+        "name": "zone_type",
+        "type": "Reference",
+        "nullable": true,
+        "key": "",
+        "valueDomain": "vd-zone",
+        "description": "Nutzungszone",
+        "descriptionEn": "Usage zone",
+        "descriptionFr": "Zone d'utilisation",
+        "descriptionIt": "Zona d'uso"
+      },
+      {
+        "name": "municipality",
+        "type": "String",
+        "nullable": false,
+        "key": "",
+        "description": "Gemeinde",
+        "descriptionEn": "Municipality",
+        "descriptionFr": "Commune",
+        "descriptionIt": "Comune"
+      }
     ]
   },
   {
@@ -47,19 +181,80 @@
     "layer": "logical",
     "name": "RentalUnit",
     "nameDE": "Mietobjekt",
+    "nameFr": "Objet locatif",
+    "nameIt": "Unità in affitto",
     "description": "Logische Entität für Mietobjekte",
+    "descriptionEn": "Logical entity for rental units",
+    "descriptionFr": "Entité logique pour les objets locatifs",
+    "descriptionIt": "Entità logica per le unità in affitto",
     "status": "active",
     "concept": "con-mietobjekt",
     "domain": "dom-immo",
     "physicalTables": ["tbl-viobj"],
     "created": "2024-02-05",
+    "updated": "2024-06-20",
     "attributes": [
-      { "name": "unit_id", "type": "String", "nullable": false, "key": "PK", "description": "Mietobjekt-ID" },
-      { "name": "building_egid", "type": "Integer", "nullable": false, "key": "FK", "description": "Referenz zum Gebäude" },
-      { "name": "floor", "type": "Integer", "nullable": true, "key": "", "description": "Stockwerk" },
-      { "name": "area_sqm", "type": "Decimal", "nullable": false, "key": "", "description": "Fläche in m²" },
-      { "name": "unit_type", "type": "Reference", "nullable": false, "key": "", "valueDomain": "vd-unit-type", "description": "Objekttyp" },
-      { "name": "rent_monthly", "type": "Decimal", "nullable": true, "key": "", "description": "Monatsmiete CHF" }
+      {
+        "name": "unit_id",
+        "type": "String",
+        "nullable": false,
+        "key": "PK",
+        "description": "Mietobjekt-ID",
+        "descriptionEn": "Rental unit ID",
+        "descriptionFr": "ID de l'objet locatif",
+        "descriptionIt": "ID dell'unità in affitto"
+      },
+      {
+        "name": "building_egid",
+        "type": "Integer",
+        "nullable": false,
+        "key": "FK",
+        "description": "Referenz zum Gebäude",
+        "descriptionEn": "Reference to building",
+        "descriptionFr": "Référence au bâtiment",
+        "descriptionIt": "Riferimento all'edificio"
+      },
+      {
+        "name": "floor",
+        "type": "Integer",
+        "nullable": true,
+        "key": "",
+        "description": "Stockwerk",
+        "descriptionEn": "Floor",
+        "descriptionFr": "Étage",
+        "descriptionIt": "Piano"
+      },
+      {
+        "name": "area_sqm",
+        "type": "Decimal",
+        "nullable": false,
+        "key": "",
+        "description": "Fläche in m²",
+        "descriptionEn": "Area in m²",
+        "descriptionFr": "Surface en m²",
+        "descriptionIt": "Superficie in m²"
+      },
+      {
+        "name": "unit_type",
+        "type": "Reference",
+        "nullable": false,
+        "key": "",
+        "valueDomain": "vd-unit-type",
+        "description": "Objekttyp",
+        "descriptionEn": "Unit type",
+        "descriptionFr": "Type d'objet",
+        "descriptionIt": "Tipo di unità"
+      },
+      {
+        "name": "rent_monthly",
+        "type": "Decimal",
+        "nullable": true,
+        "key": "",
+        "description": "Monatsmiete CHF",
+        "descriptionEn": "Monthly rent CHF",
+        "descriptionFr": "Loyer mensuel CHF",
+        "descriptionIt": "Affitto mensile CHF"
+      }
     ]
   }
 ]

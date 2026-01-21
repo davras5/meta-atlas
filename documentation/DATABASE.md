@@ -203,6 +203,10 @@ erDiagram
     Project ||--o{ ProjectUser : "has_members"
     Project ||--o{ Changelog : "tracks_changes"
     Project ||--o{ Domain : "contains"
+    Project ||--o{ Concept : "contains"
+    Project ||--o{ LogicalEntity : "contains"
+    Project ||--o{ ValueDomain : "contains"
+    Project ||--o{ Dataset : "contains"
     ProjectVersion ||--o{ Changelog : "includes"
 
     Domain ||--o{ Concept : contains
@@ -240,6 +244,7 @@ erDiagram
         string version_number
         jsonb name
         jsonb description
+        jsonb snapshot
         enum status
         datetime published_at
         uuid previous_version_id FK
@@ -270,33 +275,42 @@ erDiagram
 
     Domain {
         uuid id PK
+        uuid project_id FK
         jsonb name
         jsonb description
         string abbreviation
         jsonb owner
         uuid parent_id FK
+        date valid_from
+        date valid_to
         enum status
     }
 
     Concept {
         uuid id PK
+        uuid project_id FK
         uuid domain_id FK
         jsonb name
         jsonb definition
         jsonb synonyms
         jsonb legal_references
         jsonb standard_references
+        date valid_from
+        date valid_to
         enum status
     }
 
     LogicalEntity {
         uuid id PK
+        uuid project_id FK
         string name
         jsonb description
         array concept_ids
         enum entity_type
         array business_keys
         jsonb compliance
+        date valid_from
+        date valid_to
         enum status
     }
 
@@ -313,22 +327,29 @@ erDiagram
 
     ValueDomain {
         uuid id PK
+        uuid project_id FK
+        boolean is_shared
         string name
         jsonb description
         enum domain_type
         jsonb values
         string external_source
+        date valid_from
+        date valid_to
         enum status
     }
 
     Dataset {
         uuid id PK
+        uuid project_id FK
         jsonb name
         jsonb description
         jsonb publisher
         enum access_rights
         jsonb license
         date issued
+        date valid_from
+        date valid_to
         enum status
     }
 
@@ -547,7 +568,7 @@ A project represents a self-contained workspace or catalog that groups related m
 
 #### 4.2.1 ProjectVersion
 
-A project version represents a point-in-time snapshot of a project's metadata state. Versions enable tracking of project evolution, rollback capabilities, and release management for metadata catalogs.
+A project version represents a **complete, immutable snapshot** of a project's metadata state at a point in time. Versions enable tracking of project evolution, comparison between releases, rollback capabilities, and release management for metadata catalogs.
 
 **Entity: ProjectVersion**
 
@@ -559,22 +580,84 @@ A project version represents a point-in-time snapshot of a project's metadata st
 | name | MultiLang | No | Version name/title (e.g., "Initial Release") | dct:title |
 | description | MultiLang | No | Version description and release notes | dct:description |
 | status | Enum | Yes | draft, published, deprecated | adms:status |
-| published_at | DateTime | No | Publication timestamp | dct:issued |
-| published_by | PersonRef | No | User who published the version | dct:publisher |
-| snapshot | JSON | No | Frozen state of project metadata at version time | - |
+| published_at | DateTime | Cond. | Publication timestamp (required when published) | dct:issued |
+| published_by | PersonRef | Cond. | User who published (required when published) | dct:publisher |
+| snapshot | VersionSnapshot | Cond. | Complete frozen state (required when published) | - |
 | previous_version_id | UUID | No | Reference to previous version | dct:replaces |
 | metadata | Metadata | Yes | Audit trail (created, updated, version) | - |
 
 **Status Values:**
-- `draft` - Version is being prepared, not yet finalized
-- `published` - Version is finalized and available
-- `deprecated` - Version is superseded and should not be used
+- `draft` - Version is being prepared; snapshot is empty or partial; can be modified
+- `published` - Version is finalized; snapshot is complete and **immutable**; cannot be modified
+- `deprecated` - Version is superseded; still immutable but marked as not recommended
 
 **Version Number Convention:**
 Following semantic versioning (SemVer):
 - **Major (X.0.0)** - Breaking changes, significant restructuring
 - **Minor (x.Y.0)** - New entities, attributes, or features added
 - **Patch (x.y.Z)** - Bug fixes, corrections, documentation updates
+
+**VersionSnapshot Schema:**
+
+The snapshot contains a complete copy of all project content at the time of publishing. This enables:
+- Full comparison between any two versions
+- Restoration of any historical state
+- Audit trail of what was published
+
+```json
+{
+  "snapshot_created_at": "2025-01-15T10:00:00Z",
+  "snapshot_created_by": "anna.mueller@admin.ch",
+  "content": {
+    "domains": [
+      { "id": "dom-001", "name": {...}, "description": {...}, ... }
+    ],
+    "concepts": [
+      { "id": "con-001", "domain_id": "dom-001", "name": {...}, ... }
+    ],
+    "logical_entities": [
+      { "id": "ent-001", "name": "Building", "attributes": [...], ... }
+    ],
+    "value_domains": [
+      { "id": "vd-001", "name": "BuildingType", "values": [...], ... }
+    ],
+    "datasets": [
+      { "id": "ds-001", "name": {...}, ... }
+    ],
+    "systems": [
+      { "id": "sys-001", "name": "SAP RE-FX", ... }
+    ],
+    "tables": [
+      { "id": "tbl-001", "name": "VIBDBE", "columns": [...], ... }
+    ],
+    "mappings": [
+      { "source_type": "concept", "source_id": "con-001", "target_id": "ent-001", ... }
+    ],
+    "governance_assignments": [
+      { "entity_type": "domain", "entity_id": "dom-001", "role": "data_owner", ... }
+    ]
+  },
+  "statistics": {
+    "domains_count": 2,
+    "concepts_count": 5,
+    "logical_entities_count": 3,
+    "value_domains_count": 6,
+    "datasets_count": 1,
+    "systems_count": 2,
+    "tables_count": 4,
+    "mappings_count": 12
+  }
+}
+```
+
+**Immutability Rules:**
+1. When status changes to `published`, the snapshot must be populated
+2. Once `published`, the snapshot cannot be modified
+3. To make changes, create a new version (increment version_number)
+4. The `deprecated` status can be set on published versions but content remains immutable
+
+**Version Comparison:**
+To compare versions, retrieve the snapshots of both versions and diff the `content` objects. Each entity in the snapshot includes its full state, enabling field-by-field comparison.
 
 ---
 
@@ -622,7 +705,7 @@ A changelog entry records a specific change made within a project. Changelogs pr
 
 #### 4.2.3 ProjectUser
 
-A project user represents a team member's membership and role within a specific project. This enables role-based access control and responsibility assignment for metadata governance.
+A project user represents a team member's membership and role within a specific project. This enables role-based access control for project management.
 
 **Entity: ProjectUser**
 
@@ -633,47 +716,92 @@ A project user represents a team member's membership and role within a specific 
 | user_id | UUID | No | Reference to user account (if using auth system) | - |
 | name | String | Yes | User's display name | foaf:name |
 | email | String | Yes | User's email address | foaf:mbox |
-| role | Enum | Yes | User's role in the project (see below) | - |
+| role | Enum | Yes | User's project role: admin, editor, viewer | - |
 | status | Enum | Yes | active, inactive, invited | adms:status |
 | joined_at | DateTime | No | When user joined the project | - |
 | invited_by | UUID | No | User who invited this member | - |
-| permissions | String[] | No | Additional permission overrides | - |
 | metadata | Metadata | Yes | Audit trail | - |
 
-**User Roles:**
+**Project Roles:**
 
 | Role | Description | Permissions |
 |------|-------------|-------------|
-| owner | Project owner with full administrative control | Full access: create, read, update, delete, manage users, manage versions, publish |
-| steward | Data steward responsible for data quality and governance | Create, read, update entities; approve changes; manage compliance metadata |
-| engineer | Technical user who manages physical layer mappings | Create, read, update logical/physical entities and mappings |
-| analyst | Data analyst who consumes and documents metadata | Read all; create/update documentation and descriptions |
-| viewer | Read-only access for stakeholders | Read-only access to all published content |
+| admin | Project administrator with full control | Full access: create, read, update, delete all entities; manage users; manage versions; publish |
+| editor | Can create and modify content | Create, read, update all entities; cannot manage users or publish versions |
+| viewer | Read-only access | Read-only access to all project content |
 
-**Role Hierarchy:**
+---
+
+#### 4.2.4 Data Governance Roles
+
+Data governance roles are assigned at the **entity level** (Domain, Concept, LogicalEntity, Dataset) rather than at the project level. These roles define accountability and responsibility for data assets according to data governance best practices.
+
+**GovernanceAssignment Structure:**
+
+| Attribute | Type | Required | Description |
+|-----------|------|----------|-------------|
+| entity_type | String | Yes | Type of entity (domain, concept, logical_entity, dataset) |
+| entity_id | UUID | Yes | Reference to the governed entity |
+| role | Enum | Yes | Governance role (see below) |
+| person | PersonRef | Yes | Assigned person |
+| assigned_at | DateTime | Yes | When the assignment was made |
+| assigned_by | UUID | No | User who made the assignment |
+
+**Governance Roles:**
+
+| Role | Description | Responsibilities |
+|------|-------------|------------------|
+| data_owner | Business accountability for data | Approves data definitions; accountable for data quality; decides access policies; typically a business executive or domain lead |
+| data_steward | Day-to-day data management | Maintains metadata quality; enforces standards; resolves data issues; bridges business and technical teams |
+| data_custodian | Technical management of data | Implements technical controls; manages physical storage; ensures security; handles backups and recovery |
+| data_consumer | Uses data for business purposes | Consumes data according to policies; reports data quality issues; provides feedback on data usability |
+
+**Governance Role Relationships:**
+
 ```
-owner
-  └── steward
-        └── engineer
-              └── analyst
-                    └── viewer
+┌─────────────────────────────────────────────────────────────────┐
+│                        DATA OWNER                                │
+│         (Accountable - "What data do we need?")                 │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │ delegates to
+┌─────────────────────────▼───────────────────────────────────────┐
+│                       DATA STEWARD                               │
+│         (Responsible - "Is the data correct?")                  │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │ works with
+┌─────────────────────────▼───────────────────────────────────────┐
+│                      DATA CUSTODIAN                              │
+│         (Implements - "How is data stored/secured?")            │
+└─────────────────────────────────────────────────────────────────┘
+                          │ serves
+┌─────────────────────────▼───────────────────────────────────────┐
+│                      DATA CONSUMER                               │
+│         (Uses - "How do I access and use the data?")            │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-Each role inherits all permissions from roles below it in the hierarchy.
+**Example Assignments:**
+- Domain "Immobilienverwaltung" → Data Owner: Head of Real Estate Division
+- Concept "Gebäude" → Data Steward: Peter Schmidt
+- LogicalEntity "Building" → Data Custodian: BBL IT Team
+- Dataset "Building Register" → Data Consumer: Analytics Team
 
 ---
 
 ### 4.3 Conceptual Layer Entities
 
+> **Project Scoping:** All entities in the Conceptual and Logical layers are scoped to a project via `project_id`. This enables multiple projects to define their own domains, concepts, and entities independently.
+
 #### 4.3.1 Domain
 
-A business domain represents a coherent area of business activity or knowledge.
+A business domain represents a coherent area of business activity or knowledge within a project.
 
 **Entity: Domain**
 
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
 | name | MultiLang | Yes | Domain name in multiple languages | dct:title |
 | description | MultiLang | Yes | Detailed domain description | dct:description |
 | abbreviation | String(10) | No | Short code (e.g., "IMMO", "PROJ") | skos:notation |
@@ -681,12 +809,16 @@ A business domain represents a coherent area of business activity or knowledge.
 | steward | PersonRef | No | Data steward contact person | dcat:contactPoint |
 | parent_id | UUID | No | Parent domain for hierarchy | skos:broader |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
+| valid_from | Date | No | When this definition became valid | schema:validFrom |
+| valid_to | Date | No | When this definition ceased to be valid | schema:validThrough |
 | metadata | Metadata | Yes | Audit trail (created, updated, version) | - |
 
 **Status Values:**
 - `active` - Domain is in use
 - `draft` - Domain is being defined
 - `deprecated` - Domain is no longer recommended
+
+**Unique Constraint:** `(project_id, abbreviation)` - Domain abbreviations must be unique within a project.
 
 ---
 
@@ -699,6 +831,7 @@ A business concept represents a well-defined business term or notion within a do
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
 | domain_id | UUID | Yes | Parent domain reference | skos:inScheme |
 | name | MultiLang | Yes | Concept name (preferred label) | skos:prefLabel |
 | definition | MultiLang | Yes | Formal business definition | skos:definition |
@@ -709,6 +842,8 @@ A business concept represents a well-defined business term or notion within a do
 | external_identifiers | ExtId[] | No | Standard identifiers (EGID, EGRID) | adms:identifier |
 | related_concepts | UUID[] | No | Related concept references | skos:related |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
+| valid_from | Date | No | When this definition became valid | schema:validFrom |
+| valid_to | Date | No | When this definition ceased to be valid | schema:validThrough |
 | metadata | Metadata | Yes | Audit trail | - |
 
 **Example - Concept "Gebäude":**
@@ -724,6 +859,8 @@ standard_references: [{ standard: "eCH-0129", version: "5.0" }]
 
 ### 4.4 Logical Layer Entities
 
+> **Project Scoping:** All Logical Layer entities are scoped to a project. ValueDomains can optionally be shared across projects by setting `is_shared = true`.
+
 #### 4.4.1 LogicalEntity
 
 A technology-independent data structure that realizes one or more business concepts.
@@ -733,6 +870,7 @@ A technology-independent data structure that realizes one or more business conce
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
 | name | String(100) | Yes | Technical entity name (e.g., "Building") | dct:title |
 | description | MultiLang | Yes | Entity purpose and scope | dct:description |
 | concept_ids | UUID[] | Yes | Realized business concepts (min 1) | - |
@@ -743,7 +881,11 @@ A technology-independent data structure that realizes one or more business conce
 | compliance | Compliance | No | Classification and compliance info | - |
 | quality | QualityInfo | No | Data quality metrics | dqv:hasQualityMeasurement |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
+| valid_from | Date | No | When this definition became valid | schema:validFrom |
+| valid_to | Date | No | When this definition ceased to be valid | schema:validThrough |
 | metadata | Metadata | Yes | Audit trail | - |
+
+**Unique Constraint:** `(project_id, name)` - Entity names must be unique within a project.
 
 **Entity Types:**
 | Type | Description | Example |
@@ -803,6 +945,8 @@ A set of permissible values for an attribute, also known as a code list or enume
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
+| is_shared | Boolean | Yes | If true, visible to all projects | - |
 | name | String(100) | Yes | Value domain name | skos:prefLabel |
 | description | MultiLang | Yes | Purpose and usage | skos:definition |
 | domain_type | Enum | Yes | enumeration, range, pattern, external | - |
@@ -816,6 +960,10 @@ A set of permissible values for an attribute, also known as a code list or enume
 | valid_to | Date | No | Validity end date | schema:validThrough |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
 | metadata | Metadata | Yes | Audit trail | - |
+
+**Unique Constraint:** `(project_id, name)` - Value domain names must be unique within a project.
+
+**Sharing:** When `is_shared = true`, the value domain can be referenced by attributes in any project. This is useful for standard code lists (e.g., country codes, currencies) that should be consistent across the organization.
 
 **Domain Types:**
 | Type | Description | Required Fields |
@@ -847,6 +995,7 @@ A collection of data published or curated by an organization (DCAT-aligned).
 | Attribute | Type | Required | Description | Standard Mapping |
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
+| project_id | UUID | Yes | Parent project reference | - |
 | name | MultiLang | Yes | Dataset title | dct:title |
 | description | MultiLang | Yes | Dataset description | dct:description |
 | publisher | AgentRef | Yes | Publishing organization | dct:publisher |
@@ -864,8 +1013,12 @@ A collection of data published or curated by an organization (DCAT-aligned).
 | distributions | UUID[] | No | Available distributions | dcat:distribution |
 | compliance | Compliance | No | Compliance metadata | - |
 | quality | QualityInfo | No | Quality metrics | dqv:hasQualityMeasurement |
+| valid_from | Date | No | When this dataset became valid | schema:validFrom |
+| valid_to | Date | No | When this dataset ceased to be valid | schema:validThrough |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
 | metadata | Metadata | Yes | Audit trail | - |
+
+**Unique Constraint:** `(project_id, name)` - Dataset names must be unique within a project.
 
 **Access Rights:**
 | Value | Description |
@@ -877,6 +1030,11 @@ A collection of data published or curated by an organization (DCAT-aligned).
 ---
 
 ### 4.5 Physical Layer Entities
+
+> **Organization-Wide Scope:** Physical Layer entities (System, Schema, Table, Column) represent actual infrastructure and are **organization-wide**, not project-scoped. Multiple projects can reference the same physical tables. The project-specific documentation is captured via:
+> - LogicalEntity's `project_id` scopes the logical model
+> - The mapping from LogicalEntity to Table(s) via `physical_table_ids` is inherently project-scoped
+> - This design enables consistent physical layer documentation while allowing different logical interpretations per project.
 
 #### 4.5.1 System
 
@@ -2651,11 +2809,10 @@ CREATE TABLE project_users (
   user_id UUID,
   name VARCHAR(200) NOT NULL,
   email VARCHAR(200) NOT NULL,
-  role VARCHAR(20) NOT NULL,
-  status VARCHAR(20) NOT NULL DEFAULT 'active',
+  role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'editor', 'viewer')),
+  status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'invited')),
   joined_at TIMESTAMPTZ,
   invited_by UUID REFERENCES project_users(id),
-  permissions TEXT[],
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   updated_at TIMESTAMPTZ,
@@ -2664,10 +2821,26 @@ CREATE TABLE project_users (
   UNIQUE(project_id, email)
 );
 
+-- Governance Assignments table (Data Governance roles at entity level)
+CREATE TABLE governance_assignments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  entity_type VARCHAR(50) NOT NULL CHECK (entity_type IN ('domain', 'concept', 'logical_entity', 'dataset')),
+  entity_id UUID NOT NULL,
+  role VARCHAR(20) NOT NULL CHECK (role IN ('data_owner', 'data_steward', 'data_custodian', 'data_consumer')),
+  person_name VARCHAR(200) NOT NULL,
+  person_email VARCHAR(200) NOT NULL,
+  organization VARCHAR(200),
+  assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  assigned_by UUID REFERENCES project_users(id),
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL
+);
+
 -- Domains table
 CREATE TABLE domains (
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   name JSONB NOT NULL,
   description JSONB NOT NULL,
   abbreviation VARCHAR(10),
@@ -2675,16 +2848,20 @@ CREATE TABLE domains (
   steward JSONB,
   parent_id UUID REFERENCES domains(id),
   status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  valid_from DATE,
+  valid_to DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
-  version INTEGER NOT NULL DEFAULT 1
+  version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE(project_id, abbreviation)
 );
 
 -- Concepts table
 CREATE TABLE concepts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   domain_id UUID NOT NULL REFERENCES domains(id),
   name JSONB NOT NULL,
   definition JSONB NOT NULL,
@@ -2695,6 +2872,8 @@ CREATE TABLE concepts (
   external_identifiers JSONB,
   related_concepts UUID[],
   status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  valid_from DATE,
+  valid_to DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   updated_at TIMESTAMPTZ,
@@ -2705,6 +2884,7 @@ CREATE TABLE concepts (
 -- Logical Entities table
 CREATE TABLE logical_entities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   description JSONB NOT NULL,
   concept_ids UUID[] NOT NULL,
@@ -2712,11 +2892,14 @@ CREATE TABLE logical_entities (
   business_keys VARCHAR(100)[],
   compliance JSONB,
   status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  valid_from DATE,
+  valid_to DATE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
   updated_at TIMESTAMPTZ,
   updated_by VARCHAR(100),
-  version INTEGER NOT NULL DEFAULT 1
+  version INTEGER NOT NULL DEFAULT 1,
+  UNIQUE(project_id, name)
 );
 
 -- Attributes table (separate for better querying)
@@ -2741,6 +2924,8 @@ CREATE TABLE attributes (
 -- Value Domains table
 CREATE TABLE value_domains (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  is_shared BOOLEAN NOT NULL DEFAULT false,
   name VARCHAR(100) NOT NULL,
   description JSONB NOT NULL,
   domain_type VARCHAR(20) NOT NULL,
@@ -2755,7 +2940,39 @@ CREATE TABLE value_domains (
   status VARCHAR(20) NOT NULL DEFAULT 'draft',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   created_by VARCHAR(100) NOT NULL,
-  version_num INTEGER NOT NULL DEFAULT 1
+  version_num INTEGER NOT NULL DEFAULT 1,
+  UNIQUE(project_id, name)
+);
+
+-- Datasets table
+CREATE TABLE datasets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  name JSONB NOT NULL,
+  description JSONB NOT NULL,
+  publisher JSONB NOT NULL,
+  contact_point JSONB,
+  keywords JSONB,
+  themes TEXT[],
+  logical_entity_ids UUID[],
+  access_rights VARCHAR(20) NOT NULL DEFAULT 'internal',
+  license JSONB,
+  spatial_coverage JSONB,
+  temporal_coverage JSONB,
+  accrual_periodicity VARCHAR(50),
+  issued DATE,
+  modified TIMESTAMPTZ,
+  compliance JSONB,
+  quality JSONB,
+  valid_from DATE,
+  valid_to DATE,
+  status VARCHAR(20) NOT NULL DEFAULT 'draft',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL,
+  updated_at TIMESTAMPTZ,
+  updated_by VARCHAR(100),
+  version_num INTEGER NOT NULL DEFAULT 1,
+  UNIQUE(project_id, (name->>'de'))
 );
 
 -- Systems table
@@ -2846,12 +3063,20 @@ CREATE INDEX idx_changelogs_project ON changelogs(project_id);
 CREATE INDEX idx_changelogs_version ON changelogs(version_id);
 CREATE INDEX idx_changelogs_entity ON changelogs(entity_type, entity_id);
 CREATE INDEX idx_changelogs_changed_at ON changelogs(changed_at DESC);
-CREATE INDEX idx_project_users_project ON project_users(project_id);
-CREATE INDEX idx_project_users_email ON project_users(email);
+CREATE INDEX idx_domains_project ON domains(project_id);
+CREATE INDEX idx_concepts_project ON concepts(project_id);
 CREATE INDEX idx_concepts_domain ON concepts(domain_id);
+CREATE INDEX idx_logical_entities_project ON logical_entities(project_id);
+CREATE INDEX idx_value_domains_project ON value_domains(project_id);
+CREATE INDEX idx_value_domains_shared ON value_domains(is_shared) WHERE is_shared = true;
+CREATE INDEX idx_datasets_project ON datasets(project_id);
 CREATE INDEX idx_attributes_entity ON attributes(entity_id);
 CREATE INDEX idx_tables_schema ON tables(schema_id);
 CREATE INDEX idx_columns_table ON columns(table_id);
+CREATE INDEX idx_project_users_project ON project_users(project_id);
+CREATE INDEX idx_project_users_email ON project_users(email);
+CREATE INDEX idx_governance_entity ON governance_assignments(entity_type, entity_id);
+CREATE INDEX idx_governance_role ON governance_assignments(role);
 CREATE INDEX idx_mappings_source ON mappings(source_type, source_id);
 CREATE INDEX idx_mappings_target ON mappings(target_type, target_id);
 
@@ -2910,11 +3135,17 @@ A migration script will be provided to:
 - [ISO 11179](https://www.iso.org/standard/78914.html) - Metadata Registries
 - [TOGAF 9.2](https://www.opengroup.org/togaf) - Enterprise Architecture
 
-### 9.3 Swiss Federal Standards
+### 9.3 Swiss Federal Standards (Conceptual Level)
 
-- [eCH-0129](https://www.ech.ch/de/ech/ech-0129) - Datenstandard Gebäudeadressen
-- [eCH-0130](https://www.ech.ch/de/ech/ech-0130) - Datenstandard Unternehmensidentifikation
-- [GWR](https://www.housing-stat.ch/) - Gebäude- und Wohnungsregister
+The following eCH standards define the conceptual framework for data architecture and interoperability in Switzerland:
+
+- [eCH-0122 v2.0.0](https://www.ech.ch/de/ech/ech-0122/2.0.0) - **Architektur E-Government Schweiz: Grundlagen**
+  Provides the foundational architecture framework for Swiss e-government systems, including business capability mapping and guidelines for enterprise and IT architecture design with emphasis on interoperability.
+
+- [eCH-0200 v3.0.1](https://www.ech.ch/de/ech/ech-0200/3.0.1) - **DCAT-AP CH (DCAT Application Profile for Switzerland)**
+  Swiss profile of the Data Catalog Vocabulary (DCAT) for describing data in Swiss data portals. Ensures compatibility with European data catalog standards while enabling standardized metadata description for data discoverability and reuse.
+
+> **Note:** Content-specific standards (e.g., eCH-0129 Gebäudeadressen, eCH-0130 Unternehmensidentifikation) are domain-specific and should be referenced within the appropriate Domain or Concept definitions, not at this architectural level.
 
 ---
 
