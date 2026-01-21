@@ -2783,20 +2783,30 @@ html {
    Diagram View - Mermaid Integration
    ======================================== */
 .diagram-card .diagram-content {
-    padding: var(--space-6);
+    padding: var(--space-4);
     min-height: 300px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Viewport for pan/zoom */
+.diagram-viewport {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow-x: auto;
+    border-radius: var(--radius-md);
+    background: var(--color-bg-base);
 }
 
 .diagram-container,
 .mermaid-diagram {
-    width: 100%;
     display: flex;
     justify-content: center;
-    overflow: auto;
+    transition: transform 0.1s ease-out;
+    will-change: transform;
 }
 
 .mermaid-diagram svg {
@@ -2806,9 +2816,86 @@ html {
 
 /* D2 specific scaling */
 .diagram-container svg {
-    max-width: 100%;
+    max-width: none;
     height: auto;
-    max-height: 600px;
+}
+
+/* Diagram Controls */
+.diagram-controls {
+    position: absolute;
+    bottom: var(--space-4);
+    right: var(--space-4);
+    display: flex;
+    gap: var(--space-1);
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-md);
+    padding: var(--space-1);
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+}
+
+.diagram-control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+}
+
+.diagram-control-btn:hover {
+    background: var(--color-bg-hover);
+    color: var(--color-text-primary);
+}
+
+.diagram-control-btn:active {
+    background: var(--color-bg-active);
+    transform: scale(0.95);
+}
+
+.diagram-control-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Fullscreen mode */
+.diagram-card:fullscreen {
+    background: var(--color-bg-base);
+    padding: var(--space-6);
+}
+
+.diagram-card:fullscreen .diagram-content {
+    height: calc(100vh - 120px);
+}
+
+.diagram-card:fullscreen .diagram-viewport {
+    height: calc(100vh - 160px);
+}
+
+.diagram-card:fullscreen .diagram-controls {
+    bottom: var(--space-6);
+    right: var(--space-6);
+}
+
+.diagram-card:fullscreen .card-header {
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.diagram-card:fullscreen .diagram-legend {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .diagram-error {
@@ -2865,6 +2952,15 @@ html {
     background: var(--color-bg-base);
 }
 
+[data-theme="light"] .diagram-viewport {
+    background: #FAFBFC;
+}
+
+[data-theme="light"] .diagram-controls {
+    background: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 [data-theme="light"] .diagram-card .diagram-legend {
     background: var(--color-bg-surface);
 }
@@ -2872,8 +2968,27 @@ html {
 /* Responsive diagram */
 @media (max-width: 768px) {
     .diagram-card .diagram-content {
-        padding: var(--space-4);
+        padding: var(--space-3);
         min-height: 200px;
+    }
+
+    .diagram-viewport {
+        height: 300px;
+    }
+
+    .diagram-controls {
+        bottom: var(--space-3);
+        right: var(--space-3);
+    }
+
+    .diagram-control-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .diagram-control-btn svg {
+        width: 14px;
+        height: 14px;
     }
 
     .legend-items {

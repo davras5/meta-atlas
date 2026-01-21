@@ -2200,6 +2200,8 @@ function initMermaidDiagram(elementId, code, layer = null, type = null) {
         if (code.startsWith('erDiagram')) {
             applyErDiagramColors(element, layer, type, isDark);
         }
+        // Initialize pan/zoom controls
+        initDiagramControls(elementId);
     }).catch(err => {
         console.error('Mermaid rendering error:', err);
         element.innerHTML = `<div class="diagram-error">Diagramm konnte nicht gerendert werden</div>`;
@@ -2242,6 +2244,8 @@ async function initD2Diagram(elementId, code, layer = null, type = null) {
 
             // Apply custom styling to D2 SVG for layer colors
             applyD2DiagramColors(element, layer, type);
+            // Initialize pan/zoom controls
+            initDiagramControls(elementId);
         } else {
             throw new Error('Failed to compile D2 diagram');
         }
