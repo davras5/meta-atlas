@@ -325,7 +325,7 @@
         // Render Functions
         // ========================================
         function renderAll() {
-            renderSubHeader();
+            renderVersionSelector();
             renderTree();
             renderContent();
         }
@@ -368,17 +368,6 @@
                     </div>
                 </header>
 
-                <!-- Sub Header -->
-                <div class="sub-header" id="subHeader">
-                    <div class="sub-header-inner">
-                        <div class="sub-header-left">
-                            <select class="version-selector" id="versionSelector" aria-label="Select version">
-                                <!-- Version options will be rendered here -->
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Main Layout -->
                 <div class="main-layout">
                     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -411,6 +400,11 @@
                         <div class="tree-container" id="treeContainer" role="tree">
                             <!-- Tree will be rendered here -->
                         </div>
+                        <div class="sidebar-footer">
+                            <select class="version-selector" id="versionSelector" aria-label="Select version">
+                                <!-- Version options will be rendered here -->
+                            </select>
+                        </div>
                         <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
                             ${icons.panelLeft}
                         </button>
@@ -431,32 +425,27 @@
             `;
         }
 
-        function renderSubHeader() {
+        function renderVersionSelector() {
             const versionSelector = document.getElementById('versionSelector');
+            if (!versionSelector) return;
 
-            if (versionSelector) {
-                // Placeholder versions - to be implemented with actual version data
-                const versions = [
-                    { id: 'main', label: 'main' },
-                    { id: 'draft', label: 'draft' },
-                    { id: 'v1.0', label: 'v1.0' }
-                ];
-                versionSelector.innerHTML = versions.map(v =>
-                    `<option value="${v.id}" ${v.id === 'main' ? 'selected' : ''}>${v.label}</option>`
-                ).join('');
-            }
+            const versions = [
+                { id: 'main', label: 'main' },
+                { id: 'draft', label: 'draft' },
+                { id: 'v1.0', label: 'v1.0' }
+            ];
+            versionSelector.innerHTML = versions.map(v =>
+                `<option value="${v.id}" ${v.id === 'main' ? 'selected' : ''}>${v.label}</option>`
+            ).join('');
         }
 
-        function attachSubHeaderListeners() {
+        function attachVersionSelectorListeners() {
             const versionSelector = document.getElementById('versionSelector');
+            if (!versionSelector) return;
 
-            if (versionSelector) {
-                versionSelector.addEventListener('change', (e) => {
-                    const versionId = e.target.value;
-                    // TODO: Implement version switching logic
-                    console.log('Version changed to:', versionId);
-                });
-            }
+            versionSelector.addEventListener('change', (e) => {
+                console.log('Version changed to:', e.target.value);
+            });
         }
 
         function renderTree() {
@@ -1459,7 +1448,10 @@
                             <span class="meta-value">${project.created || '—'}</span>
                             <span class="meta-label">Status :</span>
                             <span class="meta-value">
-                                <span class="badge badge-outline">${project.status || 'Aktiv'}</span>
+                                <span class="status-indicator">
+                                    <span class="status-dot ${project.status}" aria-hidden="true"></span>
+                                    ${getStatusLabel(project.status) || 'Unbekannt'}
+                                </span>
                             </span>
                         </div>
                     </div>
@@ -1928,7 +1920,7 @@
 
             renderApp();
             setupKeyboardShortcuts();
-            attachSubHeaderListeners();
+            attachVersionSelectorListeners();
 
             // Layer tabs
             document.querySelectorAll('.layer-tab').forEach(tab => {
