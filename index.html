@@ -267,6 +267,33 @@
             return labels[status] || status;
         }
 
+        function getRoleLabel(role) {
+            const labels = {
+                owner: 'Projektverantwortliche',
+                steward: 'Data Steward',
+                engineer: 'Data Engineer',
+                analyst: 'Business Analyst',
+                viewer: 'Betrachter'
+            };
+            return labels[role] || role;
+        }
+
+        function getRoleDescription(role) {
+            const descriptions = {
+                owner: 'Vollständiger Administratorzugriff, kann Benutzer und Einstellungen verwalten',
+                steward: 'Kann Metadateneinträge erstellen, bearbeiten und genehmigen',
+                engineer: 'Kann physische Schicht-Entitäten und Zuordnungen verwalten',
+                analyst: 'Kann konzeptuelle Schicht-Einträge erstellen und bearbeiten',
+                viewer: 'Lesezugriff auf alle Projektdaten'
+            };
+            return descriptions[role] || '';
+        }
+
+        function getUserAvatar(name) {
+            const parts = name.split(' ');
+            return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
+        }
+
         function getTypeIcon(type) {
             const iconMap = {
                 project: 'P',
@@ -1634,14 +1661,8 @@
         }
 
         function renderProjectUsersTab(project) {
-            // Mock user data for the project
-            const users = [
-                { name: 'Anna Müller', role: 'Projektverantwortliche', email: 'anna.mueller@admin.ch', avatar: 'AM' },
-                { name: 'Peter Schmidt', role: 'Data Steward', email: 'peter.schmidt@admin.ch', avatar: 'PS' },
-                { name: 'Lisa Weber', role: 'Data Engineer', email: 'lisa.weber@admin.ch', avatar: 'LW' },
-                { name: 'Thomas Brunner', role: 'Business Analyst', email: 'thomas.brunner@admin.ch', avatar: 'TB' },
-                { name: 'Sarah Keller', role: 'Betrachter', email: 'sarah.keller@admin.ch', avatar: 'SK' }
-            ];
+            const users = project.users || [];
+            const roles = ['owner', 'steward', 'engineer', 'analyst', 'viewer'];
 
             return `
                 <div class="card">
@@ -1650,18 +1671,20 @@
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content" style="padding: 0;">
-                        <div class="users-list">
-                            ${users.map(user => `
-                                <div class="user-item">
-                                    <div class="user-avatar">${user.avatar}</div>
-                                    <div class="user-info">
-                                        <span class="user-name">${user.name}</span>
-                                        <span class="user-email text-secondary">${user.email}</span>
+                        ${users.length > 0 ? `
+                            <div class="users-list">
+                                ${users.map(user => `
+                                    <div class="user-item">
+                                        <div class="user-avatar">${getUserAvatar(user.name)}</div>
+                                        <div class="user-info">
+                                            <span class="user-name">${user.name}</span>
+                                            <span class="user-email text-secondary">${user.email}</span>
+                                        </div>
+                                        <span class="user-role badge badge-outline">${getRoleLabel(user.role)}</span>
                                     </div>
-                                    <span class="user-role badge badge-outline">${user.role}</span>
-                                </div>
-                            `).join('')}
-                        </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="empty-list-message">Keine Teammitglieder zugewiesen</div>'}
                     </div>
                 </div>
 
@@ -1672,26 +1695,12 @@
                     </div>
                     <div class="card-content">
                         <div class="roles-list">
-                            <div class="role-item">
-                                <span class="role-name">Projektverantwortlicher</span>
-                                <span class="role-desc text-secondary">Vollständiger Administratorzugriff, kann Benutzer und Einstellungen verwalten</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Data Steward</span>
-                                <span class="role-desc text-secondary">Kann Metadateneinträge erstellen, bearbeiten und genehmigen</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Data Engineer</span>
-                                <span class="role-desc text-secondary">Kann physische Schicht-Entitäten und Zuordnungen verwalten</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Business Analyst</span>
-                                <span class="role-desc text-secondary">Kann konzeptuelle Schicht-Einträge erstellen und bearbeiten</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Betrachter</span>
-                                <span class="role-desc text-secondary">Lesezugriff auf alle Projektdaten</span>
-                            </div>
+                            ${roles.map(role => `
+                                <div class="role-item">
+                                    <span class="role-name">${getRoleLabel(role)}</span>
+                                    <span class="role-desc text-secondary">${getRoleDescription(role)}</span>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 </div>

@@ -12,10 +12,15 @@
     "updated": "2024-12-01",
     "color": "#3B82F6",
     "icon": "building",
-    "domains": ["dom-immo"],
-    "entities": 12,
-    "tables": 8,
-    "lastActivity": "2025-01-18"
+    "domains": ["dom-immo", "dom-project"],
+    "lastActivity": "2025-01-18",
+    "users": [
+      { "name": "Anna Müller", "role": "owner", "email": "anna.mueller@admin.ch" },
+      { "name": "Peter Schmidt", "role": "steward", "email": "peter.schmidt@admin.ch" },
+      { "name": "Lisa Weber", "role": "engineer", "email": "lisa.weber@admin.ch" },
+      { "name": "Thomas Brunner", "role": "analyst", "email": "thomas.brunner@admin.ch" },
+      { "name": "Sarah Keller", "role": "viewer", "email": "sarah.keller@admin.ch" }
+    ]
   },
   {
     "id": "proj-geodaten",
@@ -31,9 +36,11 @@
     "color": "#10B981",
     "icon": "map",
     "domains": ["dom-immo"],
-    "entities": 24,
-    "tables": 15,
-    "lastActivity": "2025-01-17"
+    "lastActivity": "2025-01-17",
+    "users": [
+      { "name": "Marco Rossi", "role": "owner", "email": "marco.rossi@swisstopo.ch" },
+      { "name": "Sophie Berger", "role": "steward", "email": "sophie.berger@swisstopo.ch" }
+    ]
   },
   {
     "id": "proj-finanzen",
@@ -49,9 +56,11 @@
     "color": "#F59E0B",
     "icon": "chart",
     "domains": ["dom-project"],
-    "entities": 18,
-    "tables": 12,
-    "lastActivity": "2025-01-15"
+    "lastActivity": "2025-01-15",
+    "users": [
+      { "name": "Daniel Meier", "role": "owner", "email": "daniel.meier@efv.admin.ch" },
+      { "name": "Claudia Huber", "role": "analyst", "email": "claudia.huber@efv.admin.ch" }
+    ]
   },
   {
     "id": "proj-personal",
@@ -67,9 +76,10 @@
     "color": "#8B5CF6",
     "icon": "users",
     "domains": [],
-    "entities": 8,
-    "tables": 5,
-    "lastActivity": "2025-01-10"
+    "lastActivity": "2025-01-10",
+    "users": [
+      { "name": "Eva Fischer", "role": "owner", "email": "eva.fischer@epa.admin.ch" }
+    ]
   },
   {
     "id": "proj-bauprojekte",
@@ -85,8 +95,11 @@
     "color": "#EF4444",
     "icon": "hammer",
     "domains": ["dom-project"],
-    "entities": 15,
-    "tables": 10,
-    "lastActivity": "2025-01-19"
+    "lastActivity": "2025-01-19",
+    "users": [
+      { "name": "Michael Bauer", "role": "owner", "email": "michael.bauer@bbl.admin.ch" },
+      { "name": "Nina Keller", "role": "steward", "email": "nina.keller@bbl.admin.ch" },
+      { "name": "Reto Zimmermann", "role": "engineer", "email": "reto.zimmermann@bbl.admin.ch" }
+    ]
   }
 ]
