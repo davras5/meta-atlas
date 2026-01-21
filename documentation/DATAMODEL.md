@@ -511,7 +511,7 @@ erDiagram
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
 | **Logical** | Attribute | Data element within an entity | Datenelement | - |
 | **Logical** | Relationship | Connection between logical entities | - | - |
-| **Logical** | ValueDomain | Permissible values (code list) | Konzept (Codeliste) | skos:ConceptScheme |
+| **Logical** | ValueDomain | Permissible values (code list) | Konzept (Codeliste) | ISO 11179-1:2023 |
 | **Logical** | Dataset | Published data collection | Datensatz | dcat:Dataset |
 | **Physical** | System | Application or database | - | - |
 | **Physical** | Schema | Database namespace | - | - |
@@ -948,7 +948,9 @@ A data element within a logical entity, describing a single piece of information
 
 #### 4.4.3 ValueDomain (Codeliste)
 
-A set of permissible values for an attribute, also known as a code list or enumeration.
+A set of permissible values for an attribute, also known as a code list or enumeration. In the I14Y model, this corresponds to a **Konzept with Eigenschaftstyp=CodeList**.
+
+> **Standard Alignment:** ValueDomains are governed by **ISO 11179-1:2023** as code list Konzepte, not skos:ConceptScheme. SKOS is used for theme taxonomies (dcat:themeTaxonomy) only.
 
 **Entity: ValueDomain**
 
@@ -957,10 +959,10 @@ A set of permissible values for an attribute, also known as a code list or enume
 | id | UUID | Yes | Unique identifier | dct:identifier |
 | project_id | UUID | Yes | Parent project reference | - |
 | is_shared | Boolean | Yes | If true, visible to all projects | - |
-| name | String(100) | Yes | Value domain name | skos:prefLabel |
-| description | MultiLang | Yes | Purpose and usage | skos:definition |
-| domain_type | Enum | Yes | enumeration, range, pattern, external | - |
-| values | ValueCode[] | Cond. | Code values (for enumeration) | skos:Concept |
+| name | String(100) | Yes | Value domain name | iso11179:name |
+| description | MultiLang | Yes | Purpose and usage | iso11179:definition |
+| domain_type | Enum | Yes | enumeration, range, pattern, external | iso11179:propertyType |
+| values | ValueCode[] | Cond. | Code values (for enumeration) | iso11179:permissibleValue |
 | min_value | String | Cond. | Minimum value (for range) | - |
 | max_value | String | Cond. | Maximum value (for range) | - |
 | pattern | String | Cond. | Regex pattern (for pattern) | - |
