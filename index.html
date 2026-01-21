@@ -66,18 +66,20 @@
             concepts: [],
             entities: [],
             systems: [],
-            tables: []
+            tables: [],
+            valueDomains: []
         };
 
         async function loadData() {
             try {
-                const [projects, domains, concepts, entities, systems, tables] = await Promise.all([
+                const [projects, domains, concepts, entities, systems, tables, valueDomains] = await Promise.all([
                     fetch('data/projects.json').then(r => r.json()),
                     fetch('data/domains.json').then(r => r.json()),
                     fetch('data/concepts.json').then(r => r.json()),
                     fetch('data/entities.json').then(r => r.json()),
                     fetch('data/systems.json').then(r => r.json()),
-                    fetch('data/tables.json').then(r => r.json())
+                    fetch('data/tables.json').then(r => r.json()),
+                    fetch('data/value-domains.json').then(r => r.json())
                 ]);
 
                 data.projects = projects;
@@ -86,6 +88,7 @@
                 data.entities = entities;
                 data.systems = systems;
                 data.tables = tables;
+                data.valueDomains = valueDomains;
 
                 return true;
             } catch (error) {
@@ -103,6 +106,7 @@
             currentView: 'wiki',
             projectView: 'details',
             selectedItem: null,
+            selectedAttribute: null,
             expandedNodes: new Set(['dom-immo', 'sys-sap']),
             expandedLayers: new Set(['conceptual', 'logical', 'physical']),
             theme: 'light',
@@ -774,13 +778,16 @@
 
         function renderTreeAttribute(attr, entityId) {
             const attrId = `${entityId}-attr-${attr.name}`;
+            const isSelected = state.selectedAttribute?.attr?.name === attr.name &&
+                               state.selectedAttribute?.parentItem?.id === entityId;
             return `
                 <div class="tree-item tree-attribute" data-id="${attrId}" data-entity="${entityId}" data-attr-name="${attr.name}">
-                    <div class="tree-node attribute-node"
+                    <div class="tree-node attribute-node ${isSelected ? 'selected' : ''}"
                          data-id="${attrId}"
                          data-entity="${entityId}"
                          data-attr-name="${attr.name}"
-                         role="treeitem">
+                         role="treeitem"
+                         aria-selected="${isSelected}">
                         <span class="tree-toggle" aria-hidden="true"></span>
                         <span class="tree-icon">${icons.hash}</span>
                         <span class="tree-label">${attr.name}</span>
@@ -826,13 +833,16 @@
 
         function renderTreeColumn(col, tableId) {
             const colId = `${tableId}-col-${col.name}`;
+            const isSelected = state.selectedAttribute?.attr?.name === col.name &&
+                               state.selectedAttribute?.parentItem?.id === tableId;
             return `
                 <div class="tree-item tree-column" data-id="${colId}" data-table="${tableId}" data-col-name="${col.name}">
-                    <div class="tree-node column-node"
+                    <div class="tree-node column-node ${isSelected ? 'selected' : ''}"
                          data-id="${colId}"
                          data-table="${tableId}"
                          data-col-name="${col.name}"
-                         role="treeitem">
+                         role="treeitem"
+                         aria-selected="${isSelected}">
                         <span class="tree-toggle" aria-hidden="true"></span>
                         <span class="tree-icon">${icons.hash}</span>
                         <span class="tree-label">${col.name}</span>
@@ -956,7 +966,6 @@
                                 <span>Neues Projekt</span>
                             </button>
                         </div>
-                        <p class="projects-subtitle">Erkunden Sie Metadatenkataloge Ihrer Organisation. Jedes Projekt enthält Domänen, Entitäten und physische Implementierungen.</p>
                     </div>
                     <div class="projects-list">
                         ${data.projects.map(project => renderProjectCard(project)).join('')}
@@ -974,12 +983,22 @@
         }
 
         function renderProjectCard(project) {
+            // Calculate entity count from domains
+            const projectEntities = data.entities.filter(e => project.domains?.includes(e.domain));
+            const entityCount = projectEntities.length;
+
+            // Calculate table count from entities' physicalTables
+            const tableIds = new Set();
+            projectEntities.forEach(e => {
+                (e.physicalTables || []).forEach(tId => tableIds.add(tId));
+            });
+            const tableCount = tableIds.size;
+
             return `
                 <div class="project-card" data-id="${project.id}" style="--project-color: ${project.color || '#3B82F6'}">
                     <div class="project-card-header">
                         <div class="project-info">
                             <div class="project-name">${project.name}</div>
-                            <div class="project-owner">${project.owner}</div>
                         </div>
                         <span class="project-status ${project.status}">${getStatusLabel(project.status)}</span>
                     </div>
@@ -987,11 +1006,11 @@
                     <div class="project-meta">
                         <div class="project-meta-item">
                             ${icons.box}
-                            <span class="project-meta-value">${project.entities || 0}</span> Entitäten
+                            <span class="project-meta-value">${entityCount}</span> Entitäten
                         </div>
                         <div class="project-meta-item">
                             ${icons.table}
-                            <span class="project-meta-value">${project.tables || 0}</span> Tabellen
+                            <span class="project-meta-value">${tableCount}</span> Tabellen
                         </div>
                         <div class="project-activity">
                             Letzte Aktivität : ${project.lastActivity || project.updated || project.created}
@@ -1333,9 +1352,9 @@
                                     <tbody>
                                         ${domainConcepts.map(concept => `
                                             <tr class="clickable-row" data-id="${concept.id}">
-                                                <td><strong>${concept.name}</strong></td>
+                                                <td>${concept.name}</td>
                                                 <td>${concept.description || '—'}</td>
-                                                <td><span class="badge badge-outline">${getStatusLabel(concept.status || 'active')}</span></td>
+                                                <td><span class="tag">${getStatusLabel(concept.status || 'active')}</span></td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -1368,7 +1387,7 @@
                                     <tbody>
                                         ${systemTables.map(table => `
                                             <tr class="clickable-row" data-id="${table.id}">
-                                                <td><strong>${table.name}</strong></td>
+                                                <td>${table.name}</td>
                                                 <td>${table.description || '—'}</td>
                                                 <td>${table.columns?.length || 0}</td>
                                             </tr>
@@ -1401,7 +1420,7 @@
                                 ` : ''}
                                 <span class="meta-label">Klassifikation :</span>
                                 <span class="meta-value">
-                                    <span class="badge badge-outline badge-compliance internal">Intern</span>
+                                    <span class="badge badge-compliance internal">Intern</span>
                                 </span>
                                 <span class="meta-label">Personendaten :</span>
                                 <span class="meta-value">Nein</span>
@@ -1414,10 +1433,11 @@
             // Attributes Panel (for entities and tables)
             if (item.attributes || item.columns) {
                 const attrs = item.attributes || item.columns;
+                const isAttribute = !!item.attributes;
                 html += `
                     <div class="card">
                         <div class="card-header" data-card="attributes" aria-expanded="true">
-                            <span class="card-title">${item.attributes ? 'Attribute' : 'Spalten'} (${attrs.length})</span>
+                            <span class="card-title">${isAttribute ? 'Attribute' : 'Spalten'} (${attrs.length})</span>
                             <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                         </div>
                         <div class="card-content" style="padding: 0;">
@@ -1428,17 +1448,17 @@
                                         <th>Typ</th>
                                         <th>Nullable</th>
                                         <th>Schlüssel</th>
-                                        ${item.columns ? '<th>Zuordnung</th>' : ''}
+                                        ${!isAttribute ? '<th>Zuordnung</th>' : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${attrs.map(attr => `
-                                        <tr>
-                                            <td><code>${attr.name}</code></td>
-                                            <td><span class="type-label">${attr.type}</span></td>
+                                        <tr class="clickable-row" data-attr-name="${attr.name}" data-parent-id="${item.id}" data-parent-type="${item.type}">
+                                            <td>${attr.name}</td>
+                                            <td>${attr.type}</td>
                                             <td>${attr.nullable ? 'Yes' : 'No'}</td>
-                                            <td>${attr.key ? `<span class="key-badge ${attr.key.toLowerCase()}">${attr.key}</span>` : '—'}</td>
-                                            ${item.columns ? `<td>${attr.mappedTo ? `<code>${attr.mappedTo}</code>` : '—'}</td>` : ''}
+                                            <td>${attr.key ? `<span class="tag">${attr.key}</span>` : '—'}</td>
+                                            ${!isAttribute ? `<td>${attr.mappedTo || '—'}</td>` : ''}
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -1451,6 +1471,123 @@
             // Cross-Layer Mappings
             html += renderMappingsPanel(item);
 
+            return html;
+        }
+
+        function renderAttributeDetailView(attr, parentItem) {
+            const isAttribute = parentItem.type === 'entity';
+            const itemLabel = isAttribute ? 'Attribut' : 'Spalte';
+            const parentLabel = isAttribute ? 'Entität' : 'Tabelle';
+
+            // Find value domain if exists
+            const valueDomain = attr.valueDomain ? data.valueDomains.find(vd => vd.id === attr.valueDomain) : null;
+
+            let html = `
+                <div class="entity-header">
+                    <div class="entity-badges">
+                        <span class="badge badge-layer ${parentItem.layer}">${itemLabel}</span>
+                    </div>
+                    <h1 class="entity-title">${attr.name}</h1>
+                    <p class="entity-subtitle">${attr.description || ''}</p>
+                </div>
+
+                <div class="view-content" role="tabpanel">
+            `;
+
+            // Grundinformationen Card
+            html += `
+                <div class="card">
+                    <div class="card-header" data-card="basic" aria-expanded="true">
+                        <span class="card-title">Grundinformationen</span>
+                        <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="meta-grid">
+                            <span class="meta-label">Name :</span>
+                            <span class="meta-value">${attr.name}</span>
+
+                            <span class="meta-label">Beschreibung :</span>
+                            <span class="meta-value">${attr.description || '—'}</span>
+
+                            <span class="meta-label">Datentyp :</span>
+                            <span class="meta-value">${attr.type}</span>
+
+                            <span class="meta-label">Nullable :</span>
+                            <span class="meta-value">${attr.nullable ? 'Ja' : 'Nein'}</span>
+
+                            <span class="meta-label">Schlüssel :</span>
+                            <span class="meta-value">${attr.key ? `<span class="tag">${attr.key}</span>` : '—'}</span>
+
+                            <span class="meta-label">${parentLabel} :</span>
+                            <span class="meta-value"><a href="#" class="attr-parent-link" data-id="${parentItem.id}">${parentItem.name}</a></span>
+
+                            ${valueDomain ? `
+                                <span class="meta-label">Wertedomäne :</span>
+                                <span class="meta-value">${valueDomain.name}</span>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Compliance & Recht Card
+            html += `
+                <div class="card">
+                    <div class="card-header" data-card="compliance" aria-expanded="true">
+                        <span class="card-title">Compliance & Recht</span>
+                        <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="meta-grid">
+                            <span class="meta-label">Klassifikation :</span>
+                            <span class="meta-value"><span class="badge badge-compliance internal">Intern</span></span>
+
+                            <span class="meta-label">Personendaten :</span>
+                            <span class="meta-value">${attr.name.toLowerCase().includes('name') || attr.name.toLowerCase().includes('email') ? 'Ja' : 'Nein'}</span>
+
+                            <span class="meta-label">Aufbewahrungsfrist :</span>
+                            <span class="meta-value">10 Jahre</span>
+
+                            <span class="meta-label">Rechtsgrundlage :</span>
+                            <span class="meta-value">DSG Art. 6</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Reference Data Card (only if valueDomain exists)
+            if (valueDomain) {
+                html += `
+                    <div class="card">
+                        <div class="card-header" data-card="reference" aria-expanded="true">
+                            <span class="card-title">Referenzdaten (${valueDomain.values?.length || 0})</span>
+                            <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                        </div>
+                        <div class="card-content" style="padding: 0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Bezeichnung</th>
+                                        <th>Beschreibung</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(valueDomain.values || []).map(val => `
+                                        <tr>
+                                            <td>${val.code}</td>
+                                            <td>${val.label}</td>
+                                            <td>${val.description || '—'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
             return html;
         }
 
@@ -1647,9 +1784,9 @@
                                 <tbody>
                                     ${projectDomains.map(domain => `
                                         <tr class="clickable-row" data-id="${domain.id}">
-                                            <td><strong>${domain.name}</strong></td>
+                                            <td>${domain.name}</td>
                                             <td>${domain.description || '—'}</td>
-                                            <td><span class="badge badge-outline">${getStatusLabel(domain.status || 'active')}</span></td>
+                                            <td><span class="tag">${getStatusLabel(domain.status || 'active')}</span></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
@@ -1901,6 +2038,7 @@
             const item = findItemById(id);
             if (item) {
                 state.selectedItem = item;
+                state.selectedAttribute = null; // Clear any selected attribute
                 state.currentView = 'wiki';
                 if (item.layer !== state.currentLayer) {
                     state.currentLayer = item.layer;
@@ -1908,6 +2046,63 @@
                 expandParents(item);
                 navigateTo(`/${item.layer}/${item.type}/${item.id}`);
             }
+        }
+
+        function showAttributeDetail(attr, parentItem) {
+            state.selectedAttribute = { attr, parentItem };
+            state.selectedItem = null; // Clear item selection
+            const container = document.getElementById('contentBody');
+            container.innerHTML = renderAttributeDetailView(attr, parentItem);
+            renderAttributeBreadcrumb(attr, parentItem);
+            attachAttributeDetailListeners();
+            renderTree(); // Re-render tree to show selected attribute
+        }
+
+        function renderAttributeBreadcrumb(attr, parentItem) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            if (!breadcrumb) return;
+
+            let html = '';
+            html += `<span class="breadcrumb-home" data-action="home" tabindex="0">${icons.home} Alle Projekte</span>`;
+            html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+
+            // Add layer
+            if (parentItem.layer) {
+                html += `<span class="breadcrumb-item layer-${parentItem.layer}" data-layer="${parentItem.layer}" tabindex="0">${parentItem.layer.charAt(0).toUpperCase() + parentItem.layer.slice(1)}</span>`;
+                html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+            }
+
+            // Add parent item
+            html += `<span class="breadcrumb-item" data-id="${parentItem.id}" tabindex="0">${parentItem.name}</span>`;
+            html += `<span class="breadcrumb-separator" aria-hidden="true">/</span>`;
+
+            // Add attribute name as current
+            html += `<span class="breadcrumb-current" aria-current="page">${attr.name}</span>`;
+
+            breadcrumb.innerHTML = html;
+            attachBreadcrumbListeners(breadcrumb);
+        }
+
+        function attachAttributeDetailListeners() {
+            // Card toggle functionality
+            document.querySelectorAll('.card-header[data-card]').forEach(header => {
+                header.addEventListener('click', () => {
+                    const card = header.closest('.card');
+                    const content = card.querySelector('.card-content');
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    content.style.display = isExpanded ? 'none' : 'block';
+                });
+            });
+
+            // Parent link click handler
+            document.querySelectorAll('.attr-parent-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const itemId = link.dataset.id;
+                    if (itemId) selectItem(itemId);
+                });
+            });
         }
 
         function toggleNode(id) {
@@ -1932,17 +2127,37 @@
                 node.addEventListener('click', (e) => {
                     const id = node.dataset.id;
 
-                    // Handle attribute clicks - select the parent entity
+                    // Handle attribute clicks - show attribute detail
                     if (node.classList.contains('attribute-node')) {
                         const entityId = node.dataset.entity;
-                        if (entityId) {
-                            selectItem(entityId);
+                        const attrName = node.dataset.attrName;
+                        if (entityId && attrName) {
+                            const parentItem = findItemById(entityId);
+                            if (parentItem) {
+                                const attrs = parentItem.attributes || [];
+                                const attr = attrs.find(a => a.name === attrName);
+                                if (attr) {
+                                    showAttributeDetail(attr, parentItem);
+                                }
+                            }
                         }
                         return;
                     }
 
-                    // Handle column clicks - do nothing
+                    // Handle column clicks - show column detail
                     if (node.classList.contains('column-node')) {
+                        const tableId = node.dataset.table;
+                        const colName = node.dataset.colName;
+                        if (tableId && colName) {
+                            const parentItem = findItemById(tableId);
+                            if (parentItem) {
+                                const cols = parentItem.columns || [];
+                                const col = cols.find(c => c.name === colName);
+                                if (col) {
+                                    showAttributeDetail(col, parentItem);
+                                }
+                            }
+                        }
                         return;
                     }
 
@@ -1956,16 +2171,36 @@
                 node.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        // Handle attribute keydown - select the parent entity
+                        // Handle attribute keydown - show attribute detail
                         if (node.classList.contains('attribute-node')) {
                             const entityId = node.dataset.entity;
-                            if (entityId) {
-                                selectItem(entityId);
+                            const attrName = node.dataset.attrName;
+                            if (entityId && attrName) {
+                                const parentItem = findItemById(entityId);
+                                if (parentItem) {
+                                    const attrs = parentItem.attributes || [];
+                                    const attr = attrs.find(a => a.name === attrName);
+                                    if (attr) {
+                                        showAttributeDetail(attr, parentItem);
+                                    }
+                                }
                             }
                             return;
                         }
-                        // Handle column keydown - do nothing
+                        // Handle column keydown - show column detail
                         if (node.classList.contains('column-node')) {
+                            const tableId = node.dataset.table;
+                            const colName = node.dataset.colName;
+                            if (tableId && colName) {
+                                const parentItem = findItemById(tableId);
+                                if (parentItem) {
+                                    const cols = parentItem.columns || [];
+                                    const col = cols.find(c => c.name === colName);
+                                    if (col) {
+                                        showAttributeDetail(col, parentItem);
+                                    }
+                                }
+                            }
                             return;
                         }
                         selectItem(node.dataset.id);
@@ -2004,10 +2239,24 @@
             // Clickable table rows
             document.querySelectorAll('.clickable-row').forEach(row => {
                 row.addEventListener('click', () => {
+                    // Check if this is an attribute/column row
+                    const attrName = row.dataset.attrName;
+                    const parentId = row.dataset.parentId;
+                    if (attrName && parentId) {
+                        const parentItem = findItemById(parentId);
+                        if (parentItem) {
+                            const attrs = parentItem.attributes || parentItem.columns || [];
+                            const attr = attrs.find(a => a.name === attrName);
+                            if (attr) {
+                                showAttributeDetail(attr, parentItem);
+                                return;
+                            }
+                        }
+                    }
+                    // Regular item row
                     const itemId = row.dataset.id;
                     if (itemId) {
-                        const item = findItemById(itemId);
-                        if (item) selectItem(item);
+                        selectItem(itemId);
                     }
                 });
             });

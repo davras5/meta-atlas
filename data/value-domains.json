@@ -1,0 +1,57 @@
+[
+  {
+    "id": "vd-building-type",
+    "name": "Gebäudetyp",
+    "nameEn": "Building Type",
+    "description": "Klassifikation der Gebäudearten nach Nutzungszweck",
+    "status": "active",
+    "values": [
+      { "code": "ADMIN", "label": "Verwaltungsgebäude", "labelEn": "Administrative Building", "description": "Gebäude für Verwaltungszwecke" },
+      { "code": "WOHN", "label": "Wohngebäude", "labelEn": "Residential Building", "description": "Gebäude für Wohnzwecke" },
+      { "code": "LAGER", "label": "Lagergebäude", "labelEn": "Warehouse", "description": "Gebäude für Lagerzwecke" },
+      { "code": "TECH", "label": "Technisches Gebäude", "labelEn": "Technical Building", "description": "Gebäude für technische Anlagen" },
+      { "code": "HIST", "label": "Historisches Gebäude", "labelEn": "Historic Building", "description": "Denkmalgeschütztes Gebäude" }
+    ]
+  },
+  {
+    "id": "vd-status",
+    "name": "Status",
+    "nameEn": "Status",
+    "description": "Allgemeiner Statuswert für Objekte",
+    "status": "active",
+    "values": [
+      { "code": "ACTIVE", "label": "Aktiv", "labelEn": "Active", "description": "Objekt ist aktiv und in Verwendung" },
+      { "code": "INACTIVE", "label": "Inaktiv", "labelEn": "Inactive", "description": "Objekt ist nicht mehr in Verwendung" },
+      { "code": "PLANNED", "label": "Geplant", "labelEn": "Planned", "description": "Objekt ist in Planung" },
+      { "code": "ARCHIVED", "label": "Archiviert", "labelEn": "Archived", "description": "Objekt wurde archiviert" }
+    ]
+  },
+  {
+    "id": "vd-zone",
+    "name": "Nutzungszone",
+    "nameEn": "Usage Zone",
+    "description": "Zoneneinteilung nach Raumplanungsrecht",
+    "status": "active",
+    "values": [
+      { "code": "W", "label": "Wohnzone", "labelEn": "Residential Zone", "description": "Zone für Wohnnutzung" },
+      { "code": "M", "label": "Mischzone", "labelEn": "Mixed Zone", "description": "Zone für gemischte Nutzung" },
+      { "code": "G", "label": "Gewerbezone", "labelEn": "Commercial Zone", "description": "Zone für gewerbliche Nutzung" },
+      { "code": "I", "label": "Industriezone", "labelEn": "Industrial Zone", "description": "Zone für industrielle Nutzung" },
+      { "code": "OE", "label": "Zone öffentlicher Bauten", "labelEn": "Public Building Zone", "description": "Zone für öffentliche Einrichtungen" }
+    ]
+  },
+  {
+    "id": "vd-unit-type",
+    "name": "Objekttyp",
+    "nameEn": "Unit Type",
+    "description": "Klassifikation der Mietobjektarten",
+    "status": "active",
+    "values": [
+      { "code": "BUERO", "label": "Büro", "labelEn": "Office", "description": "Bürofläche" },
+      { "code": "WOHNUNG", "label": "Wohnung", "labelEn": "Apartment", "description": "Wohneinheit" },
+      { "code": "LADEN", "label": "Laden", "labelEn": "Retail", "description": "Verkaufsfläche" },
+      { "code": "LAGER", "label": "Lager", "labelEn": "Storage", "description": "Lagerfläche" },
+      { "code": "PARKING", "label": "Parkplatz", "labelEn": "Parking", "description": "Parkfläche" }
+    ]
+  }
+]

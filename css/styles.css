@@ -1123,12 +1123,26 @@ body {
     opacity: 0.85;
 }
 
+.attribute-node.selected,
+.column-node.selected {
+    opacity: 1;
+    background: var(--color-bg-active);
+    font-weight: var(--font-medium);
+    border-left: 2px solid var(--color-logical);
+    margin-left: -2px;
+    padding-left: calc(var(--space-3) - 2px);
+}
+
+.column-node.selected {
+    border-left-color: var(--color-physical);
+}
+
 .column-node {
-    cursor: default;
+    cursor: pointer;
 }
 
 .column-node:hover {
-    background: transparent;
+    background: var(--color-bg-hover);
 }
 
 .tree-icon {
@@ -1510,7 +1524,7 @@ body {
 /* ===== Metadata Grid - Refined ===== */
 .meta-grid {
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 180px 1fr;
     gap: var(--space-3) var(--space-4);
     font-size: var(--text-small);
     align-items: baseline;
@@ -1519,25 +1533,14 @@ body {
 .meta-label {
     color: var(--color-text-muted);
     font-weight: var(--font-medium);
-    font-size: var(--text-caption);
+    font-size: var(--text-small);
     letter-spacing: 0.01em;
 }
 
 .meta-value {
     color: var(--color-text-primary);
+    font-size: var(--text-small);
     line-height: var(--leading-body);
-}
-
-.meta-value a {
-    color: var(--color-conceptual);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out);
-    font-weight: var(--font-medium);
-}
-
-.meta-value a:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
 }
 
 /* ===== Tags ===== */
@@ -1656,7 +1659,7 @@ body {
     transform: translateX(2px);
 }
 
-/* ===== Attributes Table - Clean, Professional Design ===== */
+/* ===== Data Table - Unified Style ===== */
 .data-table {
     width: 100%;
     border-collapse: separate;
@@ -1697,6 +1700,7 @@ body {
     line-height: var(--leading-small);
 }
 
+/* Unified row hover */
 .data-table tbody tr {
     transition: background-color var(--duration-fast) var(--ease-out);
 }
@@ -1709,57 +1713,28 @@ body {
     border-bottom: none;
 }
 
+/* Clickable rows - same hover, with cursor */
 .data-table tbody tr.clickable-row {
     cursor: pointer;
 }
 
-.data-table tbody tr.clickable-row:hover {
-    background: var(--color-conceptual-bg);
+.data-table tbody tr.clickable-row td:first-child {
+    position: relative;
 }
 
-.data-table code {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    padding: 2px var(--space-1-5);
-    background: var(--color-bg-base);
-    border-radius: var(--radius-xs);
-    border: 1px solid var(--color-border-subtle);
-    color: var(--color-text-secondary);
+.data-table tbody tr.clickable-row td:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-.key-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px var(--space-1-5);
-    border-radius: var(--radius-xs);
-    font-size: var(--text-2xs);
-    font-weight: var(--font-bold);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    min-width: 22px;
-}
-
-.key-badge.pk {
-    background: var(--color-logical-bg);
-    color: var(--color-logical);
-}
-
-.key-badge.fk {
-    background: var(--color-physical-bg);
-    color: var(--color-physical);
-}
-
-.key-badge.uk {
-    background: var(--color-conceptual-bg);
-    color: var(--color-conceptual);
-}
-
-.type-label {
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-    letter-spacing: 0.02em;
+.data-table tbody tr.clickable-row:hover td:first-child::before {
+    background: var(--color-conceptual);
 }
 
 /* ===== Project Tab Content ===== */
@@ -2467,7 +2442,7 @@ body {
 
 .project-card-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
