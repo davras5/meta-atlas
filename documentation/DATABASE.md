@@ -147,8 +147,10 @@ flowchart TB
         LogicalEntity["LogicalEntity"]
         Attribute["Attribute"]
         ValueDomain["ValueDomain"]
+        Relationship["Relationship"]
         Dataset -->|describes| LogicalEntity
         LogicalEntity -->|has| Attribute
+        LogicalEntity -->|has| Relationship
         Attribute -->|uses| ValueDomain
     end
 
@@ -168,7 +170,11 @@ flowchart TB
         Dataset -->|distributed_via| Distribution
     end
 
-    Project -->|contains| Domain
+    Project -->|scopes| Domain
+    Project -->|scopes| Concept
+    Project -->|scopes| LogicalEntity
+    Project -->|scopes| ValueDomain
+    Project -->|scopes| Dataset
     Concept -->|realizes| LogicalEntity
     LogicalEntity -->|implements| Table
     Attribute -->|maps_to| Column
@@ -187,6 +193,7 @@ flowchart TB
     style LogicalEntity fill:#6ee7b7,stroke:#059669
     style Attribute fill:#6ee7b7,stroke:#059669
     style ValueDomain fill:#6ee7b7,stroke:#059669
+    style Relationship fill:#6ee7b7,stroke:#059669
     style System fill:#fdba74,stroke:#d97706
     style Schema fill:#fdba74,stroke:#d97706
     style Table fill:#fdba74,stroke:#d97706
@@ -273,6 +280,16 @@ erDiagram
         datetime joined_at
     }
 
+    GovernanceAssignment {
+        uuid id PK
+        string entity_type
+        uuid entity_id FK
+        enum role
+        string person_name
+        string person_email
+        datetime assigned_at
+    }
+
     Domain {
         uuid id PK
         uuid project_id FK
@@ -323,6 +340,17 @@ erDiagram
         boolean is_nullable
         boolean is_business_key
         uuid value_domain_id FK
+    }
+
+    Relationship {
+        uuid id PK
+        string name
+        jsonb description
+        uuid source_entity_id FK
+        uuid target_entity_id FK
+        enum relationship_type
+        enum cardinality
+        boolean is_identifying
     }
 
     ValueDomain {
@@ -426,7 +454,6 @@ flowchart TB
     subgraph DataProducts["DATA PRODUCTS"]
         Dataset["Dataset<br/>(Datensatz)"]
         DataService["DataService<br/>(API)"]
-        Report["Report<br/>(Bericht)"]
     end
 
     subgraph Access["ACCESS MECHANISMS"]
@@ -442,7 +469,6 @@ flowchart TB
 
     Dataset --> Distribution
     DataService --> Distribution
-    Report --> Distribution
 
     Distribution --> File
     Distribution --> API
@@ -517,6 +543,7 @@ flowchart LR
 | **Conceptual** | Concept | Business term definition | Konzept | skos:Concept |
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
 | **Logical** | Attribute | Data element within an entity | Datenelement | - |
+| **Logical** | Relationship | Connection between logical entities | - | - |
 | **Logical** | ValueDomain | Permissible values (code list) | Konzept (Codeliste) | skos:ConceptScheme |
 | **Logical** | Dataset | Published data collection | Datensatz | dcat:Dataset |
 | **Physical** | System | Application or database | - | - |
@@ -618,6 +645,9 @@ The snapshot contains a complete copy of all project content at the time of publ
     "logical_entities": [
       { "id": "ent-001", "name": "Building", "attributes": [...], ... }
     ],
+    "relationships": [
+      { "id": "rel-001", "name": "belongs_to", "source_entity_id": "ent-001", "target_entity_id": "ent-002", ... }
+    ],
     "value_domains": [
       { "id": "vd-001", "name": "BuildingType", "values": [...], ... }
     ],
@@ -641,6 +671,7 @@ The snapshot contains a complete copy of all project content at the time of publ
     "domains_count": 2,
     "concepts_count": 5,
     "logical_entities_count": 3,
+    "relationships_count": 5,
     "value_domains_count": 6,
     "datasets_count": 1,
     "systems_count": 2,
@@ -1029,6 +1060,45 @@ A collection of data published or curated by an organization (DCAT-aligned).
 
 ---
 
+#### 4.4.5 Relationship
+
+A relationship defines how two logical entities are connected, capturing cardinality and semantic meaning.
+
+**Entity: Relationship**
+
+| Attribute | Type | Required | Description | Standard Mapping |
+|-----------|------|----------|-------------|------------------|
+| id | UUID | Yes | Unique identifier | dct:identifier |
+| name | String(100) | Yes | Relationship name (e.g., "belongs_to", "contains") | dct:title |
+| description | MultiLang | No | Relationship description | dct:description |
+| source_entity_id | UUID | Yes | Source logical entity | - |
+| target_entity_id | UUID | Yes | Target logical entity | - |
+| relationship_type | Enum | Yes | Type of relationship (see below) | - |
+| cardinality | Enum | Yes | Cardinality constraint | - |
+| is_identifying | Boolean | No | If true, target identity depends on source | - |
+| foreign_key_attributes | UUID[] | No | Attributes that form the foreign key | - |
+| inverse_name | String | No | Name of inverse relationship | - |
+| metadata | Metadata | Yes | Audit trail | - |
+
+**Relationship Types:**
+| Type | Description | Example |
+|------|-------------|---------|
+| association | General relationship | Building - Address |
+| composition | Strong ownership (part cannot exist without whole) | Building - Floor |
+| aggregation | Weak ownership (part can exist independently) | Department - Employee |
+| dependency | One entity depends on another | Contract - Building |
+| generalization | Inheritance/subtype relationship | Asset - Building |
+
+**Cardinality Values:**
+| Value | Description |
+|-------|-------------|
+| one_to_one | 1:1 - Each source has exactly one target |
+| one_to_many | 1:n - Each source has many targets |
+| many_to_one | n:1 - Many sources have one target |
+| many_to_many | n:n - Many sources have many targets |
+
+---
+
 ### 4.5 Physical Layer Entities
 
 > **Organization-Wide Scope:** Physical Layer entities (System, Schema, Table, Column) represent actual infrastructure and are **organization-wide**, not project-scoped. Multiple projects can reference the same physical tables. The project-specific documentation is captured via:
@@ -1268,6 +1338,103 @@ A specific representation or access point for a dataset.
 | type | Enum | organization, person |
 | email | String | Contact email |
 | url | URL | Agent URL/website |
+
+**PersonRef** - Reference to an individual person
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | String | Person identifier |
+| name | String | Full name |
+| email | String | Email address |
+| organization | String | Organization name |
+| role | String | Role/title |
+
+**ContactRef** - Contact point information (DCAT-aligned)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | String | Contact name or department |
+| email | String | Contact email |
+| phone | String | Phone number |
+| address | String | Postal address |
+| url | URL | Contact form or webpage |
+
+**GeoRef** - Geographic coverage reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| type | Enum | point, bbox, polygon, named |
+| coordinates | Number[] | Coordinates (for point, bbox, polygon) |
+| name | String | Named location (e.g., "Switzerland", "Bern") |
+| uri | URL | URI reference (e.g., GeoNames, Wikidata) |
+| srid | Integer | Spatial reference system ID (default: 2056 for LV95) |
+
+**PeriodRef** - Temporal coverage reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| start_date | Date | Period start date |
+| end_date | Date | Period end date |
+| description | String | Description (e.g., "Fiscal Year 2024") |
+
+**QualityInfo** - Data quality metrics (DQV-aligned)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| completeness | Decimal | Percentage of non-null values (0-100) |
+| accuracy | Decimal | Accuracy score (0-100) |
+| timeliness | String | Data freshness description |
+| consistency | Decimal | Consistency score (0-100) |
+| validity | Decimal | Percentage passing validation rules (0-100) |
+| last_assessed | DateTime | When quality was last measured |
+| assessment_method | String | How quality was assessed |
+
+**LicenseRef** - License reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| id | String | License identifier (e.g., "CC-BY-4.0") |
+| name | MultiLang | License name |
+| url | URL | Link to license text |
+| type | Enum | open, restricted, proprietary |
+
+**FKRef** - Foreign key reference details
+
+| Field | Type | Description |
+|-------|------|-------------|
+| target_table_id | UUID | Referenced table |
+| target_column_name | String | Referenced column name |
+| on_delete | Enum | CASCADE, SET_NULL, RESTRICT, NO_ACTION |
+| on_update | Enum | CASCADE, SET_NULL, RESTRICT, NO_ACTION |
+
+**Index** - Table index definition
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | String | Index name |
+| columns | String[] | Indexed column names |
+| is_unique | Boolean | Whether index enforces uniqueness |
+| type | Enum | btree, hash, gin, gist |
+| where_clause | String | Partial index condition |
+
+**Rule** - Validation rule definition
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | String | Rule name |
+| type | Enum | regex, range, list, custom |
+| expression | String | Rule expression or pattern |
+| error_message | MultiLang | Error message when validation fails |
+| severity | Enum | error, warning, info |
+
+**ExtId** - External identifier reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | String | Identifier name (e.g., "EGID", "EGRID") |
+| source | String | Source system or registry |
+| pattern | String | Format pattern (regex) |
+| url | URL | Link to identifier documentation |
 
 ---
 
@@ -2921,6 +3088,22 @@ CREATE TABLE attributes (
   status VARCHAR(20) NOT NULL DEFAULT 'active'
 );
 
+-- Relationships table
+CREATE TABLE relationships (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL,
+  description JSONB,
+  source_entity_id UUID NOT NULL REFERENCES logical_entities(id) ON DELETE CASCADE,
+  target_entity_id UUID NOT NULL REFERENCES logical_entities(id) ON DELETE CASCADE,
+  relationship_type VARCHAR(20) NOT NULL CHECK (relationship_type IN ('association', 'composition', 'aggregation', 'dependency', 'generalization')),
+  cardinality VARCHAR(20) NOT NULL CHECK (cardinality IN ('one_to_one', 'one_to_many', 'many_to_one', 'many_to_many')),
+  is_identifying BOOLEAN DEFAULT false,
+  foreign_key_attributes UUID[],
+  inverse_name VARCHAR(100),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_by VARCHAR(100) NOT NULL
+);
+
 -- Value Domains table
 CREATE TABLE value_domains (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -3071,6 +3254,8 @@ CREATE INDEX idx_value_domains_project ON value_domains(project_id);
 CREATE INDEX idx_value_domains_shared ON value_domains(is_shared) WHERE is_shared = true;
 CREATE INDEX idx_datasets_project ON datasets(project_id);
 CREATE INDEX idx_attributes_entity ON attributes(entity_id);
+CREATE INDEX idx_relationships_source ON relationships(source_entity_id);
+CREATE INDEX idx_relationships_target ON relationships(target_entity_id);
 CREATE INDEX idx_tables_schema ON tables(schema_id);
 CREATE INDEX idx_columns_table ON columns(table_id);
 CREATE INDEX idx_project_users_project ON project_users(project_id);
