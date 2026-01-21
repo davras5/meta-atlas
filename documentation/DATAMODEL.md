@@ -30,10 +30,10 @@ This document defines the data model for the Metadata Catalog prototype. The fol
 | R-05 | Standards | ISO 11179 metadata registry | Support Concept definitions, Value Domains, and data element registration patterns | ✅ Implemented |
 | R-06 | Standards | DCAT-AP CH 2.0 (Swiss profile) | Swiss-specific properties, controlled vocabularies, opendata.swiss compatibility | ✅ Implemented |
 | R-07 | Standards | eCH standards (0122, 0200) | eCH-0122 architecture framework, eCH-0200 DCAT-AP CH profile compliance | ✅ Implemented |
-| **Swiss Platforms** |||||
-| R-08 | Swiss | I14Y platform compatibility | Export/sync metadata with [i14y.admin.ch](https://www.i14y.admin.ch) interoperability platform | ⚠️ Schema ready |
-| R-09 | Swiss | LINDAS linked data | RDF export for [lindas.admin.ch](https://lindas.admin.ch) federal linked data service | 🔲 Planned |
-| R-10 | Swiss | TERMDAT terminology links | Link Concepts to federal terminology database [TERMDAT](https://www.termdat.bk.admin.ch) | 🔲 Planned |
+| **Swiss Platforms** ||||| *I14Y and LINDAS are complementary: I14Y is the metadata catalog/directory; LINDAS is the linked data triplestore* |
+| R-08 | Swiss | I14Y platform compatibility | Export/sync metadata with [i14y.admin.ch](https://www.i14y.admin.ch) — the national metadata catalog describing data collections, APIs, and government services | ⚠️ Schema ready |
+| R-09 | Swiss | LINDAS linked data | RDF export for [lindas.admin.ch](https://lindas.admin.ch) — the federal linked data triplestore for Knowledge Graphs (RDF/SPARQL); uses schema.org with Swiss extensions at `https://schema.ld.admin.ch/` | 🔲 Planned |
+| R-10 | Swiss | TERMDAT terminology links | Link Concepts to federal terminology database [TERMDAT](https://www.termdat.bk.admin.ch) — supports all five languages including Romansh; uses TBX (ISO 30042) | 🔲 Planned |
 | **Data Management** |||||
 | R-11 | Data Mgmt | Business glossary / terminology | Concept entity with multilingual definitions, synonyms, business rules, related concepts | ✅ Implemented |
 | R-12 | Data Mgmt | Code lists / reference data | ValueDomain entity with coded values, multilingual labels, external source references | ✅ Implemented |
@@ -47,7 +47,7 @@ This document defines the data model for the Metadata Catalog prototype. The fol
 | R-19 | Governance | Public/Private access control | Content visibility: public (no login) vs. restricted (authenticated users only) | ⚠️ Schema ready |
 | **Compliance** |||||
 | R-20 | Compliance | DSG data protection | Track personal_data, special_categories, data_subjects, retention_period; [EDÖB](https://www.edoeb.admin.ch) reporting ready | ✅ Implemented |
-| R-21 | Compliance | ISG classification | Security levels: öffentlich, intern, vertraulich, geheim (public, internal, confidential, secret) | ✅ Implemented |
+| R-21 | Compliance | ISG classification | Three security levels per ISG Art. 11-15: INTERN, VERTRAULICH, GEHEIM; unclassified is default (no marking) | ✅ Implemented |
 | R-22 | Compliance | Legal basis documentation | legal_references array with law, article, description, and URL for each legal basis | ✅ Implemented |
 | R-23 | Compliance | Swiss Federal ISMS alignment | Security classification compatible with federal ISMS framework | ⚠️ Schema ready |
 | **Versioning** |||||
@@ -96,30 +96,33 @@ This document defines the data model for the Metadata Catalog prototype. The fol
 
 ### 2.2 I14Y Information Model Alignment
 
-The I14Y platform (Swiss Federal Interoperability Platform) defines:
+The I14Y platform (Swiss Federal Interoperability Platform) defines a hierarchy where **Konzepte (Concepts) are standalone, reusable entities** that Datenelemente reference — they are not nested under DataElements. This enables a single concept to be used across multiple data elements (e.g., "The concept of Swiss cantons is currently used in 122 data elements").
 
 ```
 Catalog
   ├── Dataset (DCAT)
   │     ├── Structure
-  │     │     └── DataElement
-  │     │           └── Concept
+  │     │     └── DataElement ──references──► Concept
   │     └── Distribution
   ├── DataService (API)
-  └── PublicService (CPSV)
+  ├── PublicService (CPSV)
+  └── Concept (standalone, reusable)
 ```
 
 **Our Model Mapping:**
 
-| I14Y Entity | Our Entity | Layer |
-|-------------|------------|-------|
-| Catalog | (implicit) | - |
-| Dataset | Dataset | Logical/Physical |
-| Structure | LogicalEntity | Logical |
-| DataElement | Attribute | Logical |
-| Concept | Concept | Conceptual |
-| Distribution | Distribution | Physical |
-| DataService | DataService | Physical |
+| I14Y Entity | I14Y German Term | Our Entity | Layer | Standard Mapping |
+|-------------|------------------|------------|-------|------------------|
+| Catalog | Katalog | (implicit) | - | dcat:Catalog |
+| Dataset | Datensatz | Dataset | Logical/Physical | dcat:Dataset |
+| Structure | Struktur | LogicalEntity | Logical | SHACL sh:NodeShape |
+| DataElement | Datenelement/Attribut | Attribute | Logical | SHACL sh:PropertyShape |
+| Concept | Konzept | Concept | Conceptual | ISO 11179-1:2023 |
+| Concept (CodeList) | Konzept (Codeliste) | ValueDomain | Logical | ISO 11179-1:2023 (Eigenschaftstyp=CodeList) |
+| Distribution | Distribution | Distribution | Physical | dcat:Distribution |
+| DataService | Elektronische Schnittstelle | DataService | Physical | dcat:DataService |
+
+> **Note:** I14Y Konzepte are governed by **ISO 11179-1:2023** with four property types (Eigenschaftstyp): CodeList, Date, Numeric, and String. SKOS (skos:ConceptScheme) is used for theme taxonomies (dcat:themeTaxonomy) but not for Konzepte definitions themselves.
 
 ### 2.3 DCAT 3 Class Alignment
 
@@ -504,7 +507,7 @@ erDiagram
 | **Organization** | Changelog | Record of changes within a project | - | prov:Activity |
 | **Organization** | ProjectUser | User membership and role in a project | - | foaf:Agent |
 | **Conceptual** | Domain | Business domain grouping | - | dcat:Catalog (partial) |
-| **Conceptual** | Concept | Business term definition | Konzept | skos:Concept |
+| **Conceptual** | Concept | Business term definition | Konzept | ISO 11179-1:2023 |
 | **Logical** | LogicalEntity | Technology-independent data structure | Struktur | - |
 | **Logical** | Attribute | Data element within an entity | Datenelement | - |
 | **Logical** | Relationship | Connection between logical entities | - | - |
@@ -819,7 +822,9 @@ A business domain represents a coherent area of business activity or knowledge w
 
 #### 4.3.2 Concept
 
-A business concept represents a well-defined business term or notion within a domain.
+A business concept represents a well-defined business term or notion within a domain. Concepts are **standalone, reusable entities** that can be referenced by multiple attributes across different logical entities — aligning with the I14Y model where a single Konzept may be used by many Datenelemente.
+
+> **Standard Alignment:** Concepts are governed by **ISO 11179-1:2023** (Metadata registries), not SKOS. SKOS (skos:ConceptScheme) is used for theme taxonomies (dcat:themeTaxonomy), while Konzepte definitions follow ISO 11179 with four property types (Eigenschaftstyp): CodeList, Date, Numeric, and String.
 
 **Entity: Concept**
 
@@ -827,24 +832,34 @@ A business concept represents a well-defined business term or notion within a do
 |-----------|------|----------|-------------|------------------|
 | id | UUID | Yes | Unique identifier | dct:identifier |
 | project_id | UUID | Yes | Parent project reference | - |
-| domain_id | UUID | Yes | Parent domain reference | skos:inScheme |
-| name | MultiLang | Yes | Concept name (preferred label) | skos:prefLabel |
-| definition | MultiLang | Yes | Formal business definition | skos:definition |
-| synonyms | MultiLang[] | No | Alternative terms by language | skos:altLabel |
+| domain_id | UUID | Yes | Parent domain reference | - |
+| name | MultiLang | Yes | Concept name (preferred label) | iso11179:name |
+| definition | MultiLang | Yes | Formal business definition | iso11179:definition |
+| property_type | Enum | No | ISO 11179 property type: codelist, date, numeric, string | iso11179:propertyType |
+| synonyms | MultiLang[] | No | Alternative terms by language | iso11179:alternativeName |
 | business_rules | String[] | No | Associated business rules | - |
 | legal_references | LegalRef[] | No | Applicable laws and regulations | dct:conformsTo |
 | standard_references | StdRef[] | No | Relevant standards (eCH, SIA, ISO) | dct:conformsTo |
 | external_identifiers | ExtId[] | No | Standard identifiers (EGID, EGRID) | adms:identifier |
-| related_concepts | UUID[] | No | Related concept references | skos:related |
+| related_concepts | UUID[] | No | Related concept references | iso11179:relatedConcept |
 | status | Enum | Yes | active, deprecated, draft | adms:status |
 | valid_from | Date | No | When this definition became valid | schema:validFrom |
 | valid_to | Date | No | When this definition ceased to be valid | schema:validThrough |
 | metadata | Metadata | Yes | Audit trail | - |
 
+**Property Types (ISO 11179-1:2023 Eigenschaftstyp):**
+| Type | Description | Example |
+|------|-------------|---------|
+| codelist | Enumerated list of values | Building status, Canton codes |
+| date | Date or datetime values | Birth date, Valid from |
+| numeric | Numeric values (integer, decimal) | Area, Count, Amount |
+| string | Text/character data | Name, Description, Address |
+
 **Example - Concept "Gebäude":**
 ```
 name: { de: "Gebäude", fr: "Bâtiment", en: "Building" }
 definition: { de: "Ein dauerhaft errichtetes Bauwerk..." }
+property_type: "string"
 external_identifiers: [{ name: "EGID", source: "GWR" }]
 legal_references: [{ law: "GeoIG", article: "Art. 3" }]
 standard_references: [{ standard: "eCH-0129", version: "5.0" }]
@@ -985,6 +1000,8 @@ A set of permissible values for an attribute, also known as a code list or enume
 
 A collection of data published or curated by an organization (DCAT-aligned).
 
+> **DCAT-AP CH 2.0 Mandatory Properties:** Per eCH-0200 v3.0.1, dcat:Dataset requires five mandatory properties: `dcat:contactPoint` (vcard:Kind, 1..n), `dct:description` (rdfs:Literal, 1..n), `dct:identifier` (rdfs:Literal, 1..n), `dct:publisher` (foaf:Agent, 1..1), and `dct:title` (rdfs:Literal, 1..n).
+
 **Entity: Dataset**
 
 | Attribute | Type | Required | Description | Standard Mapping |
@@ -994,7 +1011,7 @@ A collection of data published or curated by an organization (DCAT-aligned).
 | name | MultiLang | Yes | Dataset title | dct:title |
 | description | MultiLang | Yes | Dataset description | dct:description |
 | publisher | AgentRef | Yes | Publishing organization | dct:publisher |
-| contact_point | ContactRef | No | Contact information | dcat:contactPoint |
+| contact_point | ContactRef | Yes | Contact information (DCAT-AP CH mandatory) | dcat:contactPoint |
 | keywords | MultiLang[] | No | Keywords/tags | dcat:keyword |
 | themes | String[] | No | Theme categories | dcat:theme |
 | logical_entities | UUID[] | No | Described logical entities | - |
@@ -1173,6 +1190,8 @@ A physical column within a database table.
 
 An API or service providing programmatic access to data.
 
+> **DCAT-AP CH 2.0 Mandatory Properties:** Per eCH-0200 v3.0.1, dcat:DataService requires four mandatory properties: `dcat:endpointURL` (rdfs:Resource, 1..n), `dcat:contactPoint` (vcard:Kind, 1..n), `dct:publisher` (foaf:Agent, 1..1), and `dct:title` (rdfs:Literal, 1..n).
+
 **Entity: DataService**
 
 | Attribute | Type | Required | Description | Standard Mapping |
@@ -1186,7 +1205,7 @@ An API or service providing programmatic access to data.
 | serves_datasets | UUID[] | No | Datasets served by this API | dcat:servesDataset |
 | system_id | UUID | No | Hosting system | - |
 | publisher | AgentRef | Yes | Service publisher | dct:publisher |
-| contact_point | ContactRef | No | Contact information | dcat:contactPoint |
+| contact_point | ContactRef | Yes | Contact information (DCAT-AP CH mandatory) | dcat:contactPoint |
 | access_rights | Enum | Yes | public, internal, restricted | dct:accessRights |
 | authentication | AuthInfo | No | Authentication requirements | - |
 | license | LicenseRef | No | Usage license | dct:license |
@@ -1212,6 +1231,8 @@ An API or service providing programmatic access to data.
 
 A specific representation or access point for a dataset.
 
+> **DCAT-AP CH 2.0 Mandatory Properties:** Per eCH-0200 v3.0.1, dcat:Distribution requires two mandatory properties: `dcat:accessURL` (rdfs:Resource, 1..n) and `dct:license` (dct:LicenseDocument, 1..1). For opendata.swiss publication, `dct:issued` is additionally required.
+
 **Entity: Distribution**
 
 | Attribute | Type | Required | Description | Standard Mapping |
@@ -1227,12 +1248,14 @@ A specific representation or access point for a dataset.
 | byte_size | Integer | No | File size in bytes | dcat:byteSize |
 | checksum | String | No | File checksum (SHA-256) | spdx:checksum |
 | access_service_id | UUID | No | Access via DataService | dcat:accessService |
-| license | LicenseRef | No | Distribution-specific license | dct:license |
+| license | LicenseRef | Yes | Distribution license (DCAT-AP CH mandatory) | dct:license |
 | rights | String | No | Rights statement | dct:rights |
-| issued | Date | No | Publication date | dct:issued |
+| issued | Date | Cond. | Publication date (required for opendata.swiss) | dct:issued |
 | modified | DateTime | No | Last modification | dct:modified |
 | status | Enum | Yes | active, deprecated | adms:status |
 | metadata | Metadata | Yes | Audit trail | - |
+
+**Swiss License Vocabulary:** Use values from `http://dcat-ap.ch/vocabulary/licenses/`: `terms_open`, `terms_by`, `terms_ask`, `terms_by_ask`.
 
 ---
 
@@ -1268,12 +1291,25 @@ A specific representation or access point for a dataset.
 | personal_data | Boolean | Contains personal data (DSG) |
 | special_categories | Boolean | Special categories (DSG Art. 5) |
 | data_subjects | Enum[] | EMPLOYEE, CUSTOMER, CITIZEN, SUPPLIER, OTHER |
-| confidentiality | Enum | PUBLIC, INTERNAL, CONFIDENTIAL, SECRET |
+| classification | Enum | NONE, INTERN, VERTRAULICH, GEHEIM (ISG Art. 11-15) |
 | integrity | Enum | LOW, MEDIUM, HIGH, VERY_HIGH |
 | availability | Enum | LOW, MEDIUM, HIGH, VERY_HIGH |
 | retention_period | String | Retention requirement (e.g., "10 years") |
 | legal_basis | LegalRef[] | Processing legal basis |
 | processing_purposes | String[] | Purpose descriptions |
+
+**Security Classification Levels (ISG - Informationssicherheitsgesetz, effective 1 January 2024):**
+
+Per Articles 11-15 of the ISG, Switzerland defines **three classification levels**. Unclassified information carries no marking.
+
+| Level | German | Description |
+|-------|--------|-------------|
+| NONE | (unclassified) | Default state; no classification marking; publicly accessible |
+| INTERN | Intern | Information requiring internal-only access |
+| VERTRAULICH | Vertraulich | Information whose disclosure could cause damage |
+| GEHEIM | Geheim | Information whose disclosure could cause severe damage |
+
+> **Note:** "Öffentlich" (public) is not a formal classification level but rather the absence of classification. This distinction is critical for ISMS implementation per ISG Art. 6.
 
 **LegalRef** - Reference to a law or regulation
 
@@ -1594,12 +1630,13 @@ The following eCH standards define the conceptual framework for data architectur
 
 ---
 
-*Document Version: 2.0*
+*Document Version: 2.1*
 *Created: January 2026*
 *Last Updated: January 2026*
 *Status: Draft for Prototype Development*
 
 ### Changelog
+- **v2.1** (January 2026): Standards alignment validation — corrected ISG security classifications to three levels (INTERN, VERTRAULICH, GEHEIM); updated Concept mapping from skos:Concept to ISO 11179-1:2023; clarified I14Y Konzepte as standalone reusable entities; added DCAT-AP CH 2.0 mandatory properties to Dataset, Distribution, DataService; clarified LINDAS vs I14Y complementary roles
 - **v2.0** (January 2026): Restructured document, moved SQL to SCHEMA.sql, simplified structure
 - **v1.1** (January 2026): Added Organization Layer entities (ProjectVersion, Changelog, ProjectUser)
 
