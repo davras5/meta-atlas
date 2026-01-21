@@ -2378,10 +2378,50 @@ body {
     letter-spacing: var(--tracking-wider);
 }
 
+.projects-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-2);
+}
+
+.btn-new-project {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-logical);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--text-small);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+    white-space: nowrap;
+}
+
+.btn-new-project:hover {
+    background: var(--color-logical-hover, #059669);
+    transform: translateY(-1px);
+}
+
+.btn-new-project svg {
+    width: 16px;
+    height: 16px;
+}
+
 .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: var(--space-4);
+}
+
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 .project-card {
@@ -2391,6 +2431,38 @@ body {
 
 .project-card:hover {
     transform: translateY(-1px);
+}
+
+/* Row layout for stacked list view */
+.projects-list .project-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+}
+
+.projects-list .project-card-header {
+    flex-shrink: 0;
+    width: 200px;
+    margin-bottom: 0;
+}
+
+.projects-list .project-description {
+    flex: 1;
+    margin-bottom: 0;
+    min-width: 0;
+}
+
+.projects-list .project-meta {
+    flex-shrink: 0;
+    border-top: none;
+    padding-top: 0;
+    gap: var(--space-4);
+}
+
+.projects-list .project-activity {
+    margin-left: 0;
+    white-space: nowrap;
 }
 
 .project-card-header {
@@ -2529,6 +2601,29 @@ body {
 @media (max-width: 768px) {
     .projects-grid {
         grid-template-columns: 1fr;
+    }
+
+    .projects-header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
+
+    .projects-list .project-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
+
+    .projects-list .project-card-header {
+        width: 100%;
+    }
+
+    .projects-list .project-meta {
+        flex-wrap: wrap;
+        width: 100%;
+        border-top: 1px solid var(--color-border-subtle);
+        padding-top: var(--space-3);
     }
 
     .projects-stats {

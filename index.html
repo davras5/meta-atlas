@@ -53,7 +53,8 @@
             collapseAll: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5-5 5 5"/><path d="m7 9 5 5 5-5"/></svg>',
             sortAsc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M11 12h4"/><path d="M11 16h7"/><path d="M11 20h10"/></svg>',
             sortDesc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/></svg>',
-            x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>'
+            x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+            plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>'
         };
 
         // ========================================
@@ -264,6 +265,33 @@
                 planned: 'Geplant'
             };
             return labels[status] || status;
+        }
+
+        function getRoleLabel(role) {
+            const labels = {
+                owner: 'Projektverantwortliche',
+                steward: 'Data Steward',
+                engineer: 'Data Engineer',
+                analyst: 'Business Analyst',
+                viewer: 'Betrachter'
+            };
+            return labels[role] || role;
+        }
+
+        function getRoleDescription(role) {
+            const descriptions = {
+                owner: 'Vollständiger Administratorzugriff, kann Benutzer und Einstellungen verwalten',
+                steward: 'Kann Metadateneinträge erstellen, bearbeiten und genehmigen',
+                engineer: 'Kann physische Schicht-Entitäten und Zuordnungen verwalten',
+                analyst: 'Kann konzeptuelle Schicht-Einträge erstellen und bearbeiten',
+                viewer: 'Lesezugriff auf alle Projektdaten'
+            };
+            return descriptions[role] || '';
+        }
+
+        function getUserAvatar(name) {
+            const parts = name.split(' ');
+            return parts.map(p => p[0]).join('').substring(0, 2).toUpperCase();
         }
 
         function getTypeIcon(type) {
@@ -921,10 +949,16 @@
             container.innerHTML = `
                 <div class="projects-overview">
                     <div class="projects-header">
-                        <h1 class="projects-title">Alle Projekte</h1>
+                        <div class="projects-header-top">
+                            <h1 class="projects-title">Alle Projekte</h1>
+                            <button class="btn-new-project" id="newProjectBtn">
+                                ${icons.plus}
+                                <span>Neues Projekt</span>
+                            </button>
+                        </div>
                         <p class="projects-subtitle">Erkunden Sie Metadatenkataloge Ihrer Organisation. Jedes Projekt enthält Domänen, Entitäten und physische Implementierungen.</p>
                     </div>
-                    <div class="projects-grid">
+                    <div class="projects-list">
                         ${data.projects.map(project => renderProjectCard(project)).join('')}
                     </div>
                 </div>
@@ -1312,6 +1346,41 @@
                 `;
             }
 
+            // Tables Panel (for systems only)
+            if (item.type === 'system') {
+                const systemTables = data.tables.filter(t => t.system === item.id);
+                html += `
+                    <div class="card">
+                        <div class="card-header" data-card="tables" aria-expanded="true">
+                            <span class="card-title">Tabellen (${systemTables.length})</span>
+                            <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
+                        </div>
+                        <div class="card-content" style="padding: 0;">
+                            ${systemTables.length > 0 ? `
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Beschreibung</th>
+                                            <th>Spalten</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${systemTables.map(table => `
+                                            <tr class="clickable-row" data-id="${table.id}">
+                                                <td><strong>${table.name}</strong></td>
+                                                <td>${table.description || '—'}</td>
+                                                <td>${table.columns?.length || 0}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<div class="empty-list-message">Keine Tabellen in diesem System</div>'}
+                        </div>
+                    </div>
+                `;
+            }
+
             // Compliance Panel (for entities only)
             if (item.type === 'entity') {
                 html += `
@@ -1567,14 +1636,24 @@
                     </div>
                     <div class="card-content" style="padding: 0;">
                         ${projectDomains.length > 0 ? `
-                            <div class="project-domains-list">
-                                ${projectDomains.map(d => `
-                                    <div class="project-domain-item" data-id="${d.id}">
-                                        <span class="domain-name">${d.name}</span>
-                                        <span class="domain-desc text-secondary">${d.description || ''}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Beschreibung</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${projectDomains.map(domain => `
+                                        <tr class="clickable-row" data-id="${domain.id}">
+                                            <td><strong>${domain.name}</strong></td>
+                                            <td>${domain.description || '—'}</td>
+                                            <td><span class="badge badge-outline">${getStatusLabel(domain.status || 'active')}</span></td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
                         ` : '<div class="empty-list-message">Keine Domänen diesem Projekt zugewiesen</div>'}
                     </div>
                 </div>
@@ -1582,14 +1661,8 @@
         }
 
         function renderProjectUsersTab(project) {
-            // Mock user data for the project
-            const users = [
-                { name: 'Anna Müller', role: 'Projektverantwortliche', email: 'anna.mueller@admin.ch', avatar: 'AM' },
-                { name: 'Peter Schmidt', role: 'Data Steward', email: 'peter.schmidt@admin.ch', avatar: 'PS' },
-                { name: 'Lisa Weber', role: 'Data Engineer', email: 'lisa.weber@admin.ch', avatar: 'LW' },
-                { name: 'Thomas Brunner', role: 'Business Analyst', email: 'thomas.brunner@admin.ch', avatar: 'TB' },
-                { name: 'Sarah Keller', role: 'Betrachter', email: 'sarah.keller@admin.ch', avatar: 'SK' }
-            ];
+            const users = project.users || [];
+            const roles = ['owner', 'steward', 'engineer', 'analyst', 'viewer'];
 
             return `
                 <div class="card">
@@ -1598,18 +1671,20 @@
                         <span class="card-toggle" aria-hidden="true">${icons.chevronDown}</span>
                     </div>
                     <div class="card-content" style="padding: 0;">
-                        <div class="users-list">
-                            ${users.map(user => `
-                                <div class="user-item">
-                                    <div class="user-avatar">${user.avatar}</div>
-                                    <div class="user-info">
-                                        <span class="user-name">${user.name}</span>
-                                        <span class="user-email text-secondary">${user.email}</span>
+                        ${users.length > 0 ? `
+                            <div class="users-list">
+                                ${users.map(user => `
+                                    <div class="user-item">
+                                        <div class="user-avatar">${getUserAvatar(user.name)}</div>
+                                        <div class="user-info">
+                                            <span class="user-name">${user.name}</span>
+                                            <span class="user-email text-secondary">${user.email}</span>
+                                        </div>
+                                        <span class="user-role badge badge-outline">${getRoleLabel(user.role)}</span>
                                     </div>
-                                    <span class="user-role badge badge-outline">${user.role}</span>
-                                </div>
-                            `).join('')}
-                        </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="empty-list-message">Keine Teammitglieder zugewiesen</div>'}
                     </div>
                 </div>
 
@@ -1620,26 +1695,12 @@
                     </div>
                     <div class="card-content">
                         <div class="roles-list">
-                            <div class="role-item">
-                                <span class="role-name">Projektverantwortlicher</span>
-                                <span class="role-desc text-secondary">Vollständiger Administratorzugriff, kann Benutzer und Einstellungen verwalten</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Data Steward</span>
-                                <span class="role-desc text-secondary">Kann Metadateneinträge erstellen, bearbeiten und genehmigen</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Data Engineer</span>
-                                <span class="role-desc text-secondary">Kann physische Schicht-Entitäten und Zuordnungen verwalten</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Business Analyst</span>
-                                <span class="role-desc text-secondary">Kann konzeptuelle Schicht-Einträge erstellen und bearbeiten</span>
-                            </div>
-                            <div class="role-item">
-                                <span class="role-name">Betrachter</span>
-                                <span class="role-desc text-secondary">Lesezugriff auf alle Projektdaten</span>
-                            </div>
+                            ${roles.map(role => `
+                                <div class="role-item">
+                                    <span class="role-name">${getRoleLabel(role)}</span>
+                                    <span class="role-desc text-secondary">${getRoleDescription(role)}</span>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 </div>
